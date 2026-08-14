@@ -276,6 +276,9 @@ private extension AppDelegate
 {
     func setTintColor()
     {
+        // NOTE: under the UIScene lifecycle the window belongs to the scene, so this property
+        // is nil and this call does nothing. `SceneDelegate.scene(_:willConnectTo:)` applies
+        // the theme against the real window instead.
         self.window?.tintColor = .altPrimary
     }
     

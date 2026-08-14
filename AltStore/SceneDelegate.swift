@@ -25,7 +25,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
-        
+
+        // Apply the saved accent colour. AppDelegate.setTintColor() cannot: under the UIScene
+        // lifecycle its `window` is nil, and it runs before any scene has connected. Deferred
+        // one hop so the storyboard has built the hierarchy this needs to walk.
+        DispatchQueue.main.async {
+            ThemeManager.shared.applyToVisibleUI()
+        }
+
         if let context = connectionOptions.urlContexts.first
         {
             self.open(context)
