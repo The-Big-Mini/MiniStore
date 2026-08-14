@@ -72,7 +72,18 @@ final class TabBarController: UITabBarController
         let visible = self.allViewControllers.enumerated().filter { !hidden.contains($0.offset) }.map(\.element)
 
         // An empty tab bar would strand the user with no way back to Settings.
-        self.viewControllers = visible.isEmpty ? self.allViewControllers : visible
+        let resolved = visible.isEmpty ? self.allViewControllers : visible
+        guard resolved != self.viewControllers else { return }
+
+        // Assigning `viewControllers` resets the selection to the first tab, which would yank
+        // the user out of the screen they just changed this setting on.
+        let selected = self.selectedViewController
+        self.viewControllers = resolved
+
+        if let selected, let index = resolved.firstIndex(of: selected)
+        {
+            self.selectedIndex = index
+        }
     }
 
     /// Selects a tab by its storyboard position, which is not its position in the tab bar
