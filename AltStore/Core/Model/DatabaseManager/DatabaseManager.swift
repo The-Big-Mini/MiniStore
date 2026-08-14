@@ -506,8 +506,10 @@ public class DatabaseManager
                     installedApp.expirationDate = cachedExpirationDate
                 }
                 
+                Source.prepareMiniStoreSources(in: context)
+
                 try context.save()
-                
+
                 Task(priority: .high) {
                     await self.updateFeaturedSortIDs()
                     completionHandler(.success(()))
