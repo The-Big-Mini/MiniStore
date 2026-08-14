@@ -940,7 +940,6 @@
     <inferredMetricsTieBreakers>
         <segue reference="cnd-KK-o60"/>
     </inferredMetricsTieBreakers>
-    <color key="tintColor" name="Primary"/>
     <resources>
         <image name="Back" width="18" height="18"/>
         <image name="Browse" width="128" height="128"/>

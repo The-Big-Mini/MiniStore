@@ -554,7 +554,6 @@
             <point key="canvasLocation" x="2114" y="734"/>
         </scene>
     </scenes>
-    <color key="tintColor" name="Primary"/>
     <resources>
         <namedColor name="Primary">
             <color red="0.64313725490196083" green="0.019607843137254902" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

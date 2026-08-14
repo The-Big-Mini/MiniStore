@@ -11,16 +11,22 @@ public extension ThemeManager
 {
     /// Re-applies `primaryColor` to the UIKit screens that are already on-screen.
     ///
-    /// `UIColor.altPrimary` resolves to `primaryColor`, so every call site picks up the new
-    /// theme by itself — but only the *next* time it runs. Two kinds of view keep the stale
-    /// colour until something rebuilds them, and this closes both:
+    /// `UIColor.altPrimary` resolves to `primaryColor`, so every call site picks up a new
+    /// theme by itself — but only the *next* time it runs. Setting the window's tint is not
+    /// enough to cover the rest, for two separate reasons:
     ///
-    /// - Navigation bars and tab bars, because `Main.storyboard` and
-    ///   `Authentication.storyboard` bake the `Primary` colorset straight in. An explicitly
-    ///   assigned `tintColor` beats the window's inherited one, so setting the window alone
-    ///   leaves them purple.
-    /// - Collection and table views, because their cells read `.altPrimary` at dequeue time
-    ///   and cache the result in a background or title colour.
+    /// - Several view controllers own an explicitly assigned `tintColor`: `Main.storyboard`
+    ///   sets a scene-level tint on the tab bar controller's view, and `SourcesViewController`
+    ///   and `FeaturedViewController` assign one to their navigation controller's view. An
+    ///   explicit tint beats an inherited one, so any of these blocks the window's colour from
+    ///   reaching everything beneath it — which is why controls that take their colour from
+    ///   the inherited tint, like the "Refresh All" button, kept the old accent.
+    /// - Collection and table views colour their cells at dequeue and cache the result, so
+    ///   they have to re-run that pass.
+    ///
+    /// Deliberately walks the view *controller* tree rather than every `UIView`: cells set
+    /// their own tint from a source's or app's brand colour (`app.tintColor ?? .altPrimary`),
+    /// and blanket-assigning the accent to every view would overwrite those.
     func applyToVisibleUI()
     {
         let color = self.primaryColor
@@ -32,27 +38,58 @@ public extension ThemeManager
         for window in windows
         {
             window.tintColor = color
-            ThemeManager.retint(window, with: color)
+
+            if let rootViewController = window.rootViewController
+            {
+                ThemeManager.retint(rootViewController, with: color)
+            }
         }
     }
 }
 
 private extension ThemeManager
 {
-    static func retint(_ view: UIView, with color: UIColor)
+    static func retint(_ viewController: UIViewController, with color: UIColor)
     {
-        switch view
+        // `viewIfLoaded` so this never forces a tab the user has not opened to load early —
+        // it reads the current colour for itself when it eventually does.
+        if let view = viewController.viewIfLoaded
         {
-        case let navigationBar as UINavigationBar: navigationBar.tintColor = color
-        case let tabBar as UITabBar: tabBar.tintColor = color
-        case let collectionView as UICollectionView: collectionView.reloadData()
-        case let tableView as UITableView: tableView.reloadData()
+            view.tintColor = color
+            reloadDataViews(in: view)
+        }
+
+        switch viewController
+        {
+        case let navigationController as UINavigationController: navigationController.navigationBar.tintColor = color
+        case let tabBarController as UITabBarController: tabBarController.tabBar.tintColor = color
         default: break
         }
 
-        for subview in view.subviews
+        for child in viewController.children
         {
-            retint(subview, with: color)
+            retint(child, with: color)
+        }
+
+        if let presented = viewController.presentedViewController
+        {
+            retint(presented, with: color)
+        }
+    }
+
+    static func reloadDataViews(in view: UIView)
+    {
+        switch view
+        {
+        // Stop here rather than recursing into the cells this is about to rebuild.
+        case let collectionView as UICollectionView: collectionView.reloadData()
+        case let tableView as UITableView: tableView.reloadData()
+
+        default:
+            for subview in view.subviews
+            {
+                reloadDataViews(in: subview)
+            }
         }
     }
 }

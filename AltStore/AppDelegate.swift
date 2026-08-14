@@ -276,14 +276,10 @@ private extension AppDelegate
 {
     func setTintColor()
     {
+        // NOTE: under the UIScene lifecycle the window belongs to the scene, so this property
+        // is nil and this call does nothing. `SceneDelegate.scene(_:willConnectTo:)` applies
+        // the theme against the real window instead.
         self.window?.tintColor = .altPrimary
-
-        // The storyboards bake the `Primary` colorset into their navigation bars and tab bars,
-        // and those beat the window's inherited tint. Re-apply once the initial hierarchy is
-        // up, or a custom theme would not survive a cold launch.
-        DispatchQueue.main.async {
-            ThemeManager.shared.applyToVisibleUI()
-        }
     }
     
     func prepareImageCache()
