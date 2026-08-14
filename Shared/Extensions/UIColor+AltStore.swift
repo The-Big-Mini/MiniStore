@@ -30,7 +30,34 @@ public extension UIColor
     static let refreshYellow = namedColor("RefreshYellow")!
     static let refreshGreen = namedColor("RefreshGreen")!
 
-    static let altBackground = namedColor("Background")!
+    /// Dynamic so OLED mode resolves per trait collection rather than being baked in at
+    /// launch. `static let` rather than a computed property so the identity is stable —
+    /// `MiniStore.refreshBackgrounds` compares against it to find the views to repaint.
+    static let altBackground = UIColor { traits in
+        let background = namedColor("Background")!.resolvedColor(with: traits)
+
+        #if WIDGET_EXTENSION
+        return background
+        #else
+        guard traits.userInterfaceStyle == .dark, MiniStore.isOLEDModeEnabled else { return background }
+        return .black
+        #endif
+    }
+
+    /// Card background. Dark mode darkens the accent colour; light mode matches a stock
+    /// grouped cell.
+    static var altPurple: UIColor {
+        UIColor { traits in
+            guard traits.userInterfaceStyle == .dark else { return .secondarySystemGroupedBackground }
+
+            var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0
+            guard UIColor.altPrimary.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil) else {
+                return UIColor(white: 0.15, alpha: 1)
+            }
+
+            return UIColor(hue: hue, saturation: min(saturation * 0.90, 1), brightness: brightness * 0.65, alpha: 1)
+        }
+    }
 
     static var settingsBackground: UIColor {
         return namedColor("SettingsBackground")!

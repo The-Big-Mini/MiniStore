@@ -27,7 +27,11 @@ final class TabBarController: UITabBarController
     private var _viewDidAppear = false
     
     private var sourcesViewController: SourcesViewController!
-    
+
+    /// Every tab the storyboard defines, including the ones the user has switched off.
+    /// `viewControllers` holds only the visible subset, so `Tab.rawValue` indexes this.
+    private(set) var allViewControllers: [UIViewController] = []
+
     required init?(coder aDecoder: NSCoder)
     {
         super.init(coder: aDecoder)
@@ -42,11 +46,51 @@ final class TabBarController: UITabBarController
         super.viewDidLoad()
         debugLog("[TabBarController] viewDidLoad()")
         
-        let browseNavigationController = self.viewControllers![Tab.browse.rawValue] as! UINavigationController
+        self.allViewControllers = self.viewControllers ?? []
+
+        let browseNavigationController = self.allViewControllers[Tab.browse.rawValue] as! UINavigationController
         browseNavigationController.tabBarItem.image = UIImage(systemName: "bag")
-        
-        let sourcesNavigationController = self.viewControllers![Tab.sources.rawValue] as! UINavigationController
+
+        let sourcesNavigationController = self.allViewControllers[Tab.sources.rawValue] as! UINavigationController
         self.sourcesViewController = sourcesNavigationController.viewControllers.first as? SourcesViewController
+
+        self.applyHiddenTabs()
+        NotificationCenter.default.addObserver(self, selector: #selector(TabBarController.applyHiddenTabs), name: MiniStore.hiddenTabsDidChangeNotification, object: nil)
+
+        // Only on first load, so switching tabs and coming back doesn't yank the user away.
+        let defaultTab = MiniStore.defaultTab
+        if self.allViewControllers.indices.contains(defaultTab),
+           let index = self.viewControllers?.firstIndex(of: self.allViewControllers[defaultTab])
+        {
+            self.selectedIndex = index
+        }
+    }
+
+    @objc func applyHiddenTabs()
+    {
+        let hidden = MiniStore.hiddenTabs
+        let visible = self.allViewControllers.enumerated().filter { !hidden.contains($0.offset) }.map(\.element)
+
+        // An empty tab bar would strand the user with no way back to Settings.
+        self.viewControllers = visible.isEmpty ? self.allViewControllers : visible
+    }
+
+    /// Selects a tab by its storyboard position, which is not its position in the tab bar
+    /// once tabs are hidden. Unhides the tab if it is switched off, because the callers are
+    /// deep links and error-log taps — silently doing nothing would look like a broken link.
+    private func select(_ tab: Tab)
+    {
+        guard self.allViewControllers.indices.contains(tab.rawValue) else { return }
+        let viewController = self.allViewControllers[tab.rawValue]
+
+        if self.viewControllers?.contains(viewController) != true
+        {
+            debugLog("[TabBarController] Unhiding tab \(tab.rawValue) so it can be selected.")
+            MiniStore.hiddenTabs.remove(tab.rawValue)
+        }
+
+        guard let index = self.viewControllers?.firstIndex(of: viewController) else { return }
+        self.selectedIndex = index
     }
     
     override func viewDidAppear(_ animated: Bool)
@@ -92,7 +136,7 @@ extension TabBarController
             self.sourcesViewController?.deepLinkSourceURL = sourceURL
         }
         
-        self.selectedIndex = Tab.sources.rawValue
+        self.select(.sources)
     }
 }
 
@@ -100,11 +144,11 @@ private extension TabBarController
 {
     @objc func importApp(_ notification: Notification)
     {
-        self.selectedIndex = Tab.myApps.rawValue
+        self.select(.myApps)
     }
 
     @objc func openErrorLog(_ notification: Notification)
     {
-        self.selectedIndex = Tab.settings.rawValue
+        self.select(.settings)
     }
 }

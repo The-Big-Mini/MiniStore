@@ -20,6 +20,7 @@ struct UserCustomizationsView: View {
     @State private var isExportResignedAppEnabled: Bool = UserDefaults.standard.isExportResignedAppEnabled
     @State private var enableEMPforWireguard: Bool = UserDefaults.standard.enableEMPforWireguard
     @State private var skipNonCopyableFiles: Bool = UserDefaults.standard.skipNonCopyableBackupFiles
+    @State private var isOLEDModeEnabled: Bool = MiniStore.isOLEDModeEnabled
 
     private var isFreeAccount: Bool {
         DatabaseManager.shared.activeTeam()?.type == .free
@@ -35,23 +36,53 @@ struct UserCustomizationsView: View {
                         .foregroundColor(Color.white.opacity(0.6))
                         .padding(.horizontal, 16)
                     
-                    NavigationLink(destination: ThemePickerView()) {
-                        HStack {
-                            Text("Theme Manager")
-                                .font(.system(size: 17, weight: .bold))
-                                .foregroundColor(.white)
-                            Spacer()
-                            HStack(spacing: 6) {
-                                Circle()
-                                    .fill(Color(uiColor: ThemeManager.shared.primaryColor))
-                                    .frame(width: 14, height: 14)
+                    VStack(spacing: 0) {
+                        NavigationLink(destination: ThemePickerView()) {
+                            HStack {
+                                Text("Theme Manager")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                HStack(spacing: 6) {
+                                    Circle()
+                                        .fill(Color(uiColor: ThemeManager.shared.primaryColor))
+                                        .frame(width: 14, height: 14)
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(Color.white.opacity(0.4))
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                        }
+
+                        divider
+
+                        NavigationLink(destination: TabVisibilityView()) {
+                            HStack {
+                                Text("Tab Bar")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(Color.white.opacity(0.4))
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 14)
+
+                        divider
+
+                        toggleRow(title: "OLED Dark Mode",
+                                  subtitle: "Pure black backgrounds in dark mode.",
+                                  isOn: Binding(
+                            get: { isOLEDModeEnabled },
+                            set: { newValue in
+                                isOLEDModeEnabled = newValue
+                                MiniStore.isOLEDModeEnabled = newValue
+                            }
+                        ))
                     }
                     .background(Color.settingsRowBackground)
                     .cornerRadius(14)
