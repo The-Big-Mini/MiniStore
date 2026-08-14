@@ -277,6 +277,13 @@ private extension AppDelegate
     func setTintColor()
     {
         self.window?.tintColor = .altPrimary
+
+        // The storyboards bake the `Primary` colorset into their navigation bars and tab bars,
+        // and those beat the window's inherited tint. Re-apply once the initial hierarchy is
+        // up, or a custom theme would not survive a cold launch.
+        DispatchQueue.main.async {
+            ThemeManager.shared.applyToVisibleUI()
+        }
     }
     
     func prepareImageCache()
