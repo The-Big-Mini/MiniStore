@@ -506,7 +506,7 @@ public class DatabaseManager
                     installedApp.expirationDate = cachedExpirationDate
                 }
                 
-                Source.prepareMiniStoreSources(in: context)
+                MiniStore.prepareDatabase(in: context)
 
                 try context.save()
 

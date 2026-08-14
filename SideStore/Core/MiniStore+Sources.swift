@@ -17,27 +17,58 @@ public extension MiniStore
     static let catalogueSourceURL = URL(string: "https://OofMini.github.io/Minis-Repo/mini.json")!
     static let catalogueSourceName = "Mini's Repo"
 
-    /// SideStore's catalogue, seeded by builds made before the fork repointed
-    /// `Source.altStoreSourceURL`. Still sitting in those databases, listing nothing.
-    static let legacySideStoreSourceURL = URL(string: "https://sidestore.io/apps-v2.json/")!
+    /// Sources left behind in databases this build inherits, matched against the normalized
+    /// `Source.identifier` (lowercased, scheme stripped).
+    ///
+    /// Two generations of dead feed:
+    ///
+    /// - SideStore's catalogue, seeded before the fork repointed `Source.altStoreSourceURL`.
+    /// - The old MiniStore hard fork's `side.json` / `sidenightly.json` self-update feeds.
+    ///   That repo is dead and serves nothing, so the source sits there listing no apps and
+    ///   failing every refresh — which is also what breaks the News tab, since one source
+    ///   returning GitHub's 404 page fails the whole decode.
+    ///
+    /// Prefixes rather than exact URLs because the dead repo served several feeds, and the
+    /// branch in the path changed over time. `/sidestore/` is a different path from
+    /// `/ministore/`, so the fork's own feed is not caught by this.
+    static let legacySourceIdentifierPrefixes = [
+        "sidestore.io/apps-v2.json",
+        "raw.githubusercontent.com/the-big-mini/ministore/",
+        "the-big-mini.github.io/ministore/",
+    ]
 
     /// Set once Mini's Repo has been seeded, so removing it sticks. An existence check
     /// instead would re-add the source on the next launch and make it undeletable.
     fileprivate static let didSeedCatalogueKey = "MiniStoreDidSeedCatalogueSource"
 }
 
-extension Source
+public extension MiniStore
 {
-    /// Adds Mini's Repo, and drops the SideStore catalogue an earlier build left behind.
-    ///
-    /// Called from `DatabaseManager.prepareDatabase` inside its context, before its save.
-    static func prepareMiniStoreSources(in context: NSManagedObjectContext)
+    /// Called from `DatabaseManager.prepareDatabase`, inside its context and before its save.
+    static func prepareDatabase(in context: NSManagedObjectContext)
     {
-        self.removeLegacySideStoreSource(in: context)
-        self.seedCatalogueSourceIfNeeded(in: context)
+        Source.removeLegacySideStoreSource(in: context)
+        Source.seedCatalogueSourceIfNeeded(in: context)
+        self.renameSelfAppIfNeeded(in: context)
     }
 
-    private static func seedCatalogueSourceIfNeeded(in context: NSManagedObjectContext)
+    /// `InstalledApp.update` only runs when the app is installed or refreshed, so a database
+    /// carried over from an earlier build keeps whatever name it was given then — which is
+    /// what My Apps shows.
+    private static func renameSelfAppIfNeeded(in context: NSManagedObjectContext)
+    {
+        guard let installedApp = InstalledApp.fetchAltStore(in: context) else { return }
+        guard installedApp.name != MiniStore.displayName else { return }
+
+        debugLog("[MiniStore] Renaming the installed app record from \(installedApp.name).")
+        installedApp.name = MiniStore.displayName
+    }
+}
+
+extension Source
+{
+
+    static func seedCatalogueSourceIfNeeded(in context: NSManagedObjectContext)
     {
         guard !UserDefaults.standard.bool(forKey: MiniStore.didSeedCatalogueKey) else { return }
 
@@ -57,17 +88,21 @@ extension Source
         UserDefaults.standard.set(true, forKey: MiniStore.didSeedCatalogueKey)
     }
 
-    private static func removeLegacySideStoreSource(in context: NSManagedObjectContext)
+    static func removeLegacySideStoreSource(in context: NSManagedObjectContext)
     {
-        guard let identifier = self.sourceID(for: MiniStore.legacySideStoreSourceURL) else { return }
+        let predicates = MiniStore.legacySourceIdentifierPrefixes.map {
+            NSPredicate(format: "%K BEGINSWITH %@", #keyPath(Source.identifier), $0)
+        }
+        let predicate = NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
 
-        // Guard against the fork ever pointing its own feed back at that URL.
-        guard identifier != Source.altStoreIdentifier else { return }
+        for source in Source.all(satisfying: predicate, in: context)
+        {
+            // Guard against the fork ever pointing its own feed at one of these.
+            guard source.identifier != Source.altStoreIdentifier else { continue }
 
-        let predicate = NSPredicate(format: "%K == %@", #keyPath(Source.identifier), identifier)
-        guard let source = Source.first(satisfying: predicate, in: context) else { return }
-
-        context.delete(source)
+            debugLog("[MiniStore] Removing dead source \(source.identifier).")
+            context.delete(source)
+        }
     }
 
     private static func sourceID(for sourceURL: URL) -> String?
