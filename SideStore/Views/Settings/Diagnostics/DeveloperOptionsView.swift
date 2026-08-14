@@ -416,7 +416,7 @@ struct DeveloperOptionsView: View {
             .padding(.top, 16)
             .padding(.bottom, 32)
         }
-        .background(Color(uiColor: .settingsBackground).ignoresSafeArea())
+        .miniStoreBackground()
         .navigationTitle("Developer Options")
         .navigationBarTitleDisplayMode(.large)
         .alert("Delete Database", isPresented: $showDeleteConfirmation) {

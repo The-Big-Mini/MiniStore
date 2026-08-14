@@ -58,7 +58,7 @@ public extension MiniStore
             guard newValue != wasEnabled else { return }
 
             UserDefaults.standard.set(newValue, forKey: oledModeKey)
-            self.refreshBackgrounds(wasEnabled: wasEnabled)
+            self.refreshBackgrounds()
             NotificationCenter.default.post(name: oledModeDidChangeNotification, object: newValue)
         }
     }
@@ -72,24 +72,30 @@ public extension MiniStore
         get { Set(UserDefaults.standard.array(forKey: hiddenTabsKey) as? [Int] ?? []) }
         set {
             UserDefaults.standard.set(Array(newValue).sorted(), forKey: hiddenTabsKey)
-            NotificationCenter.default.post(name: hiddenTabsDidChangeNotification, object: nil)
+
+            // Deferred by one turn of the run loop. The setter is called from inside a SwiftUI
+            // state mutation, and the observer rebuilds `UITabBarController.viewControllers` —
+            // tearing down and re-adding the very view hierarchy that is mid-update.
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: hiddenTabsDidChangeNotification, object: nil)
+            }
         }
     }
 }
 
 private extension MiniStore
 {
+    /// The fork's dynamic colours, held by identity so a view painted with one can be found
+    /// again. All are `static let`, so every screen that uses them holds this same instance.
+    static let dynamicColors: [UIColor] = [.altBackground, .settingsBackground, .altPurple, .altPurpleHighlighted]
+
     /// Repaints the screens already on-screen when OLED mode is toggled.
     ///
-    /// `UIColor.altBackground` is dynamic, so it resolves correctly on its own the next time
-    /// UIKit asks — but a `UserDefaults` change is not a trait change, so nothing asks.
-    /// Re-assigning the colour forces the resolve.
-    ///
-    /// Matching on the *resolved* colour rather than the dynamic one is deliberate: the
-    /// dozen call sites assign `.altBackground` and UIKit hands back the resolved value, so
-    /// identity comparison would never match. The previous state tells us which value to
-    /// look for, which keeps this from repainting views that are merely black by coincidence.
-    static func refreshBackgrounds(wasEnabled: Bool)
+    /// These colours resolve OLED mode correctly on their own the next time UIKit asks — but
+    /// a `UserDefaults` change is not a trait change, so nothing asks, and UIKit keeps
+    /// serving the CGColor it cached. Clearing the property and setting it back re-runs the
+    /// resolver against the view's current traits.
+    static func refreshBackgrounds()
     {
         let windows = (UIApplication.alt_shared?.connectedScenes ?? [])
             .compactMap { $0 as? UIWindowScene }
@@ -97,27 +103,21 @@ private extension MiniStore
 
         for window in windows
         {
-            let traits = window.traitCollection
-            guard traits.userInterfaceStyle == .dark else { continue }
-
-            // Turning OLED on replaces the Background asset; turning it off replaces black.
-            let previous = wasEnabled ? UIColor.black : UIColor(named: "Background", in: .main, compatibleWith: traits)
-            guard let previous else { continue }
-
-            self.repaint(window, matching: previous.resolvedColor(with: traits), traits: traits)
+            self.repaint(window)
         }
     }
 
-    static func repaint(_ view: UIView, matching previous: UIColor, traits: UITraitCollection)
+    static func repaint(_ view: UIView)
     {
-        if let current = view.backgroundColor?.resolvedColor(with: traits), current == previous
+        if let current = view.backgroundColor, self.dynamicColors.contains(where: { $0 === current })
         {
-            view.backgroundColor = .altBackground
+            view.backgroundColor = nil
+            view.backgroundColor = current
         }
 
         for subview in view.subviews
         {
-            self.repaint(subview, matching: previous, traits: traits)
+            self.repaint(subview)
         }
     }
 }

@@ -44,23 +44,44 @@ public extension UIColor
         #endif
     }
 
-    /// Card background. Dark mode darkens the accent colour; light mode matches a stock
-    /// grouped cell.
-    static var altPurple: UIColor {
+    /// Settings card background: a darkened version of the accent colour.
+    ///
+    /// Light mode keeps the translucent white the cells shipped with, because there the page
+    /// behind them is still SideStore's purple — an accent-tinted card on an accent-tinted
+    /// page has no contrast.
+    static let altPurple = accentCard(brightnessScale: 0.65, fallbackWhite: 0.15)
+
+    /// The pressed state of `altPurple`. Same hue, lifted enough to read as a highlight.
+    static let altPurpleHighlighted = accentCard(brightnessScale: 0.95, fallbackWhite: 0.28)
+
+    private static func accentCard(brightnessScale: CGFloat, fallbackWhite: CGFloat) -> UIColor {
         UIColor { traits in
-            guard traits.userInterfaceStyle == .dark else { return .secondarySystemGroupedBackground }
+            guard traits.userInterfaceStyle == .dark else { return UIColor.white.withAlphaComponent(0.25) }
 
             var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0
             guard UIColor.altPrimary.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil) else {
-                return UIColor(white: 0.15, alpha: 1)
+                return UIColor(white: fallbackWhite, alpha: 1)
             }
 
-            return UIColor(hue: hue, saturation: min(saturation * 0.90, 1), brightness: brightness * 0.65, alpha: 1)
+            return UIColor(hue: hue,
+                           saturation: min(saturation * 0.90, 1),
+                           brightness: min(brightness * brightnessScale, 1),
+                           alpha: 1)
         }
     }
 
-    static var settingsBackground: UIColor {
-        return namedColor("SettingsBackground")!
+    /// Dark mode follows `altBackground` so the settings screens go pure black with the rest
+    /// of the app in OLED mode. Light mode keeps the purple backdrop, because every label on
+    /// these screens is hard-coded white and would vanish on a light page.
+    ///
+    /// `static let` for a stable identity: `MiniStore.refreshBackgrounds` finds the views to
+    /// re-resolve by comparing against these instances.
+    static let settingsBackground = UIColor { traits in
+        guard traits.userInterfaceStyle == .dark else {
+            return namedColor("SettingsBackground")!.resolvedColor(with: traits)
+        }
+
+        return altBackground.resolvedColor(with: traits)
     }
 
     static var settingsHighlighted: UIColor {

@@ -9,8 +9,7 @@
 import SwiftUI
 
 private extension Color {
-    static let settingsRowBackground = Color.white.opacity(0.15)
-    static let settingsDivider = Color.white.opacity(0.15)
+    static let settingsDivider = Color.miniStoreSeparator
 }
 
 struct UserCustomizationsView: View {
@@ -32,8 +31,8 @@ struct UserCustomizationsView: View {
                 // Section 0: APPEARANCE & THEMES
                 VStack(alignment: .leading, spacing: 8) {
                     Text("APPEARANCE & THEMES")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color.white.opacity(0.6))
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.white.opacity(0.75))
                         .padding(.horizontal, 16)
                     
                     VStack(spacing: 0) {
@@ -84,15 +83,15 @@ struct UserCustomizationsView: View {
                             }
                         ))
                     }
-                    .background(Color.settingsRowBackground)
-                    .cornerRadius(14)
+                    .background(Color.miniStoreCard)
+                    .cornerRadius(16)
                 }
 
                 // Section 1: APP & EXTENSIONS CUSTOMIZATION
                 VStack(alignment: .leading, spacing: 8) {
                     Text("CUSTOMIZATION OPTIONS")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color.white.opacity(0.6))
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.white.opacity(0.75))
                         .padding(.horizontal, 16)
                     
                     VStack(spacing: 0) {
@@ -160,15 +159,15 @@ struct UserCustomizationsView: View {
                             }
                         ))
                     }
-                    .background(Color.settingsRowBackground)
-                    .cornerRadius(14)
+                    .background(Color.miniStoreCard)
+                    .cornerRadius(16)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 32)
         }
-        .background(Color(uiColor: .settingsBackground).ignoresSafeArea())
+        .miniStoreBackground()
         .navigationTitle("User Customizations")
         .navigationBarTitleDisplayMode(.large)
     }

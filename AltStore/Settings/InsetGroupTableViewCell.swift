@@ -45,6 +45,9 @@ final class InsetGroupTableViewCell: UITableViewCell
         self.separatorView.translatesAutoresizingMaskIntoConstraints = false
         self.separatorView.backgroundColor = UIColor.white.withAlphaComponent(0.25)
         self.addSubview(self.separatorView)
+
+        // The card is derived from the accent colour, so it has to be redrawn when that changes.
+        NotificationCenter.default.addObserver(self, selector: #selector(InsetGroupTableViewCell.update), name: ThemeManager.themeDidChangeNotification, object: nil)
         
         self.insetView.layer.masksToBounds = true
         self.insetView.layer.cornerRadius = 16
@@ -97,9 +100,9 @@ final class InsetGroupTableViewCell: UITableViewCell
     }
 }
 
-private extension InsetGroupTableViewCell
+extension InsetGroupTableViewCell
 {
-    func update()
+    @objc func update()
     {
         switch self.style
         {
@@ -122,11 +125,11 @@ private extension InsetGroupTableViewCell
         
         if self.isSelectable && (self.isHighlighted || self.isSelected)
         {
-            self.insetView.backgroundColor = UIColor.white.withAlphaComponent(0.55)
+            self.insetView.backgroundColor = .altPurpleHighlighted
         }
         else
         {
-            self.insetView.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+            self.insetView.backgroundColor = .altPurple
         }
     }
 }

@@ -28,31 +28,42 @@ struct TabVisibilityView: View
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                section(NSLocalizedString("TABS", comment: "")) {
-                    ForEach(tabs) { tab in
-                        visibilityRow(for: tab)
+                VStack(alignment: .leading, spacing: 8) {
+                    header("TABS")
 
-                        if tab != tabs.last {
-                            divider
+                    VStack(spacing: 0) {
+                        ForEach(tabs) { tab in
+                            visibilityRow(for: tab)
+
+                            if tab.id != tabs.last?.id {
+                                divider
+                            }
                         }
                     }
+                    .background(Color.miniStoreCard)
+                    .cornerRadius(16)
+
+                    Text("The last visible tab cannot be switched off. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
+                        .font(.system(size: 12))
+                        .foregroundColor(Color.white.opacity(0.6))
+                        .padding(.horizontal, 16)
                 }
 
-                Text("The last visible tab cannot be switched off. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
-                    .font(.system(size: 12))
-                    .foregroundColor(Color.white.opacity(0.6))
-                    .padding(.horizontal, 16)
-                    .padding(.top, -16)
+                VStack(alignment: .leading, spacing: 8) {
+                    header("OPENS ON LAUNCH")
 
-                section(NSLocalizedString("OPENS ON LAUNCH", comment: "")) {
-                    defaultTabRow
+                    VStack(spacing: 0) {
+                        defaultTabRow
+                    }
+                    .background(Color.miniStoreCard)
+                    .cornerRadius(16)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 32)
         }
-        .background(Color(uiColor: .settingsBackground).ignoresSafeArea())
+        .miniStoreBackground()
         .navigationTitle("Tab Bar")
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
@@ -72,21 +83,7 @@ struct TabVisibilityView: View
 
             Toggle("", isOn: Binding(
                 get: { !hiddenTabs.contains(tab.id) },
-                set: { isVisible in
-                    // Switching off the last visible tab would leave an empty tab bar and no
-                    // way back here. Refused in the setter rather than with `.disabled`,
-                    // which stops the whole Toggle from responding to touches.
-                    guard isVisible || visibleTabs.count > 1 else { return }
-
-                    if isVisible { hiddenTabs.remove(tab.id) } else { hiddenTabs.insert(tab.id) }
-                    MiniStore.hiddenTabs = hiddenTabs
-
-                    // A hidden tab can't be the one the app opens on.
-                    if hiddenTabs.contains(defaultTab), let fallback = visibleTabs.first {
-                        defaultTab = fallback.id
-                        MiniStore.defaultTab = fallback.id
-                    }
-                }
+                set: { setVisible($0, for: tab) }
             ))
             .labelsHidden()
             .tint(.green)
@@ -94,6 +91,24 @@ struct TabVisibilityView: View
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .frame(minHeight: 50)
+    }
+
+    private func setVisible(_ isVisible: Bool, for tab: Tab) {
+        debugLog("[MiniStore] Tab \(tab.id) (\(tab.title)) set to visible=\(isVisible).")
+
+        // Switching off the last visible tab would leave an empty tab bar and no way back
+        // here. Refused in the setter rather than with `.disabled`, which stops the whole
+        // Toggle from responding to touches.
+        guard isVisible || visibleTabs.count > 1 else { return }
+
+        if isVisible { hiddenTabs.remove(tab.id) } else { hiddenTabs.insert(tab.id) }
+        MiniStore.hiddenTabs = hiddenTabs
+
+        // A hidden tab can't be the one the app opens on.
+        if hiddenTabs.contains(defaultTab), let fallback = visibleTabs.first {
+            defaultTab = fallback.id
+            MiniStore.defaultTab = fallback.id
+        }
     }
 
     private var defaultTabRow: some View {
@@ -135,23 +150,17 @@ struct TabVisibilityView: View
         .frame(minHeight: 50)
     }
 
-    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Color.white.opacity(0.6))
-                .padding(.horizontal, 16)
-
-            VStack(spacing: 0, content: content)
-                .background(Color.white.opacity(0.15))
-                .cornerRadius(14)
-        }
+    private func header(_ title: String) -> some View {
+        Text(NSLocalizedString(title, comment: ""))
+            .font(.system(size: 14))
+            .foregroundColor(Color.white.opacity(0.75))
+            .padding(.horizontal, 16)
     }
 
     private var divider: some View {
         Rectangle()
-            .fill(Color.white.opacity(0.15))
-            .frame(height: 0.5)
+            .fill(Color.miniStoreSeparator)
+            .frame(height: 1)
             .padding(.horizontal, 16)
     }
 }

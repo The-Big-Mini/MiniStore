@@ -100,7 +100,7 @@ struct OperationsLoggingControlView: View {
             .padding(.top, 16)
             .padding(.bottom, 32)
         }
-        .background(Color(uiColor: .settingsBackground).ignoresSafeArea())
+        .miniStoreBackground()
         .navigationTitle("Operations Logging")
         .navigationBarTitleDisplayMode(.large)
     }

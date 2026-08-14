@@ -80,7 +80,9 @@ class AltAppIconsViewController: UICollectionViewController
         let collectionViewLayout = self.makeLayout()
         self.collectionView.collectionViewLayout = collectionViewLayout
         
-        self.collectionView.backgroundColor = UIColor(resource: .settingsBackground)
+        // The dynamic `.settingsBackground`, not the asset it is built from — the asset alone
+        // would stay purple in dark mode while the rest of settings follows OLED mode.
+        self.collectionView.backgroundColor = .settingsBackground
         
         do
         {
