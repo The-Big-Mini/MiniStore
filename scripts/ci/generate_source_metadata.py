@@ -150,13 +150,13 @@ def main():
         "release_channel": args.release_channel.lower(),
         "size": file_size(ipa_path),
         "sha256": sha256(ipa_path),
-        # The repo running the workflow, not a hardcoded one. This was pinned to
-        # SideStore/SideStore upstream, so the fork published a feed whose size and sha256
-        # described its own IPA while the download URL fetched upstream's. The asset is still
-        # named SideStore.ipa — PRODUCT_NAME is deliberately unchanged.
+        # Both halves derived, neither hardcoded. Upstream pinned the repo to
+        # SideStore/SideStore, so the fork published a feed whose size and sha256 described its
+        # own IPA while the download URL fetched upstream's binary. The filename comes from the
+        # IPA actually being measured, so the URL cannot disagree with the hash beside it.
         "download_url": (
             f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', 'The-Big-Mini/MiniStore')}"
-            f"/releases/download/{args.release_tag}/SideStore.ipa"
+            f"/releases/download/{args.release_tag}/{ipa_path.name}"
         ),
         "localized_description": localized_description,
     }

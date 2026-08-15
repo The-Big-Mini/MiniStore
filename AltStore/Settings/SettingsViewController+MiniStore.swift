@@ -96,9 +96,18 @@ private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
 
 extension SettingsViewController
 {
-    /// Paints the page and the navigation bar. Also the handler for OLED mode changing, which
-    /// the colours themselves cannot pick up — a `UserDefaults` change is not a trait change,
-    /// and a bar appearance resolves its colours once, when it is assigned.
+    /// Paints the page and this screen's slice of the navigation bar. Also the handler for OLED
+    /// mode changing, which the colours themselves cannot pick up — a `UserDefaults` change is
+    /// not a trait change, and a bar appearance resolves its colours once, when it is assigned.
+    ///
+    /// Everything here is assigned to `navigationItem`, never to
+    /// `navigationController.navigationBar`. The bar is shared by every screen in the stack, and
+    /// UIKit is interpolating its metrics for the whole duration of a push or a pop. Writing
+    /// bar-level appearance during that window invalidates the layout mid-flight: the header
+    /// settles lower than it should on the way in, and lower again on the way back out. The
+    /// per-item properties are the supported way to do this — UIKit cross-fades them between
+    /// view controllers, so each screen can differ without any screen touching the shared bar.
+    /// Upstream's own `prepare(for:)` already sets pushed controllers up this way.
     @objc func applyMiniStoreStyle()
     {
         self.tableView.backgroundColor = .settingsBackground
@@ -118,8 +127,16 @@ extension SettingsViewController
         scrollEdge.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         scrollEdge.shadowColor = nil
 
-        self.navigationController?.navigationBar.standardAppearance = standard
-        self.navigationController?.navigationBar.scrollEdgeAppearance = scrollEdge
+        self.navigationItem.standardAppearance = standard
+        self.navigationItem.scrollEdgeAppearance = scrollEdge
+        self.navigationItem.compactAppearance = standard
+    }
+
+    /// `tintColor` has no per-item equivalent, so it has to be set on the shared bar — which
+    /// makes *when* the only lever available. After the transition has finished is the one point
+    /// where writing to the bar cannot disturb an animation in progress.
+    @objc func applyMiniStoreBarTint()
+    {
         self.navigationController?.navigationBar.tintColor = .white
     }
 

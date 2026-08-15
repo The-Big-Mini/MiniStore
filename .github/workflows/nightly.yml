@@ -210,8 +210,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.build_gate.outputs.should_skip != 'true'
         with:
-          name: SideStore-${{ env.MARKETING_VERSION }}.ipa
-          path: SideStore.ipa
+          name: MiniStore-${{ env.MARKETING_VERSION }}.ipa
+          path: MiniStore.ipa
       - uses: actions/upload-artifact@v4
         if: steps.build_gate.outputs.should_skip != 'true'
         with:
@@ -231,7 +231,7 @@ jobs:
           python3 scripts/ci/workflow.py dump-project-settings
           PRODUCT_NAME=$(python3 scripts/ci/workflow.py read-product-name)
           BUNDLE_ID=$(python3 scripts/ci/workflow.py read-bundle-id)
-          IPA_NAME="$PRODUCT_NAME.ipa"
+          IPA_NAME="MiniStore.ipa"  # not $PRODUCT_NAME: that stays SideStore for pairing and certificate lookup
 
           python3 scripts/ci/workflow.py generate-metadata \
             "$CHANNEL" \
