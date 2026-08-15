@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260815.3+2906736b",
-              "date": "2026-08-15T13:54:32Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.3+2906736b\"\n  - revision: \"2906736b\"\n  - timestamp: \"Sat Aug 15 13:54:32 2026\"\n\n#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- Merge pull request #3 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- fix(oled): follow OLED mode on the My Apps tab\n- feat(settings): collapse the settings root into MiniStore's category list\n- fix: make baseAltStoreAppGroupID dynamic to fix lc+ss resign issue\n\n#### Full Changelog: [86e7f6f2...2906736b](https://github.com/The-Big-Mini/SideStore/compare/86e7f6f2a37b8feac3489ac1d5881a00d151ad0e...2906736be707f14f31759685acdbb4c17c2ef0b1)\n",
+              "version": "0.6.4-20260815.4+9e1c53d7",
+              "date": "2026-08-15T14:48:17Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.4+9e1c53d7\"\n  - revision: \"9e1c53d7\"\n  - timestamp: \"Sat Aug 15 14:48:17 2026\"\n\n#### What's Changed:\n- Merge pull request #4 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- Merge remote-tracking branch 'origin/develop' into claude/ministore-uiux-fork-rebuild-35b74e\n- fix(ci): reset to the deploy branch, not the default branch, on retry\n- feat(settings): add a What's New screen fed by this repo's releases\n- feat(theme): send the chosen accent colour to the widget\n\n#### Full Changelog: [2906736b...9e1c53d7](https://github.com/The-Big-Mini/SideStore/compare/2906736be707f14f31759685acdbb4c17c2ef0b1...9e1c53d7092af87fe6ff01d4c531fcd755cfd158)\n",
               "downloadURL": "https://github.com/SideStore/SideStore/releases/download/nightly/SideStore.ipa",
-              "size": 25761812,
-              "sha256": "8a7782fb26441646d758730b35f0a229c8a9a81eb921291f890a4c9cc6f85f9d"
+              "size": 25784284,
+              "sha256": "ea62681d58d1a74255006a2e20da55103f1818ab2b21649ec08b8eafeae54d19"
             }
           ]
         }
