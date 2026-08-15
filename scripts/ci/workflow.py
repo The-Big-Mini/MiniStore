@@ -298,7 +298,11 @@ def deploy(repo, source_json, release_tag, marketing_version, branch='main'):
     max_attempts = 5
     for attempt in range(1, max_attempts + 1):
         if attempt > 1:
-            run("git fetch --depth=1 origin HEAD", check=False, cwd=repo)
+            # The deploy branch by name, not HEAD: HEAD is the remote's default branch, which is
+            # only the same thing when deploying to a repo whose default branch is the target.
+            # This fork publishes to gh-pages from a repo whose default is develop, so resetting
+            # to HEAD would replace the Pages branch with the source tree and push that.
+            run(f"git fetch --depth=1 origin {branch}", check=False, cwd=repo)
             run("git reset --hard FETCH_HEAD", check=False, cwd=repo)
 
         # regenerate after reset so we don't lose changes

@@ -48,6 +48,7 @@ extension SettingsViewController
         case techThings
         case betaTesting
         case advancedSettings
+        case whatsNew
         case experimental
         case developer
 
@@ -59,6 +60,7 @@ extension SettingsViewController
             case .techThings: return NSLocalizedString("Tech Things", comment: "")
             case .betaTesting: return NSLocalizedString("Beta Testing", comment: "")
             case .advancedSettings: return NSLocalizedString("Advanced Settings", comment: "")
+            case .whatsNew: return NSLocalizedString("What's New", comment: "")
             case .experimental: return NSLocalizedString("Experimental", comment: "")
             case .developer: return NSLocalizedString("Developer", comment: "")
             }
@@ -76,7 +78,7 @@ extension SettingsViewController
             case .techThings: return [.instructions, .techyThings, .credits]
             case .betaTesting: return [.betaTesting]
             case .advancedSettings: return [.advancedSettings]
-            case .experimental, .developer: return []
+            case .whatsNew, .experimental, .developer: return []
             }
         }
 
@@ -875,7 +877,8 @@ private extension SettingsViewController
     {
         switch category
         {
-        // These two are halves of the diagnostics section rather than sections of their own.
+        // These push a screen of their own rather than filtering the table.
+        case .whatsNew: return self.showWhatsNew()
         case .developer: return self.showDeveloperOptions()
         case .experimental: return self.showExperimentalFeatures()
         default: break
@@ -893,6 +896,14 @@ private extension SettingsViewController
 
         categoryViewController.visibleCategory = category
         self.navigationController?.pushViewController(categoryViewController, animated: true)
+    }
+
+    func showWhatsNew()
+    {
+        let hostingController = UIHostingController(rootView: WhatsNewView())
+        hostingController.view.backgroundColor = .settingsBackground
+        hostingController.title = NSLocalizedString("What's New", comment: "")
+        self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: hostingController), sender: nil)
     }
 
     func showDeveloperOptions()
