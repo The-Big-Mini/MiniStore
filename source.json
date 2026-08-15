@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260815.1+86e7f6f2",
-              "date": "2026-08-15T01:15:41Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.1+86e7f6f2\"\n  - revision: \"86e7f6f2\"\n  - timestamp: \"Sat Aug 15 01:15:41 2026\"\n\n#### What's Changed:\n- Merge pull request #2 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- feat(settings): adopt MiniStore's settings look and make OLED app-wide\n- fix(tabs): keep the selected tab when the tab bar changes\n- feat(settings): add OLED dark mode, tab hiding, and a default tab\n- feat(naming): show MiniStore on the splash screen\n- fix(sources): drop the dead MiniStore feeds and rename the inherited app record\n- fix(ci): publish the release feed to this repo's gh-pages\n- feat(icon): use MiniStore's app icon\n- feat(sources): seed Mini's Repo, point self-update at the fork's own feed\n- feat(naming): show the app as MiniStore without breaking iLoader detection\n- Merge pull request #1 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- fix(theme): apply the accent colour on launch and drop the storyboard global tint\n- fix(theme): propagate accent colour to already-visible UIKit screens\n- mark all lc related hooks with // @livecontainer line comment\n- fix: make appgroup case mismatch fixer work for both free and paid accts with customization for paid accts\n- try fixing appgroup case sensitivity mismatch issue during registration\n- splash: removed the ugly spinner\n- feat: make some fixed variables dynamic so SideStore can be bundled with other apps\n- feat: limit max commit count in release message to 100 to not exceed GitHub limit\n- fix compile issues and incorrect change\n- fix: lockscreen widget wasn't using the resigned bundleid and was referencing static ids\n\n#### Full Changelog: [10660919...86e7f6f2](https://github.com/The-Big-Mini/SideStore/compare/10660919f719664ae2d6f5f26b31c3ecda82e04d...86e7f6f2a37b8feac3489ac1d5881a00d151ad0e)\n",
+              "version": "0.6.4-20260815.3+2906736b",
+              "date": "2026-08-15T13:54:32Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.3+2906736b\"\n  - revision: \"2906736b\"\n  - timestamp: \"Sat Aug 15 13:54:32 2026\"\n\n#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- Merge pull request #3 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- fix(oled): follow OLED mode on the My Apps tab\n- feat(settings): collapse the settings root into MiniStore's category list\n- fix: make baseAltStoreAppGroupID dynamic to fix lc+ss resign issue\n\n#### Full Changelog: [86e7f6f2...2906736b](https://github.com/The-Big-Mini/SideStore/compare/86e7f6f2a37b8feac3489ac1d5881a00d151ad0e...2906736be707f14f31759685acdbb4c17c2ef0b1)\n",
               "downloadURL": "https://github.com/SideStore/SideStore/releases/download/nightly/SideStore.ipa",
-              "size": 25753136,
-              "sha256": "818266e2b31e7fc5ac5c43fce8076df8643d0c5bfa7081cc2cddfbc8f8b8c91a"
+              "size": 25761812,
+              "sha256": "8a7782fb26441646d758730b35f0a229c8a9a81eb921291f890a4c9cc6f85f9d"
             }
           ]
         }
