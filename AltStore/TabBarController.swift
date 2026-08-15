@@ -54,8 +54,8 @@ final class TabBarController: UITabBarController
         let sourcesNavigationController = self.allViewControllers[Tab.sources.rawValue] as! UINavigationController
         self.sourcesViewController = sourcesNavigationController.viewControllers.first as? SourcesViewController
 
-        self.applyHiddenTabs()
-        NotificationCenter.default.addObserver(self, selector: #selector(TabBarController.applyHiddenTabs), name: MiniStore.hiddenTabsDidChangeNotification, object: nil)
+        self.applyTabLayout()
+        NotificationCenter.default.addObserver(self, selector: #selector(TabBarController.applyTabLayout), name: MiniStore.tabLayoutDidChangeNotification, object: nil)
 
         // Only on first load, so switching tabs and coming back doesn't yank the user away.
         let defaultTab = MiniStore.defaultTab
@@ -66,10 +66,14 @@ final class TabBarController: UITabBarController
         }
     }
 
-    @objc func applyHiddenTabs()
+    @objc func applyTabLayout()
     {
         let hidden = MiniStore.hiddenTabs
-        let visible = self.allViewControllers.enumerated().filter { !hidden.contains($0.offset) }.map(\.element)
+
+        // Order first, then drop the hidden ones. `resolvedTabOrder` guarantees every index is
+        // in range and appears once, so indexing here cannot trap.
+        let order = MiniStore.resolvedTabOrder(count: self.allViewControllers.count)
+        let visible = order.filter { !hidden.contains($0) }.map { self.allViewControllers[$0] }
 
         // An empty tab bar would strand the user with no way back to Settings.
         let resolved = visible.isEmpty ? self.allViewControllers : visible
