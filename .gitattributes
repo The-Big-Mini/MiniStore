@@ -1,0 +1,15 @@
+# Files this fork owns outright. On a merge from upstream, keep our version and discard
+# theirs rather than combining the two.
+#
+# Requires the driver to be registered once per clone, because git will not run a driver
+# it has no definition for -- and says nothing when it skips one:
+#
+#     git config merge.ours.driver true
+#
+# `true` is the shell command /usr/bin/true: it exits 0 without writing to the working copy,
+# which git reads as "the merge succeeded, the file on disk is the result".
+#
+# Caveat: this only engages when BOTH sides changed the file since the merge base. If our
+# side never touches a file and upstream does, git takes upstream's copy without consulting
+# any driver. That is fine for everything listed here, all of which we have already rewritten.
+README.md merge=ours
