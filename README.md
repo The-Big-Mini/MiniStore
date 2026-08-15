@@ -19,9 +19,9 @@ use this.
 ## What MiniStore adds
 
 - **OLED dark mode** — true-black backgrounds throughout, applied live without a relaunch.
-- **Accent colour theming** — pick a preset or a custom colour. Applies across every tab
-  *and* the home-screen widget, which runs in its own process and needs the colour handed to
-  it explicitly.
+- **Accent colour in the widget** — the colour picker itself is SideStore's. MiniStore carries
+  the chosen colour into the home-screen widget, which runs in its own process and cannot see
+  the app's settings, and re-tints views that had already cached the old colour.
 - **Reorganised settings** — the settings root is a list of categories (Display, Refreshing
   Apps, Tech Things, Beta Testing, Advanced) rather than one long scroll, with a leading icon
   on every row.
