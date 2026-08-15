@@ -13,3 +13,9 @@
 # side never touches a file and upstream does, git takes upstream's copy without consulting
 # any driver. That is fine for everything listed here, all of which we have already rewritten.
 README.md merge=ours
+
+# The app icon manifest. Ours is a single 1024 universal entry pointing at MiniStore.png;
+# upstream's is 158 lines of per-size entries whose PNGs this fork deleted. A text merge
+# would not just be unwanted, it would be broken - reinstating any of those entries points
+# the asset catalog at files that are not in the tree.
+AltStore/Resources/Icons.xcassets/AppIcon.appiconset/Contents.json merge=ours
