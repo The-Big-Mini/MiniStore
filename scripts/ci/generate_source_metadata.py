@@ -2,6 +2,7 @@
 import datetime
 import hashlib
 import json
+import os
 import subprocess
 from pathlib import Path
 import argparse
@@ -149,9 +150,13 @@ def main():
         "release_channel": args.release_channel.lower(),
         "size": file_size(ipa_path),
         "sha256": sha256(ipa_path),
+        # The repo running the workflow, not a hardcoded one. This was pinned to
+        # SideStore/SideStore upstream, so the fork published a feed whose size and sha256
+        # described its own IPA while the download URL fetched upstream's. The asset is still
+        # named SideStore.ipa — PRODUCT_NAME is deliberately unchanged.
         "download_url": (
-            "https://github.com/SideStore/SideStore/releases/download/"
-            f"{args.release_tag}/SideStore.ipa"
+            f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', 'The-Big-Mini/MiniStore')}"
+            f"/releases/download/{args.release_tag}/SideStore.ipa"
         ),
         "localized_description": localized_description,
     }
