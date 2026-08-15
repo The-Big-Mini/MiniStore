@@ -248,15 +248,21 @@ final class SettingsViewController: UITableViewController
         }
         
         configureReleaseChannelButton()
+
+        self.applyMiniStoreStyle()
+        NotificationCenter.default.addObserver(self, selector: #selector(SettingsViewController.applyMiniStoreStyle), name: MiniStore.oledModeDidChangeNotification, object: nil)
     }
-    
+
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
-        
+
         // show nav bar if not shown already
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        
+
+        // Pushed screens set their own bar appearance, so reclaim it on the way back.
+        self.applyMiniStoreStyle()
+
         self.update()
     }
     
@@ -860,8 +866,9 @@ extension SettingsViewController
         {
             cell.setValue(3, forKey: "style")
         }
-        
-        
+
+        self.applyMiniStoreIcon(to: cell, at: indexPath)
+
         return cell
     }
     

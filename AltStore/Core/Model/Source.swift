@@ -13,7 +13,7 @@ public extension Source
 {
 
     // @livecontainer
-    @objc dynamic static let altStoreSourceURL = URL(string: "https://sidestore.io/apps-v2.json/")!
+    @objc dynamic static let altStoreSourceURL = URL(string: "https://the-big-mini.github.io/SideStore/source.json")!
     static let altStoreGroupIdentifier = Bundle.Info.appbundleIdentifier
     
     // normalized url is the source identifier (or) p-key!
@@ -361,7 +361,7 @@ public extension Source
     class func makeAltStoreSource(in context: NSManagedObjectContext) -> Source
     {
         let source = Source(context: context)
-        source.name = "SideStore Offical"
+        source.name = MiniStore.displayName
         source.groupID = Source.altStoreGroupIdentifier
         source.identifier = Source.altStoreIdentifier
         try! source.setSourceURL(Source.altStoreSourceURL)

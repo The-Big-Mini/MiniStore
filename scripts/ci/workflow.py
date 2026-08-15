@@ -271,7 +271,7 @@ def generate_metadata(release_tag, short_commit, marketing_version, channel, bun
 
     run(cmd)
 
-def deploy(repo, source_json, release_tag, marketing_version):
+def deploy(repo, source_json, release_tag, marketing_version, branch='main'):
     repo = (ROOT / repo).resolve()
     source_json_path = repo / source_json
     metadata = 'source-metadata.json'
@@ -290,9 +290,9 @@ def deploy(repo, source_json, release_tag, marketing_version):
     run("git config user.email '41898282+github-actions[bot]@users.noreply.github.com'", check=False, cwd=repo)
 
     # ------------------------------------------------------
-    run("git fetch origin main", check=False, cwd=repo)
-    run("git switch main || git switch -c main origin/main", cwd=repo)
-    run("git reset --hard origin/main", cwd=repo)
+    run(f"git fetch origin {branch}", check=False, cwd=repo)
+    run(f"git switch {branch} || git switch -c {branch} origin/{branch}", cwd=repo)
+    run(f"git reset --hard origin/{branch}", cwd=repo)
     # ------------------------------------------------------
 
     max_attempts = 5
@@ -530,7 +530,7 @@ COMMANDS = {
     "generate-metadata"       : (generate_metadata,          7,
                                  "<release_tag> <short_commit> <marketing_version> <channel> <bundle_id> <ipa_name> [last_successful_commit]"),
     "deploy"                  : (deploy,                     4,
-                                 "<repo> <source_json> <release_tag> <marketing_version>"),
+                                 "<repo> <source_json> <release_tag> <marketing_version> [branch]"),
     "upload-release"          : (upload_release,             5,
                                  "<release_name> <release_tag> <commit_sha> <repo> <upstream_tag_recommended> [is_stable]"),}
 

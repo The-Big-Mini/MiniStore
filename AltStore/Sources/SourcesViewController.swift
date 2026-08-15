@@ -187,6 +187,9 @@ private extension SourcesViewController
     {
         // TODO: @mahee96: Need implementation to keep SideStore-Official source always on top
         let fetchRequest = Source.fetchRequest() as NSFetchRequest<Source>
+        // The app's own update feed is a release channel, not a catalogue — it lists only
+        // this app, so showing it here is a permanently empty row the user cannot remove.
+        fetchRequest.predicate = NSPredicate(format: "%K != %@", #keyPath(Source.identifier), Source.altStoreIdentifier)
         fetchRequest.returnsObjectsAsFaults = false
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \Source.name, ascending: true),
                                         

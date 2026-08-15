@@ -1,0 +1,6 @@
+/* Home Screen name.
+
+   Overrides CFBundleDisplayName for display only. The raw Info.plist value stays
+   "SideStore" because that is what installation_proxy reports, and iLoader and
+   idevice_pair match sideloaders against that exact string with no fallback. */
+"CFBundleDisplayName" = "MiniStore";

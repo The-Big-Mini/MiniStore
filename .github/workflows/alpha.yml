@@ -19,8 +19,10 @@ concurrency:
 jobs:
   build:
     runs-on: macos-26
+    permissions:
+      contents: write
     env:
-      DEPLOY_KEY: ${{ secrets.CROSS_REPO_PUSH_KEY }}
+      DEPLOY_KEY: ${{ secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_NAME: Alpha
       CHANNEL: alpha
@@ -181,10 +183,9 @@ jobs:
       - uses: actions/checkout@v4
         if: env.DEPLOY_KEY != ''
         with:
-          repository: "SideStore/apps-v2.json"
-          ref: "main"
-          token: ${{ secrets.CROSS_REPO_PUSH_KEY }}
-          path: "SideStore/apps-v2.json"
+          ref: "gh-pages"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: "gh-pages"
 
       - name: Generate Metadata
         run: |
@@ -205,13 +206,14 @@ jobs:
       - name: Deploy
         if: env.DEPLOY_KEY != ''
         run: |
-          SOURCE_JSON="_includes/source.json"
+          SOURCE_JSON="source.json"
 
           python3 scripts/ci/workflow.py deploy \
-            SideStore/apps-v2.json \
+            gh-pages \
             "$SOURCE_JSON" \
             "$CHANNEL" \
-            "$MARKETING_VERSION"
+            "$MARKETING_VERSION" \
+            gh-pages
       
 
       # --------------------------------------------------
