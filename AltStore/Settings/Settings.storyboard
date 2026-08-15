@@ -13,7 +13,7 @@
         <!--Settings-->
         <scene sceneID="f7E-cU-41o">
             <objects>
-                <tableViewController id="aMk-Xp-UL8" customClass="SettingsViewController" customModule="SideStore" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="SettingsViewController" id="aMk-Xp-UL8" customClass="SettingsViewController" customModule="SideStore" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" indicatorStyle="white" dataMode="static" style="grouped" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="MuO-1I-cKW">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -271,6 +271,248 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                                <tableViewSection headerTitle="" id="MSb-Hu-sec">
+                                    <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="Mc0-Ms-cel" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mc0-Ms-cel" id="Mv0-Ms-cnt">
+                                            <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Display" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ml0-Ms-lbl">
+                                                    <rect key="frame" x="30" y="15.333333333333334" width="105" height="20.333333333333329"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Mi0-Ms-img">
+                                                    <rect key="frame" x="356.33333333333331" y="14.333333333333334" width="15.666666666666686" height="22.333333333333329"/>
+                                                    <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Mi0-Ms-img" secondAttribute="trailing" id="Ma0-Ms-cn1"/>
+                                                <constraint firstItem="Mi0-Ms-img" firstAttribute="centerY" secondItem="Mv0-Ms-cnt" secondAttribute="centerY" id="Ma0-Ms-cn2"/>
+                                                <constraint firstItem="Ml0-Ms-lbl" firstAttribute="leading" secondItem="Mv0-Ms-cnt" secondAttribute="leadingMargin" id="Ma0-Ms-cn3"/>
+                                                <constraint firstItem="Ml0-Ms-lbl" firstAttribute="centerY" secondItem="Mv0-Ms-cnt" secondAttribute="centerY" id="Ma0-Ms-cn4"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="8" left="30" bottom="8" right="30"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="style">
+                                                <integer key="value" value="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSelectable" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="Mc1-Ms-cel" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mc1-Ms-cel" id="Mv1-Ms-cnt">
+                                            <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Refreshing Apps" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ml1-Ms-lbl">
+                                                    <rect key="frame" x="30" y="15.333333333333334" width="105" height="20.333333333333329"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Mi1-Ms-img">
+                                                    <rect key="frame" x="356.33333333333331" y="14.333333333333334" width="15.666666666666686" height="22.333333333333329"/>
+                                                    <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Mi1-Ms-img" secondAttribute="trailing" id="Ma1-Ms-cn1"/>
+                                                <constraint firstItem="Mi1-Ms-img" firstAttribute="centerY" secondItem="Mv1-Ms-cnt" secondAttribute="centerY" id="Ma1-Ms-cn2"/>
+                                                <constraint firstItem="Ml1-Ms-lbl" firstAttribute="leading" secondItem="Mv1-Ms-cnt" secondAttribute="leadingMargin" id="Ma1-Ms-cn3"/>
+                                                <constraint firstItem="Ml1-Ms-lbl" firstAttribute="centerY" secondItem="Mv1-Ms-cnt" secondAttribute="centerY" id="Ma1-Ms-cn4"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="8" left="30" bottom="8" right="30"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="style">
+                                                <integer key="value" value="2"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSelectable" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="Mc2-Ms-cel" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mc2-Ms-cel" id="Mv2-Ms-cnt">
+                                            <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tech Things" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ml2-Ms-lbl">
+                                                    <rect key="frame" x="30" y="15.333333333333334" width="105" height="20.333333333333329"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Mi2-Ms-img">
+                                                    <rect key="frame" x="356.33333333333331" y="14.333333333333334" width="15.666666666666686" height="22.333333333333329"/>
+                                                    <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Mi2-Ms-img" secondAttribute="trailing" id="Ma2-Ms-cn1"/>
+                                                <constraint firstItem="Mi2-Ms-img" firstAttribute="centerY" secondItem="Mv2-Ms-cnt" secondAttribute="centerY" id="Ma2-Ms-cn2"/>
+                                                <constraint firstItem="Ml2-Ms-lbl" firstAttribute="leading" secondItem="Mv2-Ms-cnt" secondAttribute="leadingMargin" id="Ma2-Ms-cn3"/>
+                                                <constraint firstItem="Ml2-Ms-lbl" firstAttribute="centerY" secondItem="Mv2-Ms-cnt" secondAttribute="centerY" id="Ma2-Ms-cn4"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="8" left="30" bottom="8" right="30"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="style">
+                                                <integer key="value" value="2"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSelectable" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="Mc3-Ms-cel" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mc3-Ms-cel" id="Mv3-Ms-cnt">
+                                            <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Beta Testing" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ml3-Ms-lbl">
+                                                    <rect key="frame" x="30" y="15.333333333333334" width="105" height="20.333333333333329"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Mi3-Ms-img">
+                                                    <rect key="frame" x="356.33333333333331" y="14.333333333333334" width="15.666666666666686" height="22.333333333333329"/>
+                                                    <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Mi3-Ms-img" secondAttribute="trailing" id="Ma3-Ms-cn1"/>
+                                                <constraint firstItem="Mi3-Ms-img" firstAttribute="centerY" secondItem="Mv3-Ms-cnt" secondAttribute="centerY" id="Ma3-Ms-cn2"/>
+                                                <constraint firstItem="Ml3-Ms-lbl" firstAttribute="leading" secondItem="Mv3-Ms-cnt" secondAttribute="leadingMargin" id="Ma3-Ms-cn3"/>
+                                                <constraint firstItem="Ml3-Ms-lbl" firstAttribute="centerY" secondItem="Mv3-Ms-cnt" secondAttribute="centerY" id="Ma3-Ms-cn4"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="8" left="30" bottom="8" right="30"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="style">
+                                                <integer key="value" value="2"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSelectable" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="Mc4-Ms-cel" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mc4-Ms-cel" id="Mv4-Ms-cnt">
+                                            <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Advanced Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ml4-Ms-lbl">
+                                                    <rect key="frame" x="30" y="15.333333333333334" width="105" height="20.333333333333329"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Mi4-Ms-img">
+                                                    <rect key="frame" x="356.33333333333331" y="14.333333333333334" width="15.666666666666686" height="22.333333333333329"/>
+                                                    <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Mi4-Ms-img" secondAttribute="trailing" id="Ma4-Ms-cn1"/>
+                                                <constraint firstItem="Mi4-Ms-img" firstAttribute="centerY" secondItem="Mv4-Ms-cnt" secondAttribute="centerY" id="Ma4-Ms-cn2"/>
+                                                <constraint firstItem="Ml4-Ms-lbl" firstAttribute="leading" secondItem="Mv4-Ms-cnt" secondAttribute="leadingMargin" id="Ma4-Ms-cn3"/>
+                                                <constraint firstItem="Ml4-Ms-lbl" firstAttribute="centerY" secondItem="Mv4-Ms-cnt" secondAttribute="centerY" id="Ma4-Ms-cn4"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="8" left="30" bottom="8" right="30"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="style">
+                                                <integer key="value" value="2"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSelectable" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="Mc5-Ms-cel" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mc5-Ms-cel" id="Mv5-Ms-cnt">
+                                            <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Experimental" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ml5-Ms-lbl">
+                                                    <rect key="frame" x="30" y="15.333333333333334" width="105" height="20.333333333333329"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Mi5-Ms-img">
+                                                    <rect key="frame" x="356.33333333333331" y="14.333333333333334" width="15.666666666666686" height="22.333333333333329"/>
+                                                    <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Mi5-Ms-img" secondAttribute="trailing" id="Ma5-Ms-cn1"/>
+                                                <constraint firstItem="Mi5-Ms-img" firstAttribute="centerY" secondItem="Mv5-Ms-cnt" secondAttribute="centerY" id="Ma5-Ms-cn2"/>
+                                                <constraint firstItem="Ml5-Ms-lbl" firstAttribute="leading" secondItem="Mv5-Ms-cnt" secondAttribute="leadingMargin" id="Ma5-Ms-cn3"/>
+                                                <constraint firstItem="Ml5-Ms-lbl" firstAttribute="centerY" secondItem="Mv5-Ms-cnt" secondAttribute="centerY" id="Ma5-Ms-cn4"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="8" left="30" bottom="8" right="30"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="style">
+                                                <integer key="value" value="2"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSelectable" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="Mc6-Ms-cel" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mc6-Ms-cel" id="Mv6-Ms-cnt">
+                                            <rect key="frame" x="0.0" y="0.0" width="402" height="51"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Developer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ml6-Ms-lbl">
+                                                    <rect key="frame" x="30" y="15.333333333333334" width="105" height="20.333333333333329"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Mi6-Ms-img">
+                                                    <rect key="frame" x="356.33333333333331" y="14.333333333333334" width="15.666666666666686" height="22.333333333333329"/>
+                                                    <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Mi6-Ms-img" secondAttribute="trailing" id="Ma6-Ms-cn1"/>
+                                                <constraint firstItem="Mi6-Ms-img" firstAttribute="centerY" secondItem="Mv6-Ms-cnt" secondAttribute="centerY" id="Ma6-Ms-cn2"/>
+                                                <constraint firstItem="Ml6-Ms-lbl" firstAttribute="leading" secondItem="Mv6-Ms-cnt" secondAttribute="leadingMargin" id="Ma6-Ms-cn3"/>
+                                                <constraint firstItem="Ml6-Ms-lbl" firstAttribute="centerY" secondItem="Mv6-Ms-cnt" secondAttribute="centerY" id="Ma6-Ms-cn4"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="8" left="30" bottom="8" right="30"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="style">
+                                                <integer key="value" value="3"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSelectable" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </tableViewCell>
+                                    </cells>
+                                </tableViewSection>
                             <tableViewSection id="RpS-Hn-sQU">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="51" id="9dU-Hl-NiJ" customClass="InsetGroupTableViewCell" customModule="SideStore" customModuleProvider="target">

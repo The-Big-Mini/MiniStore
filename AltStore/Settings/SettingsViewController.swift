@@ -24,6 +24,7 @@ extension SettingsViewController
         case signIn
         case account
         case patreon
+        case categories     // the root's list of groups; every section below it is reached through one
         case display
         case appRefresh
         case instructions
@@ -35,6 +36,57 @@ extension SettingsViewController
         // case macDirtyCow
     }
     
+    /// A group on the root screen. Selecting one pushes another `SettingsViewController` showing
+    /// only that group's sections, so every row keeps its storyboard cell, outlets and actions.
+    ///
+    /// Raw values index the `categories` storyboard section, which is why the two debug-only
+    /// entries are last — they drop off the end together when debug mode is off.
+    private enum Category: Int, CaseIterable
+    {
+        case display
+        case refreshingApps
+        case techThings
+        case betaTesting
+        case advancedSettings
+        case experimental
+        case developer
+
+        var localizedName: String {
+            switch self
+            {
+            case .display: return NSLocalizedString("Display", comment: "")
+            case .refreshingApps: return NSLocalizedString("Refreshing Apps", comment: "")
+            case .techThings: return NSLocalizedString("Tech Things", comment: "")
+            case .betaTesting: return NSLocalizedString("Beta Testing", comment: "")
+            case .advancedSettings: return NSLocalizedString("Advanced Settings", comment: "")
+            case .experimental: return NSLocalizedString("Experimental", comment: "")
+            case .developer: return NSLocalizedString("Developer", comment: "")
+            }
+        }
+
+        /// Sections this category shows. "How it works" and Credits have no category of their own,
+        /// so they join Tech Things — both describe the app rather than configure it.
+        ///
+        /// Empty for the two categories that push a screen directly instead of filtering the table.
+        var sections: [Section] {
+            switch self
+            {
+            case .display: return [.display]
+            case .refreshingApps: return [.appRefresh]
+            case .techThings: return [.instructions, .techyThings, .credits]
+            case .betaTesting: return [.betaTesting]
+            case .advancedSettings: return [.advancedSettings]
+            case .experimental, .developer: return []
+            }
+        }
+
+        /// Experimental and Developer are the two halves of the debug-gated diagnostics section,
+        /// so they stay hidden until the debug gesture unlocks it.
+        static var visibleCases: [Category] {
+            UserDefaults.standard.isDebugModeEnabled ? self.allCases : self.allCases.filter { $0 != .experimental && $0 != .developer }
+        }
+    }
+
     private enum AppRefreshRow: Int, CaseIterable
     {
         case backgroundRefresh
@@ -96,8 +148,11 @@ extension SettingsViewController
 
 final class SettingsViewController: UITableViewController
 {
+    /// `nil` on the root screen. Set on a pushed instance to show only one category's sections.
+    private var visibleCategory: Category?
+
     private var activeTeam: Team?
-    
+
     private var prototypeHeaderFooterView: SettingsHeaderFooterView!
     
     // Add outlet
@@ -251,6 +306,15 @@ final class SettingsViewController: UITableViewController
 
         self.applyMiniStoreStyle()
         NotificationCenter.default.addObserver(self, selector: #selector(SettingsViewController.applyMiniStoreStyle), name: MiniStore.oledModeDidChangeNotification, object: nil)
+
+        if let category = self.visibleCategory
+        {
+            self.title = category.localizedName
+
+            // The socials-and-version block belongs to the root screen only. The version label
+            // itself survives — it is an outlet on a view, not on the table.
+            self.tableView.tableFooterView = nil
+        }
     }
 
     override func viewWillAppear(_ animated: Bool)
@@ -388,9 +452,12 @@ private extension SettingsViewController
                 settingsHeaderFooterView.secondaryLabel.text = NSLocalizedString("Support the SideStore Team by following our socials or becoming a patron!", comment: "")
             }
 
+        case .categories:
+            settingsHeaderFooterView.primaryLabel.text = NSLocalizedString("SETTINGS", comment: "")
+
         case .account:
             settingsHeaderFooterView.primaryLabel.text = NSLocalizedString("ACCOUNT", comment: "")
-            
+
             settingsHeaderFooterView.button.setTitle(NSLocalizedString("SIGN OUT", comment: ""), for: .normal)
             settingsHeaderFooterView.button.addTarget(self, action: #selector(SettingsViewController.signOut(_:)), for: .primaryActionTriggered)
             settingsHeaderFooterView.button.isHidden = false
@@ -481,15 +548,33 @@ private extension SettingsViewController
         return size.height
     }
     
+    /// True when a category screen's only section carries a header that just repeats the title
+    /// it was pushed with ("Advanced Settings" under "Advanced Settings").
+    private func isHeaderHidden(_ section: Section) -> Bool
+    {
+        guard let category = self.visibleCategory else { return false }
+        return category.sections == [section]
+    }
+
     private func isSectionHidden(_ section: Section) -> Bool
     {
+        if let category = self.visibleCategory
+        {
+            // A pushed category screen shows nothing but the sections it owns.
+            return !category.sections.contains(section)
+        }
+
         switch section
         {
+        // The root screen is the account, the Patreon row, and the list of categories. Everything
+        // else is reached by selecting one of those categories.
+        case .signIn, .account, .patreon, .categories: return false
+
         // case .macDirtyCow:
         //     let isHidden = !(UserDefaults.standard.isCowExploitSupported && UserDefaults.standard.isDebugModeEnabled)
         //     return isHidden
-            
-        default: return false
+
+        default: return true
         }
     }
 }
@@ -784,8 +869,52 @@ private extension SettingsViewController
 
 private extension SettingsViewController
 {
+    /// Pushes another instance of this screen showing only `category`'s sections, so every row
+    /// keeps the storyboard cell, outlet and action it already had.
+    private func showCategory(_ category: Category)
+    {
+        switch category
+        {
+        // These two are halves of the diagnostics section rather than sections of their own.
+        case .developer: return self.showDeveloperOptions()
+        case .experimental: return self.showExperimentalFeatures()
+        default: break
+        }
+
+        guard let storyboard = self.storyboard,
+              let categoryViewController = storyboard.instantiateViewController(withIdentifier: "SettingsViewController") as? SettingsViewController
+        else
+        {
+            debugLog("[SettingsVC] showCategory(\(category)) failed: could not instantiate SettingsViewController from storyboard")
+            let toastView = ToastView(text: NSLocalizedString("Unable to Open Settings", comment: ""), detailText: category.localizedName)
+            toastView.show(in: self)
+            return
+        }
+
+        categoryViewController.visibleCategory = category
+        self.navigationController?.pushViewController(categoryViewController, animated: true)
+    }
+
+    func showDeveloperOptions()
+    {
+        let hostingController = UIHostingController(rootView: DeveloperOptionsView())
+        hostingController.view.backgroundColor = .settingsBackground
+        hostingController.title = NSLocalizedString("Developer Options", comment: "")
+        self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: hostingController), sender: nil)
+    }
+
+    func showExperimentalFeatures()
+    {
+        let hostingController = UIHostingController(rootView: ExperimentalFeaturesView())
+        hostingController.view.backgroundColor = .settingsBackground
+        hostingController.title = NSLocalizedString("Experimental Features", comment: "")
+        self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: hostingController), sender: nil)
+    }
+
     @objc func openPatreonSettings(_ notification: Notification)
     {
+        // Only the root instance owns the deep link; a pushed category screen ignores it.
+        guard self.visibleCategory == nil else { return }
         guard self.presentedViewController == nil else { return }
                 
         UIView.performWithoutAnimation {
@@ -795,6 +924,7 @@ private extension SettingsViewController
     }
 
     @objc func openErrorLog(_: Notification) {
+        guard self.visibleCategory == nil else { return }
         guard self.presentedViewController == nil else { return }
 
         self.navigationController?.popViewController(animated: false)
@@ -831,6 +961,7 @@ extension SettingsViewController
         case _ where isSectionHidden(section): return 0
         case .signIn: return (self.activeTeam == nil) ? 1 : 0
         case .account: return (self.activeTeam == nil) ? 0 : 3
+        case .categories: return Category.visibleCases.count
         case .appRefresh: return AppRefreshRow.allCases.count
         case .advancedSettings: return AdvancedSettingsRow.allCases.count
         default: return super.tableView(tableView, numberOfRowsInSection: section.rawValue)
@@ -867,6 +998,14 @@ extension SettingsViewController
             cell.setValue(3, forKey: "style")
         }
 
+        // Same rounding fix as above: the debug-only categories drop off the end, so whichever
+        // row is last has to become the bottom of the card.
+        if let cell = cell as? InsetGroupTableViewCell,
+           indexPath.section == Section.categories.rawValue
+        {
+            cell.setValue(indexPath.row == Category.visibleCases.count - 1 ? 3 : (indexPath.row == 0 ? 1 : 2), forKey: "style")
+        }
+
         self.applyMiniStoreIcon(to: cell, at: indexPath)
 
         return cell
@@ -877,10 +1016,10 @@ extension SettingsViewController
         let section = Section.allCases[section]
         switch section
         {
-        case _ where isSectionHidden(section): return nil
+        case _ where isSectionHidden(section) || isHeaderHidden(section): return nil
         case .signIn where self.activeTeam != nil: return nil
         case .account where self.activeTeam == nil: return nil
-        case .signIn, .account, .patreon, .display, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics /* ,.macDirtyCow */:
+        case .signIn, .account, .patreon, .categories, .display, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics /* ,.macDirtyCow */:
             let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "HeaderFooterView") as! SettingsHeaderFooterView
             self.prepare(headerView, for: section, isHeader: true)
             return headerView
@@ -902,7 +1041,7 @@ extension SettingsViewController
             self.prepare(footerView, for: section, isHeader: false)
             return footerView
             
-        case .account, .credits, .advancedSettings, .instructions, .diagnostics: return nil
+        case .account, .categories, .credits, .advancedSettings, .instructions, .diagnostics: return nil
         }
     }
 
@@ -911,10 +1050,10 @@ extension SettingsViewController
         let section = Section.allCases[section]
         switch section
         {
-        case _ where isSectionHidden(section): return 1.0
+        case _ where isSectionHidden(section) || isHeaderHidden(section): return 1.0
         case .signIn where self.activeTeam != nil: return 1.0
         case .account where self.activeTeam == nil: return 1.0
-        case .signIn, .account, .patreon, .display, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics:
+        case .signIn, .account, .patreon, .categories, .display, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics:
             let height = self.preferredHeight(for: self.prototypeHeaderFooterView, in: section, isHeader: true)
             return height
             
@@ -935,7 +1074,7 @@ extension SettingsViewController
             let height = self.preferredHeight(for: self.prototypeHeaderFooterView, in: section, isHeader: false)
             return height
             
-        case .account, .credits, .advancedSettings, .instructions, .diagnostics: return 0.0
+        case .account, .categories, .credits, .advancedSettings, .instructions, .diagnostics: return 0.0
         }
     }
 }
@@ -1243,24 +1382,17 @@ extension SettingsViewController
             case .refreshAttempts: break
             }
         
+        case .categories:
+            self.showCategory(Category.visibleCases[indexPath.row])
+
         case .diagnostics:
             let row = DiagnosticsRow.allCases[indexPath.row]
             switch row {
-            case .developerOptions:
-                let developerOptionsView = DeveloperOptionsView()
-                let hostingController = UIHostingController(rootView: developerOptionsView)
-                hostingController.view.backgroundColor = .settingsBackground
-                hostingController.title = NSLocalizedString("Developer Options", comment: "")
-                self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: hostingController), sender: nil)
-            case .experimentalFeatures:
-                let experimentalFeaturesView = ExperimentalFeaturesView()
-                let hostingController = UIHostingController(rootView: experimentalFeaturesView)
-                hostingController.view.backgroundColor = .settingsBackground
-                hostingController.title = NSLocalizedString("Experimental Features", comment: "")
-                self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: hostingController), sender: nil)
+            case .developerOptions: self.showDeveloperOptions()
+            case .experimentalFeatures: self.showExperimentalFeatures()
             }
-            
-            
+
+
         // case .account, .patreon, .display, .instructions, .macDirtyCow: break
         case .account, .patreon, .display, .instructions, .betaTesting: break
         }
