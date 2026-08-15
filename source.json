@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260815.8+d3db2622",
-              "date": "2026-08-15T22:01:36Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.8+d3db2622\"\n  - revision: \"d3db2622\"\n  - timestamp: \"Sat Aug 15 22:01:36 2026\"\n\n#### What's Changed:\n- Merge pull request #8 from The-Big-Mini/MiniStoreFork\n- docs: describe the legacy source prefixes without naming a dead repo\n\n#### Full Changelog: [ea89b079...d3db2622](https://github.com/The-Big-Mini/MiniStore/compare/ea89b079958ce3f61265f396d1b58ca05efdc336...d3db2622d9d06e8076ddcea47434d680e3703a74)\n",
+              "version": "0.6.4-20260815.9+d3db2622",
+              "date": "2026-08-15T22:19:01Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.9+d3db2622\"\n  - revision: \"d3db2622\"\n  - timestamp: \"Sat Aug 15 22:19:01 2026\"\n\n#### What's Changed:\n- Merge pull request #8 from The-Big-Mini/MiniStoreFork\n- docs: describe the legacy source prefixes without naming a dead repo\n- Merge pull request #7 from The-Big-Mini/claude/tab-order-and-fixes\n- feat(ci): list store-page screenshots in the feed\n- docs: correct the accent colour claim in the README\n- fix(build): make `make build` actually build\n- feat(tabs): let the user reorder the tab bar\n- Merge pull request #6 from The-Big-Mini/claude/repo-rename-fixups\n- feat(ci): publish store-page metadata and per-release news in the feed\n- chore(build): name the packaged IPA MiniStore.ipa\n- fix(settings): stop What's New flashing its empty state before the spinner\n- fix(settings): stop the nav bar resizing when entering and leaving a category\n- Merge pull request #5 from The-Big-Mini/claude/repo-rename-fixups\n- chore(git): pin the app icon manifest against upstream merges\n- docs: rewrite the README for MiniStore, and pin it against upstream merges\n- chore(ci): drop upstream's PR triage workflow\n- fix(rename): repoint feed, releases and download URLs after the repo rename\n- Merge pull request #4 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- Merge remote-tracking branch 'origin/develop' into claude/ministore-uiux-fork-rebuild-35b74e\n- Merge branch 'SideStore:develop' into develop\n- Merge pull request #3 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- fix(ci): reset to the deploy branch, not the default branch, on retry\n- feat(settings): add a What's New screen fed by this repo's releases\n- feat(theme): send the chosen accent colour to the widget\n- fix(oled): follow OLED mode on the My Apps tab\n- feat(settings): collapse the settings root into MiniStore's category list\n- fix: make baseAltStoreAppGroupID dynamic to fix lc+ss resign issue\n- Merge pull request #2 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- feat(settings): adopt MiniStore's settings look and make OLED app-wide\n- fix(tabs): keep the selected tab when the tab bar changes\n- feat(settings): add OLED dark mode, tab hiding, and a default tab\n- feat(naming): show MiniStore on the splash screen\n- fix(sources): drop the dead MiniStore feeds and rename the inherited app record\n- fix(ci): publish the release feed to this repo's gh-pages\n- feat(icon): use MiniStore's app icon\n- feat(sources): seed Mini's Repo, point self-update at the fork's own feed\n- feat(naming): show the app as MiniStore without breaking iLoader detection\n- Merge pull request #1 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- fix(theme): apply the accent colour on launch and drop the storyboard global tint\n- fix(theme): propagate accent colour to already-visible UIKit screens\n- mark all lc related hooks with // @livecontainer line comment\n\n#### Full Changelog: [424af2ae...d3db2622](https://github.com/The-Big-Mini/MiniStore/compare/424af2ae96b14f270c7d8e5c59b4db336c4f2c18...d3db2622d9d06e8076ddcea47434d680e3703a74)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25788888,
-              "sha256": "b3879bd240fc2b8535b0f2d7dd6e452e46c49e880a40e15a99b9e2dd80c1aa06"
+              "size": 25788892,
+              "sha256": "4ec92553da46f28af98bcec90bfe3fb8304f99bd46d48addd1e23aad9fc4c7ea"
             }
           ]
         }
@@ -36,6 +36,15 @@
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260815.9+d3db2622",
+      "title": "MiniStore Nightly — 0.6.4-20260815.9+d3db2622",
+      "caption": "Merge pull request #8 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-15T22:19:01Z",
+      "appID": "com.SideStore.SideStore",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260815.8+d3db2622",
       "title": "MiniStore Nightly — 0.6.4-20260815.8+d3db2622",
