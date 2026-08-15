@@ -21,13 +21,27 @@ private struct SettingsRowIcon
 /// a row that moves loses its icon rather than misbehaving.
 ///
 /// Sections 0 (sign in) and 1 (account) are deliberately absent: those rows are values, not
-/// destinations, and MiniStore leaves them plain. Section 2 is the Patreon hero card.
+/// destinations, and MiniStore leaves them plain. Section 2 is the Patreon row.
+///
+/// Section 3 is the root's category list; sections 4 and up are only ever shown inside the
+/// category screen that owns them.
 private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
+    // Categories — the root list
+    3: [
+        0: SettingsRowIcon(symbol: "display", color: .systemBlue),
+        1: SettingsRowIcon(symbol: "arrow.clockwise", color: .systemGreen),
+        2: SettingsRowIcon(symbol: "wrench.and.screwdriver.fill", color: .systemOrange),
+        3: SettingsRowIcon(symbol: "flask.fill", color: .systemPink),
+        4: SettingsRowIcon(symbol: "slider.horizontal.3", color: .systemRed),
+        5: SettingsRowIcon(symbol: "wand.and.stars", color: .systemTeal),
+        6: SettingsRowIcon(symbol: "chevron.left.forwardslash.chevron.right", color: .systemPurple),
+    ],
+
     // Display
-    3: [0: SettingsRowIcon(symbol: "paintbrush.fill", color: .systemBlue)],
+    4: [0: SettingsRowIcon(symbol: "paintbrush.fill", color: .systemBlue)],
 
     // Refreshing Apps
-    4: [
+    5: [
         0: SettingsRowIcon(symbol: "arrow.clockwise", color: .systemGreen),
         1: SettingsRowIcon(symbol: "moon.zzz.fill", color: .systemIndigo),
         2: SettingsRowIcon(symbol: "mic.fill", color: .systemPurple),
@@ -35,10 +49,10 @@ private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
     ],
 
     // How it works
-    5: [0: SettingsRowIcon(symbol: "questionmark.circle.fill", color: .systemTeal)],
+    6: [0: SettingsRowIcon(symbol: "questionmark.circle.fill", color: .systemTeal)],
 
     // Techy Things
-    6: [
+    7: [
         0: SettingsRowIcon(symbol: "heart.text.square.fill", color: .systemPink),
         1: SettingsRowIcon(symbol: "doc.text.fill", color: .systemOrange),
         2: SettingsRowIcon(symbol: "folder.fill", color: .systemBlue),
@@ -46,7 +60,7 @@ private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
     ],
 
     // Credits
-    7: [
+    8: [
         0: SettingsRowIcon(symbol: "hammer.fill", color: .systemGray),
         1: SettingsRowIcon(symbol: "paintbrush.pointed.fill", color: .systemPink),
         2: SettingsRowIcon(symbol: "paintpalette.fill", color: .systemOrange),
@@ -54,13 +68,13 @@ private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
     ],
 
     // Beta Testing
-    8: [
+    9: [
         0: SettingsRowIcon(symbol: "ant.fill", color: .systemGreen),
         1: SettingsRowIcon(symbol: "arrow.triangle.branch", color: .systemTeal),
     ],
 
     // Advanced Settings
-    9: [
+    10: [
         0: SettingsRowIcon(symbol: "envelope.fill", color: .systemBlue),
         1: SettingsRowIcon(symbol: "list.bullet.rectangle", color: .systemGreen),
         2: SettingsRowIcon(symbol: "bolt.fill", color: .systemYellow),
@@ -73,7 +87,7 @@ private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
     ],
 
     // Diagnostics
-    10: [
+    11: [
         0: SettingsRowIcon(symbol: "chevron.left.forwardslash.chevron.right", color: .systemPurple),
         1: SettingsRowIcon(symbol: "wand.and.stars", color: .systemTeal),
     ],
