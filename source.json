@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260815.4+9e1c53d7",
-              "date": "2026-08-15T14:48:17Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.4+9e1c53d7\"\n  - revision: \"9e1c53d7\"\n  - timestamp: \"Sat Aug 15 14:48:17 2026\"\n\n#### What's Changed:\n- Merge pull request #4 from The-Big-Mini/claude/ministore-uiux-fork-rebuild-35b74e\n- Merge remote-tracking branch 'origin/develop' into claude/ministore-uiux-fork-rebuild-35b74e\n- fix(ci): reset to the deploy branch, not the default branch, on retry\n- feat(settings): add a What's New screen fed by this repo's releases\n- feat(theme): send the chosen accent colour to the widget\n\n#### Full Changelog: [2906736b...9e1c53d7](https://github.com/The-Big-Mini/SideStore/compare/2906736be707f14f31759685acdbb4c17c2ef0b1...9e1c53d7092af87fe6ff01d4c531fcd755cfd158)\n",
-              "downloadURL": "https://github.com/SideStore/SideStore/releases/download/nightly/SideStore.ipa",
-              "size": 25784284,
-              "sha256": "ea62681d58d1a74255006a2e20da55103f1818ab2b21649ec08b8eafeae54d19"
+              "version": "0.6.4-20260815.5+9eba74ac",
+              "date": "2026-08-15T15:35:42Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.5+9eba74ac\"\n  - revision: \"9eba74ac\"\n  - timestamp: \"Sat Aug 15 15:35:42 2026\"\n\n#### What's Changed:\n- Merge pull request #5 from The-Big-Mini/claude/repo-rename-fixups\n- chore(git): pin the app icon manifest against upstream merges\n- docs: rewrite the README for MiniStore, and pin it against upstream merges\n- chore(ci): drop upstream's PR triage workflow\n- fix(rename): repoint feed, releases and download URLs after the repo rename\n\n#### Full Changelog: [9e1c53d7...9eba74ac](https://github.com/The-Big-Mini/MiniStore/compare/9e1c53d7092af87fe6ff01d4c531fcd755cfd158...9eba74ac51a7e64b4e8343cfdc8a00f112de85e3)\n",
+              "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/SideStore.ipa",
+              "size": 25784304,
+              "sha256": "e328363f10e261c9ba8c012ee18d17b3bf7179ae9547ee79eec1729867c215a4"
             }
           ]
         }
