@@ -23,7 +23,7 @@ private final class WhatsNewViewModel: ObservableObject
     @Published var errorMessage: String?
     @Published var isLoading = false
 
-    private static let releasesURL = URL(string: "https://api.github.com/repos/The-Big-Mini/SideStore/releases?per_page=10")!
+    private static let releasesURL = URL(string: "https://api.github.com/repos/The-Big-Mini/MiniStore/releases?per_page=10")!
 
     func load() async
     {

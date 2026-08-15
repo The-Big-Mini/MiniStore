@@ -1,47 +1,110 @@
-# SideStore
+# MiniStore
 
-> SideStore is an *untethered, community driven* alternative app store for non-jailbroken iOS devices 
+> SideStore with UI upgrades and preloaded sources
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
-[![Nightly SideStore build](https://github.com/SideStore/SideStore/actions/workflows/nightly.yml/badge.svg)](https://github.com/SideStore/SideStore/actions/workflows/nightly.yml)
-[![.github/workflows/beta.yml](https://github.com/SideStore/SideStore/actions/workflows/beta.yml/badge.svg)](https://github.com/SideStore/SideStore/actions/workflows/beta.yml)
-[![Discord](https://img.shields.io/discord/949183273383395328?label=Discord)](https://dis.sidestore.io)
+[![Nightly build](https://github.com/The-Big-Mini/MiniStore/actions/workflows/nightly.yml/badge.svg)](https://github.com/The-Big-Mini/MiniStore/actions/workflows/nightly.yml)
 
-![Alt](https://repobeats.axiom.co/api/embed/3a329ce95955690b9a9366f8d5598626a847d96c.svg "Repobeats analytics image")
+MiniStore is a fork of [SideStore](https://github.com/SideStore/SideStore) — an alternative
+app store that sideloads apps onto non-jailbroken iOS devices using only an Apple ID. It
+resigns apps with your personal development certificate and refreshes them in the background
+so the 7-day development period doesn't expire.
 
-SideStore is an iOS application that allows you to sideload apps onto your iOS device with just your Apple ID. SideStore resigns apps with your personal development certificate, and then uses a [specially designed VPN](https://github.com/jkcoxson/em_proxy) in order to trick iOS into installing them. SideStore will periodically "refresh" your apps in the background, to keep their normal 7-day development period from expiring.
+Everything SideStore does, MiniStore does. This fork is a **thin layer of interface work and
+preloaded sources on top of upstream** — deliberately small, so that merging new SideStore
+releases stays routine rather than becoming a rewrite. If you want the reference
+implementation, use SideStore. If you want the same thing with the interface sanded down,
+use this.
 
-SideStore's goal is to provide an untethered sideloading experience. It's a community driven fork of [AltStore](https://github.com/rileytestut/AltStore), and has already implemented some of the community's most-requested features.
+## What MiniStore adds
 
-(Contributions are welcome! 🙂)
+- **OLED dark mode** — true-black backgrounds throughout, applied live without a relaunch.
+- **Accent colour theming** — pick a preset or a custom colour. Applies across every tab
+  *and* the home-screen widget, which runs in its own process and needs the colour handed to
+  it explicitly.
+- **Reorganised settings** — the settings root is a list of categories (Display, Refreshing
+  Apps, Tech Things, Beta Testing, Advanced) rather than one long scroll, with a leading icon
+  on every row.
+- **Tab customization** — hide the tabs you don't use, and choose which one opens on launch.
+- **What's New** — release notes pulled live from this repo's GitHub releases, rendered in
+  the app.
+- **Preloaded source** — [Mini's Repo](https://OofMini.github.io/Minis-Repo/mini.json) is
+  seeded on first launch, so there's a catalogue to browse immediately.
+
+## Installing
+
+MiniStore updates itself through its own source, published by this repo's CI:
+
+```
+https://the-big-mini.github.io/MiniStore/source.json
+```
+
+That feed lists MiniStore only — it is the self-update channel, not an app catalogue. Stable,
+nightly and alpha are release tracks *within* it, so switching channels is a toggle in
+settings rather than a different URL.
+
+Builds are attached to this repo's [releases](https://github.com/The-Big-Mini/MiniStore/releases).
+
+## A note on the name
+
+The app shows as **MiniStore** on your Home Screen and in the My Apps tab, but identifies
+itself as **SideStore** over the wire.
+
+This is deliberate and load-bearing. Pairing tools like
+[iLoader](https://github.com/nab138/iloader) and
+[idevice_pair](https://github.com/jkcoxson/idevice_pair) detect sideloaders by matching the
+raw `CFBundleDisplayName` that `installation_proxy` reports against a hardcoded list, with no
+bundle-identifier fallback. Renaming that key would make MiniStore invisible to them. The
+Home Screen name comes from a localized `InfoPlist.strings` override instead, which those
+tools never see.
+
+For the same reason, the certificate is still registered under a `SideStore - …` machine
+name. Renaming it would orphan every certificate already issued to your Apple ID.
 
 ## Requirements
-- Xcode 15
-- iOS 14+
-- Rustup (`brew install rustup`)
 
-Why iOS 14? Targeting such a recent version of iOS allows us to accelerate development, especially since not many developers have older devices to test on. This is corrobated by the fact that SwiftUI support is much better, allowing us to transistion to a more modern UI codebase.
-## Project Overview
+- Xcode 15+
+- iOS 15+
+- Rustup (`brew install rustup`) — for building minimuxer
 
-### SideStore
-SideStore is a just regular, sandboxed iOS application. The AltStore app target contains the vast majority of SideStore's functionality, including all the logic for downloading and updating apps through SideStore. SideStore makes heavy use of standard iOS frameworks and technologies most iOS developers are familiar with.
+## Project overview
 
-### EM Proxy
-[EM Proxy](https://github.com/jkcoxson/em_proxy) powers the defining feature of SideStore: untethered app installation. By leveraging a custom-built App Store app with additional entitlements ([LocalDevVPN](https://github.com/jkcoxson/LocalDevVPN)) to create the VPN tunnel for us, it allows SideStore to take advantage of [Jitterbug](https://github.com/osy/Jitterbug)'s loopback method without requiring a paid developer account.
+**MiniStore / AltStore target** — a regular sandboxed iOS app. The `AltStore` target holds
+most of the functionality: downloading, signing, installing and refreshing apps. The
+`SideStore` target holds the minimuxer bridge and the newer SwiftUI layer, including all of
+settings.
 
-### Minimuxer
-[Minimuxer](https://github.com/jkcoxson/minimuxer) is a lockdown muxer that can run inside iOS’s sandbox. It replicates Apple’s usbmuxd protocol on macOS to “discover” devices to interface with LocalDevVPN on-device.
+**[minimuxer](https://github.com/SideStore/minimuxer)** — a lockdown muxer that runs inside
+iOS's sandbox, replicating Apple's `usbmuxd` protocol so the app can talk to the device it is
+running on. Consumed as a git submodule and built via Rust.
 
-### Roxas
-[Roxas](https://github.com/rileytestut/roxas) is Riley Testut's internal framework from AltStore used across many of their iOS projects, developed to simplify a variety of common tasks used in iOS development.
+**[AltSign](https://github.com/SideStore/AltSign)** — Apple Developer API client and code
+signing. Also a submodule.
 
-We're hoping to eventually eliminate our dependency on it, as it increases the amount of unnecessary Objective-C in the project.
+## Building
 
-## Contributing/Compilation Instructions
+```bash
+make build      # xcodebuild ARCHIVE → SideStore.xcarchive
+make fakesign   # ldid fake-sign with release entitlements
+make ipa        # package the archive → SideStore.ipa
+```
 
-Please see [CONTRIBUTING.md](./CONTRIBUTING.md)
+`make build` performs an archive, not a plain build — only the archive path runs the
+SideBackup packaging phase, so a plain `xcodebuild build` can pass on code that fails CI.
+
+Versions and identifiers live in `Build.xcconfig`. Don't hard-code bundle IDs. Local signing
+overrides belong in `CodeSigning.xcconfig`, which is gitignored.
+
+## Contributing
+
+Bug reports and fixes that aren't MiniStore-specific belong
+[upstream at SideStore](https://github.com/SideStore/SideStore) — a fix merged there reaches
+every user of both projects and costs this fork nothing to inherit. See
+[CONTRIBUTING.md](./CONTRIBUTING.md) for build and PR conventions.
 
 ## Licensing
 
-This project is licensed under the **AGPLv3 license**.
+AGPLv3, inherited from SideStore. See [LICENSE](./LICENSE).
+
+SideStore is itself a community fork of [AltStore](https://github.com/rileytestut/AltStore)
+by Riley Testut. Credit for the foundation belongs to both projects.

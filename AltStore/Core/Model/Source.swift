@@ -13,7 +13,7 @@ public extension Source
 {
 
     // @livecontainer
-    @objc dynamic static let altStoreSourceURL = URL(string: "https://the-big-mini.github.io/SideStore/source.json")!
+    @objc dynamic static let altStoreSourceURL = URL(string: "https://the-big-mini.github.io/MiniStore/source.json")!
     static let altStoreGroupIdentifier = Bundle.Info.appbundleIdentifier
     
     // normalized url is the source identifier (or) p-key!

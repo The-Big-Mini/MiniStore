@@ -29,8 +29,15 @@ public extension MiniStore
     ///   returning GitHub's 404 page fails the whole decode.
     ///
     /// Prefixes rather than exact URLs because the dead repo served several feeds, and the
-    /// branch in the path changed over time. `/sidestore/` is a different path from
-    /// `/ministore/`, so the fork's own feed is not caught by this.
+    /// branch in the path changed over time.
+    ///
+    /// **These prefixes now collide with this fork's own feed.** The repos were renamed on
+    /// 2026-08-15: the fork became `The-Big-Mini/MiniStore` and the dead hard fork became
+    /// `The-Big-Mini/MiniStore-Dead`. The prefixes still say `/ministore/` — correctly, because
+    /// they match identifiers already written into users' databases, which a repo rename does
+    /// not rewrite. But the live feed is now `the-big-mini.github.io/MiniStore/source.json`,
+    /// which matches too. The `altStoreIdentifier` guard in `removeLegacySideStoreSource` is
+    /// the only thing stopping this from deleting the app's own update source. Do not remove it.
     static let legacySourceIdentifierPrefixes = [
         "sidestore.io/apps-v2.json",
         "raw.githubusercontent.com/the-big-mini/ministore/",
