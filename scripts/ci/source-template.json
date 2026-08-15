@@ -12,7 +12,12 @@
     "localizedDescription": "MiniStore is SideStore with the interface sanded down.\n\nEverything SideStore does, MiniStore does — it sideloads apps onto your device with just an Apple ID, resigns them with your personal development certificate, and refreshes them in the background so the 7-day development period never expires.\n\nWhat it adds:\n\n• OLED dark mode — true black throughout, applied live without a relaunch.\n• Accent colour theming — presets or a custom colour, across every tab and the home screen widget.\n• Reorganised settings — a list of categories instead of one long scroll.\n• Tab customization — hide the tabs you don't use and choose which one opens on launch.\n• What's New — release notes read straight from GitHub.\n• A preloaded catalogue so there is something to browse immediately.\n\nMiniStore is a thin layer on top of SideStore, kept deliberately small so upstream releases can be merged in as they land.",
     "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
     "tintColor": "A405FA",
-    "category": "utilities"
+    "category": "utilities",
+    "screenshotURLs": [
+      "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-1.png",
+      "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
+      "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
+    ]
   },
 
   "news": {

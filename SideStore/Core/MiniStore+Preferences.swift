@@ -10,10 +10,14 @@
 public extension MiniStore
 {
     static let oledModeDidChangeNotification = Notification.Name("MiniStoreOLEDModeDidChangeNotification")
-    static let hiddenTabsDidChangeNotification = Notification.Name("MiniStoreHiddenTabsDidChangeNotification")
+
+    /// Posted when the tab bar's contents *or* their order changes. One notification for both,
+    /// because the observer rebuilds the whole bar either way.
+    static let tabLayoutDidChangeNotification = Notification.Name("MiniStoreTabLayoutDidChangeNotification")
 
     private static let oledModeKey = "MiniStoreOLEDModeEnabled"
     private static let hiddenTabsKey = "MiniStoreHiddenTabs"
+    private static let tabOrderKey = "MiniStoreTabOrder"
     private static let defaultTabKey = "MiniStoreDefaultTab"
 
     /// The tab the app opens on, as an index into the storyboard's tab order.
@@ -72,13 +76,42 @@ public extension MiniStore
         get { Set(UserDefaults.standard.array(forKey: hiddenTabsKey) as? [Int] ?? []) }
         set {
             UserDefaults.standard.set(Array(newValue).sorted(), forKey: hiddenTabsKey)
+            self.postTabLayoutDidChange()
+        }
+    }
 
-            // Deferred by one turn of the run loop. The setter is called from inside a SwiftUI
-            // state mutation, and the observer rebuilds `UITabBarController.viewControllers` —
-            // tearing down and re-adding the very view hierarchy that is mid-update.
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: hiddenTabsDidChangeNotification, object: nil)
-            }
+    /// The tab bar's display order, as indices into the storyboard's tab order.
+    ///
+    /// Stored raw and repaired on read by `resolvedTabOrder(count:)` rather than validated here,
+    /// so that a saved order never has to be migrated when upstream adds or removes a tab.
+    static var tabOrder: [Int] {
+        get { UserDefaults.standard.array(forKey: tabOrderKey) as? [Int] ?? [] }
+        set {
+            UserDefaults.standard.set(newValue, forKey: tabOrderKey)
+            self.postTabLayoutDidChange()
+        }
+    }
+
+    /// The stored order made safe to index `allViewControllers` with.
+    ///
+    /// Upstream is free to add or remove a tab between releases, and a saved order from before
+    /// that change must neither drop the new tab nor resurrect a departed one. Out-of-range and
+    /// duplicate entries are discarded, then anything missing is appended in storyboard order —
+    /// so an unset order, a stale order and a corrupt one all resolve to something complete.
+    static func resolvedTabOrder(count: Int) -> [Int] {
+        var seen = Set<Int>()
+        var order = self.tabOrder.filter { (0..<count).contains($0) && seen.insert($0).inserted }
+
+        order += (0..<count).filter { !seen.contains($0) }
+        return order
+    }
+
+    /// Deferred by one turn of the run loop. These setters are called from inside a SwiftUI
+    /// state mutation, and the observer rebuilds `UITabBarController.viewControllers` — tearing
+    /// down and re-adding the very view hierarchy that is mid-update.
+    private static func postTabLayoutDidChange() {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: tabLayoutDidChangeNotification, object: nil)
         }
     }
 }

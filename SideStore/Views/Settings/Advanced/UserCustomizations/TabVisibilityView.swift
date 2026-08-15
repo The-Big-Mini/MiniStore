@@ -17,6 +17,7 @@ struct TabVisibilityView: View
         let title: String
     }
 
+    /// Held in display order, not storyboard order — `tab.id` stays the storyboard index.
     @State private var tabs: [Tab] = []
     @State private var hiddenTabs = MiniStore.hiddenTabs
     @State private var defaultTab = MiniStore.defaultTab
@@ -43,7 +44,7 @@ struct TabVisibilityView: View
                     .background(Color.miniStoreCard)
                     .cornerRadius(16)
 
-                    Text("The last visible tab cannot be switched off. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
+                    Text("Use the arrows to change the order tabs appear in. The last visible tab cannot be switched off. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
                         .font(.system(size: 12))
                         .foregroundColor(Color.white.opacity(0.6))
                         .padding(.horizontal, 16)
@@ -67,9 +68,15 @@ struct TabVisibilityView: View
         .navigationTitle("Tab Bar")
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
-            tabs = MiniStore.tabBarController()?.allViewControllers.enumerated().map { index, viewController in
+            // Titles come off the live tab bar, which is in storyboard order; the rows are then
+            // put into the user's order. Reading the bar rather than a hard-coded list means a
+            // tab added upstream shows up here without this screen needing to know about it.
+            let storyboardTabs = MiniStore.tabBarController()?.allViewControllers.enumerated().map { index, viewController in
                 Tab(id: index, title: viewController.tabBarItem?.title ?? "Tab \(index + 1)")
             } ?? []
+
+            let order = MiniStore.resolvedTabOrder(count: storyboardTabs.count)
+            tabs = order.compactMap { id in storyboardTabs.first { $0.id == id } }
         }
     }
 
@@ -81,6 +88,8 @@ struct TabVisibilityView: View
 
             Spacer()
 
+            self.moveButtons(for: tab)
+
             Toggle("", isOn: Binding(
                 get: { !hiddenTabs.contains(tab.id) },
                 set: { setVisible($0, for: tab) }
@@ -91,6 +100,48 @@ struct TabVisibilityView: View
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .frame(minHeight: 50)
+    }
+
+    /// Explicit arrows rather than drag-to-reorder. `.onMove` needs a `List`, and a `List` here
+    /// would mean either an iOS 16 API (`scrollContentBackground`) against a deployment target of
+    /// 15, or clearing `UITableView.appearance()` globally. Neither is worth it for five rows.
+    private func moveButtons(for tab: Tab) -> some View {
+        let index = tabs.firstIndex(of: tab)
+
+        return HStack(spacing: 2) {
+            moveButton(systemImage: "chevron.up", isEnabled: index.map { $0 > 0 } ?? false) {
+                move(tab, by: -1)
+            }
+
+            moveButton(systemImage: "chevron.down", isEnabled: index.map { $0 < tabs.count - 1 } ?? false) {
+                move(tab, by: 1)
+            }
+        }
+        .padding(.trailing, 4)
+    }
+
+    private func moveButton(systemImage: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
+        SwiftUI.Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(Color.white.opacity(isEnabled ? 0.7 : 0.2))
+                .frame(width: 30, height: 30)
+        }
+        .disabled(!isEnabled)
+        // Without this each button would inherit the row's tap target and both would fire.
+        .buttonStyle(.borderless)
+    }
+
+    private func move(_ tab: Tab, by offset: Int) {
+        guard let index = tabs.firstIndex(of: tab) else { return }
+
+        let destination = index + offset
+        guard tabs.indices.contains(destination) else { return }
+
+        tabs.swapAt(index, destination)
+        MiniStore.tabOrder = tabs.map(\.id)
+
+        debugLog("[MiniStore] Tab order set to \(tabs.map(\.id)).")
     }
 
     private func setVisible(_ isVisible: Bool, for tab: Tab) {

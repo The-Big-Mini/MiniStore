@@ -189,6 +189,10 @@ ifneq ($(strip $(BUNDLE_ID_SUFFIX)),)
 COMMON_BUILD_SETTINGS += BUNDLE_ID_SUFFIX=$(BUNDLE_ID_SUFFIX)
 endif
 
+# Without this, make sees the build/ directory left behind by xcodebuild, decides the target is
+# already up to date, and prints "make: 'build' is up to date." having compiled nothing.
+.PHONY: build
+
 build:
 	@echo ">>>>>>>>> BUILD_CONFIG is set to '$(BUILD_CONFIG)', Building for $(BUILD_CONFIG) mode! <<<<<<<<<<"
 	@echo ""
