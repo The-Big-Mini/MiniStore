@@ -17,27 +17,24 @@ public extension MiniStore
     static let catalogueSourceURL = URL(string: "https://OofMini.github.io/Minis-Repo/mini.json")!
     static let catalogueSourceName = "Mini's Repo"
 
-    /// Sources left behind in databases this build inherits, matched against the normalized
-    /// `Source.identifier` (lowercased, scheme stripped).
+    /// Feeds an upgrading install may still have in its database, matched against the
+    /// normalized `Source.identifier` (lowercased, scheme stripped).
     ///
-    /// Two generations of dead feed:
+    /// Two kinds, both of which now serve nothing:
     ///
-    /// - SideStore's catalogue, seeded before the fork repointed `Source.altStoreSourceURL`.
-    /// - The old MiniStore hard fork's `side.json` / `sidenightly.json` self-update feeds.
-    ///   That repo is dead and serves nothing, so the source sits there listing no apps and
-    ///   failing every refresh — which is also what breaks the News tab, since one source
-    ///   returning GitHub's 404 page fails the whole decode.
+    /// - SideStore's catalogue, seeded before this fork repointed `Source.altStoreSourceURL`.
+    /// - Earlier MiniStore self-update feeds, which lived at several paths over time.
     ///
-    /// Prefixes rather than exact URLs because the dead repo served several feeds, and the
-    /// branch in the path changed over time.
+    /// A source that 404s is not merely inert: `FetchSourceOperation` decodes the whole
+    /// response, so one source returning GitHub's error page fails the refresh — which is what
+    /// empties the News tab.
     ///
-    /// **These prefixes now collide with this fork's own feed.** The repos were renamed on
-    /// 2026-08-15: the fork became `The-Big-Mini/MiniStore` and the dead hard fork became
-    /// `The-Big-Mini/MiniStore-Dead`. The prefixes still say `/ministore/` — correctly, because
-    /// they match identifiers already written into users' databases, which a repo rename does
-    /// not rewrite. But the live feed is now `the-big-mini.github.io/MiniStore/source.json`,
-    /// which matches too. The `altStoreIdentifier` guard in `removeLegacySideStoreSource` is
-    /// the only thing stopping this from deleting the app's own update source. Do not remove it.
+    /// Prefixes rather than exact URLs, because the path varied. **They also match this fork's
+    /// own live feed**, `the-big-mini.github.io/MiniStore/source.json`, and deliberately still
+    /// do: an identifier already written into a user's database is not rewritten by anything
+    /// that happens on the server side, so narrowing them would strand the records this exists
+    /// to clear. The `altStoreIdentifier` guard in `removeLegacySideStoreSource` is therefore
+    /// the only thing keeping this from deleting the app's own update source. Do not remove it.
     static let legacySourceIdentifierPrefixes = [
         "sidestore.io/apps-v2.json",
         "raw.githubusercontent.com/the-big-mini/ministore/",
