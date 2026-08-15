@@ -326,10 +326,17 @@ final class SettingsViewController: UITableViewController
         // show nav bar if not shown already
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
 
-        // Pushed screens set their own bar appearance, so reclaim it on the way back.
-        self.applyMiniStoreStyle()
-
         self.update()
+    }
+
+    override func viewDidAppear(_ animated: Bool)
+    {
+        super.viewDidAppear(animated)
+
+        // Deliberately here and not in viewWillAppear: this writes to the shared navigation bar,
+        // and viewWillAppear runs while the push or pop is still animating. See
+        // `applyMiniStoreBarTint()`.
+        self.applyMiniStoreBarTint()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
