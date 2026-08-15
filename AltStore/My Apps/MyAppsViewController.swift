@@ -92,6 +92,10 @@ class MyAppsViewController: UICollectionViewController, PeekPopPreviewing
         self.activeAppsDataSource.fetchedResultsController.delegate = self
         self.inactiveAppsDataSource.fetchedResultsController.delegate = self
         
+        // The storyboard paints this with the Background asset, which cannot follow OLED mode.
+        // Every other tab already overrides it with the dynamic colour; this one did not.
+        self.collectionView.backgroundColor = .altBackground
+
         self.collectionView.dataSource = self.dataSource
         self.collectionView.prefetchDataSource = self.dataSource
         self.dataSource.contentView = self.collectionView
