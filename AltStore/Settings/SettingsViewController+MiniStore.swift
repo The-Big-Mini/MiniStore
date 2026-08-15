@@ -33,8 +33,9 @@ private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
         2: SettingsRowIcon(symbol: "wrench.and.screwdriver.fill", color: .systemOrange),
         3: SettingsRowIcon(symbol: "flask.fill", color: .systemPink),
         4: SettingsRowIcon(symbol: "slider.horizontal.3", color: .systemRed),
-        5: SettingsRowIcon(symbol: "wand.and.stars", color: .systemTeal),
-        6: SettingsRowIcon(symbol: "chevron.left.forwardslash.chevron.right", color: .systemPurple),
+        5: SettingsRowIcon(symbol: "sparkles", color: .systemYellow),
+        6: SettingsRowIcon(symbol: "wand.and.stars", color: .systemTeal),
+        7: SettingsRowIcon(symbol: "chevron.left.forwardslash.chevron.right", color: .systemPurple),
     ],
 
     // Display
