@@ -23,6 +23,12 @@ private final class WhatsNewViewModel: ObservableObject
     @Published var errorMessage: String?
     @Published var isLoading = false
 
+    /// False until the first fetch has finished, win or lose. `isLoading` cannot answer this on
+    /// its own: it is still false during the gap between the view appearing and `.task` running,
+    /// and treating that gap as "not loading" renders the empty state for a frame before the
+    /// spinner ever shows.
+    @Published var hasLoaded = false
+
     private static let releasesURL = URL(string: "https://api.github.com/repos/The-Big-Mini/MiniStore/releases?per_page=10")!
 
     func load() async
@@ -31,7 +37,11 @@ private final class WhatsNewViewModel: ObservableObject
 
         self.isLoading = true
         self.errorMessage = nil
-        defer { self.isLoading = false }
+        defer
+        {
+            self.isLoading = false
+            self.hasLoaded = true
+        }
 
         var request = URLRequest(url: Self.releasesURL)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
@@ -99,7 +109,7 @@ struct WhatsNewView: View
                 {
                     self.errorCard(errorMessage)
                 }
-                else if model.entries.isEmpty && model.isLoading
+                else if model.entries.isEmpty && !model.hasLoaded
                 {
                     ProgressView()
                         .tint(.white)
