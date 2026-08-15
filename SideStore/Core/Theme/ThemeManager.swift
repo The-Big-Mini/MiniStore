@@ -8,6 +8,7 @@
 
 import UIKit
 import Combine
+import WidgetKit
 
 public struct ThemePreset: Identifiable, Equatable {
     public let id: String
@@ -38,6 +39,12 @@ public final class ThemeManager: ObservableObject {
     @Published public var primaryColor: UIColor {
         didSet {
             UserDefaults.standard.set(primaryColor.hexString, forKey: Self.userDefaultsKey)
+
+            // The widget runs in its own process and cannot see UserDefaults.standard, so the
+            // colour is mirrored into the app group and the timeline reloaded to pick it up.
+            MiniStoreSharedAccent.color = primaryColor
+            WidgetCenter.shared.reloadAllTimelines()
+
             NotificationCenter.default.post(name: Self.themeDidChangeNotification, object: primaryColor)
             DispatchQueue.main.async {
                 self.applyToVisibleUI()
@@ -52,6 +59,11 @@ public final class ThemeManager: ObservableObject {
         } else {
             self.primaryColor = .defaultAltPrimary
         }
+
+        // `didSet` does not run during init, so a colour chosen before this mirror existed would
+        // otherwise never reach the widget. No timeline reload here — this is the same value the
+        // widget already has on every launch but the first, and WidgetKit refreshes on its own.
+        MiniStoreSharedAccent.color = self.primaryColor
     }
 
     public func resetToDefault() {

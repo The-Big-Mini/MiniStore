@@ -16,7 +16,8 @@ public extension UIColor
 
     static var altPrimary: UIColor {
         #if WIDGET_EXTENSION
-        return defaultAltPrimary
+        // ThemeManager is app-target-only, so the widget reads what the app mirrored for it.
+        return MiniStoreSharedAccent.color ?? defaultAltPrimary
         #else
         return ThemeManager.shared.primaryColor
         #endif
