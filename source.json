@@ -10,16 +10,35 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260815.5+9eba74ac",
-              "date": "2026-08-15T15:35:42Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.5+9eba74ac\"\n  - revision: \"9eba74ac\"\n  - timestamp: \"Sat Aug 15 15:35:42 2026\"\n\n#### What's Changed:\n- Merge pull request #5 from The-Big-Mini/claude/repo-rename-fixups\n- chore(git): pin the app icon manifest against upstream merges\n- docs: rewrite the README for MiniStore, and pin it against upstream merges\n- chore(ci): drop upstream's PR triage workflow\n- fix(rename): repoint feed, releases and download URLs after the repo rename\n\n#### Full Changelog: [9e1c53d7...9eba74ac](https://github.com/The-Big-Mini/MiniStore/compare/9e1c53d7092af87fe6ff01d4c531fcd755cfd158...9eba74ac51a7e64b4e8343cfdc8a00f112de85e3)\n",
-              "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/SideStore.ipa",
-              "size": 25784304,
-              "sha256": "e328363f10e261c9ba8c012ee18d17b3bf7179ae9547ee79eec1729867c215a4"
+              "version": "0.6.4-20260815.6+27ef235a",
+              "date": "2026-08-15T21:12:10Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260815.6+27ef235a\"\n  - revision: \"27ef235a\"\n  - timestamp: \"Sat Aug 15 21:12:10 2026\"\n\n#### What's Changed:\n- Merge pull request #6 from The-Big-Mini/claude/repo-rename-fixups\n- feat(ci): publish store-page metadata and per-release news in the feed\n- chore(build): name the packaged IPA MiniStore.ipa\n- fix(settings): stop What's New flashing its empty state before the spinner\n- fix(settings): stop the nav bar resizing when entering and leaving a category\n\n#### Full Changelog: [9eba74ac...27ef235a](https://github.com/The-Big-Mini/MiniStore/compare/9eba74ac51a7e64b4e8343cfdc8a00f112de85e3...27ef235a766b62a81a62761ef0dfc856ac1a3c42)\n",
+              "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
+              "size": 25785750,
+              "sha256": "9d64a0a2c224d7b6131bbe866d77a36f0ebea1e62c65397d6b8f4ad4d4a23cf3"
             }
           ]
         }
-      ]
+      ],
+      "name": "MiniStore",
+      "developerName": "The-Big-Mini",
+      "subtitle": "SideStore with UI upgrades and preloaded sources",
+      "localizedDescription": "MiniStore is SideStore with the interface sanded down.\n\nEverything SideStore does, MiniStore does — it sideloads apps onto your device with just an Apple ID, resigns them with your personal development certificate, and refreshes them in the background so the 7-day development period never expires.\n\nWhat it adds:\n\n• OLED dark mode — true black throughout, applied live without a relaunch.\n• Accent colour theming — presets or a custom colour, across every tab and the home screen widget.\n• Reorganised settings — a list of categories instead of one long scroll.\n• Tab customization — hide the tabs you don't use and choose which one opens on launch.\n• What's New — release notes read straight from GitHub.\n• A preloaded catalogue so there is something to browse immediately.\n\nMiniStore is a thin layer on top of SideStore, kept deliberately small so upstream releases can be merged in as they land.",
+      "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
+      "tintColor": "A405FA",
+      "category": "utilities"
+    }
+  ],
+  "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
+  "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260815.6+27ef235a",
+      "title": "MiniStore Nightly — 0.6.4-20260815.6+27ef235a",
+      "caption": "Merge pull request #6 from The-Big-Mini/claude/repo-rename-fixups",
+      "date": "2026-08-15T21:12:10Z",
+      "appID": "com.SideStore.SideStore",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
   ]
 }
