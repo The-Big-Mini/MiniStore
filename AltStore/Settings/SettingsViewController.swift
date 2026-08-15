@@ -250,14 +250,11 @@ final class SettingsViewController: UITableViewController
     {
         super.viewDidLoad()
         
-        // --- iOS 26 fix ---
-        if #available(iOS 26.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-            appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance       // required for iOS 26, maybe enforce it in storyboard?
-        } 
+        // The iOS 26 white-title fix used to live here. It wrote to the *shared* navigation bar
+        // from viewDidLoad, and a pushed category is a second SettingsViewController whose
+        // viewDidLoad runs while the push is still animating — the same mid-transition bar write
+        // that `applyMiniStoreStyle()` was moved off. It now runs from `applyMiniStoreBarTint()`
+        // in viewDidAppear, with the other shared-bar work.
         let nib = UINib(nibName: "SettingsHeaderFooterView", bundle: nil)
         self.prototypeHeaderFooterView = nib.instantiate(withOwner: nil, options: nil)[0] as? SettingsHeaderFooterView
         
