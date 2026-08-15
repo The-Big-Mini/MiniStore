@@ -4,6 +4,9 @@ import json
 import sys
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+TEMPLATE_FILE = SCRIPT_DIR / "source-template.json"
+
 
 # ----------------------------------------------------------
 # metadata
@@ -139,6 +142,104 @@ def update_release_channel(app, meta):
 
 
 # ----------------------------------------------------------
+# presentation metadata
+# ----------------------------------------------------------
+
+def load_template():
+    if not TEMPLATE_FILE.exists():
+        print(f"No template at {TEMPLATE_FILE} — publishing release data only")
+        return {}
+
+    with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def apply_template(data, app, template):
+    """Everything a store page renders, and nothing CI can work out on its own.
+
+    StoreApp.init(from:) decodes name, developerName, localizedDescription and iconURL
+    non-optionally. An app entry carrying only bundleIdentifier and releaseChannels — which
+    is all ensure_app creates — therefore throws during decode, and the source appears in
+    the Sources tab but never loads.
+
+    Applied on every run rather than only when absent, so the published feed is reproducible
+    from this repo instead of depending on hand edits surviving on the gh-pages branch.
+    """
+    for key in ("name", "subtitle", "iconURL"):
+        if key in template:
+            data[key] = template[key]
+
+    app.update(template.get("app", {}))
+
+
+# ----------------------------------------------------------
+# news
+# ----------------------------------------------------------
+
+def changelog_caption(localized_description):
+    """First changelog bullet — the closest thing to a one-line summary of a release.
+
+    generate_source_metadata.py indents the "this is release for" bullets by two spaces and
+    starts the changelog ones at column zero, so the prefix alone tells them apart.
+    """
+    for line in localized_description.splitlines():
+        if line.startswith("- "):
+            caption = line[2:].strip()
+            return caption if len(caption) <= 120 else caption[:117].rstrip() + "..."
+
+    return "Tap to see what changed in this release."
+
+
+def release_page_url(download_url):
+    """.../releases/download/<tag>/<file> -> .../releases/tag/<tag>"""
+    marker = "/releases/download/"
+    if marker not in download_url:
+        return None
+
+    base, remainder = download_url.split(marker, 1)
+    return f"{base}/releases/tag/{remainder.split('/', 1)[0]}"
+
+
+def update_news(data, meta, template):
+    """One news item per published release.
+
+    NewsItem.init(from:) requires identifier, date, title and caption; everything else is
+    optional. appID points the item at MiniStore's own store page, so tapping it opens the
+    app rather than going nowhere.
+    """
+    settings = template.get("news", {})
+    channel = meta["release_channel"]
+    version = meta["version_ipa"]
+
+    entry = {
+        # Stable across re-runs of the same version, so re-publishing replaces the item
+        # instead of stacking a duplicate.
+        "identifier": f"ministore-{channel}-{version}",
+        "title": f"MiniStore {version}" if channel == "stable" else f"MiniStore {channel.title()} — {version}",
+        "caption": changelog_caption(meta["localized_description"]),
+        "date": meta["version_date"],
+        "appID": meta["bundle_identifier"],
+    }
+
+    tint_color = settings.get("tintColor")
+    if tint_color:
+        entry["tintColor"] = tint_color
+
+    url = release_page_url(meta["download_url"])
+    if url:
+        entry["url"] = url
+
+    news = [item for item in data.get("news", []) if item.get("identifier") != entry["identifier"]]
+    news.insert(0, entry)
+
+    maximum = settings.get("maximumItems")
+    if isinstance(maximum, int) and maximum > 0:
+        news = news[:maximum]
+
+    data["news"] = news
+
+
+# ----------------------------------------------------------
 # save
 # ----------------------------------------------------------
 
@@ -168,11 +269,14 @@ def main():
 
     meta = load_metadata(metadata_file)
     data = load_source(source_file)
+    template = load_template()
 
     app = ensure_app(data, meta["bundle_identifier"])
 
+    apply_template(data, app, template)
     update_storefront_if_needed(app, meta)
     update_release_channel(app, meta)
+    update_news(data, meta, template)
 
     save_source(source_file, data)
 
