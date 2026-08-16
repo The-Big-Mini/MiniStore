@@ -219,6 +219,10 @@ def update_news(data, meta, template):
     Deliberately no appID. NewsViewController renders a whole app banner — icon, developer,
     OPEN button — under any item that carries one, so every release note read as MiniStore
     listing its own IPA in the feed. `url` covers the tap: the item opens its release page.
+
+    Items already on the feed are stripped too. The published source.json is carried forward
+    between runs rather than regenerated, so dropping the key here only ever cleaned the item
+    being written — every older release note kept its banner until this ran over them.
     """
     settings = template.get("news", {})
     channel = meta["release_channel"]
@@ -231,7 +235,6 @@ def update_news(data, meta, template):
         "title": f"MiniStore {version}" if channel == "stable" else f"MiniStore {channel.title()} — {version}",
         "caption": changelog_caption(meta["localized_description"]),
         "date": meta["version_date"],
-        "appID": meta["bundle_identifier"],
     }
 
     tint_color = settings.get("tintColor")
@@ -243,6 +246,9 @@ def update_news(data, meta, template):
         entry["url"] = url
 
     news = [item for item in data.get("news", []) if item.get("identifier") != entry["identifier"]]
+    for item in news:
+        item.pop("appID", None)
+
     news.insert(0, entry)
 
     maximum = settings.get("maximumItems")
