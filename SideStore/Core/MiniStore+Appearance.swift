@@ -40,25 +40,6 @@ public extension MiniStore
 
 public extension MiniStore
 {
-    /// The bar appearance for plain UIKit and SwiftUI screens pushed out of Settings — health
-    /// check, connection config, certificate detail — which have no appearance of their own and
-    /// would otherwise render a dark title on a dark bar under iOS 26.
-    ///
-    /// A per-item appearance rather than one written to `navigationController.navigationBar`.
-    /// The bar is shared by the whole stack, and a write to it lands while UIKit is still
-    /// interpolating the bar's metrics: the header then held the *outgoing* screen's height for
-    /// the entire pop and snapped to the right one 28 frames later. UIKit cross-fades
-    /// `navigationItem` appearances between view controllers, so each screen can differ without
-    /// any screen touching the shared bar.
-    static var pushedScreenBarAppearance: UINavigationBarAppearance
-    {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        return appearance
-    }
-
     /// The static `Background` colour asset, held once so views painted with it can be found.
     private static let staticBackground = UIColor(named: "Background", in: .main, compatibleWith: nil)
 

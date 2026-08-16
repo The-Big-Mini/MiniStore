@@ -112,19 +112,6 @@ extension SettingsViewController
     {
         self.tableView.backgroundColor = .settingsBackground
 
-        // The standard appearance below is opaque and the scroll-edge one is not, so the bar's
-        // `isTranslucent` flips whenever it switches between them. With the default
-        // `extendedLayoutIncludesOpaqueBars == false`, an opaque bar stops the layout being
-        // extended underneath it: the view's frame origin drops to the bar's bottom edge and the
-        // top safe-area inset falls to zero. The scroll view absorbs that in its adjusted content
-        // inset, so the rows do not move — only the top clip does, which is exactly the artifact.
-        //
-        // The bar re-resolves standard vs. scroll-edge against the *destination's* scroll view,
-        // and only once the transition has settled, so the flip lands as a discrete jump some way
-        // into the pop rather than as part of it. Extending the layout under opaque bars makes
-        // the two states lay out identically, which leaves nothing for the flip to move.
-        self.extendedLayoutIncludesOpaqueBars = true
-
         let standard = UINavigationBarAppearance()
         standard.configureWithOpaqueBackground()
         standard.backgroundColor = .settingsBackground
@@ -145,19 +132,28 @@ extension SettingsViewController
         self.navigationItem.compactAppearance = standard
     }
 
-    /// The one thing that has to land on the *shared* navigation bar, applied after the
-    /// transition has finished — the one point where writing to the bar cannot disturb an
-    /// animation in progress. `tintColor` has no per-item equivalent, so it has no other home.
+    /// Everything that has to land on the *shared* navigation bar, applied after the transition
+    /// has finished — the one point where writing to the bar cannot disturb an animation in
+    /// progress. `tintColor` has no per-item equivalent, so it has no other home.
     ///
-    /// A bar-level appearance used to be written here as well, to keep titles white on the plain
-    /// screens pushed out of Settings under iOS 26. Measured on an iPhone 17 Pro, it cost a
-    /// 28-frame (~0.47s) artifact on every pop: the bar held the outgoing screen's expanded
-    /// height for the whole transition and then snapped up, clipping ~37pt off the top of the
-    /// destination. Those screens now carry `MiniStore.pushedScreenBarAppearance` on their own
-    /// `navigationItem` instead, which is the supported way and costs nothing.
+    /// The iOS 26 title-colour appearance is here for timing, not for this screen: the settings
+    /// screens set their own colours on `navigationItem` in `applyMiniStoreStyle()`, which wins
+    /// over anything bar-level. It is the plain UIKit screens pushed from here — anisette
+    /// servers, certificate management, error details — that have no appearance of their own and
+    /// would render a dark title on a dark bar without it.
     @objc func applyMiniStoreBarTint()
     {
         self.navigationController?.navigationBar.tintColor = .white
+
+        if #available(iOS 26.0, *)
+        {
+            let appearance = UINavigationBarAppearance()
+            appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+            appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+            self.navigationController?.navigationBar.standardAppearance = appearance
+            self.navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        }
     }
 
     func applyMiniStoreIcon(to cell: UITableViewCell, at indexPath: IndexPath)
