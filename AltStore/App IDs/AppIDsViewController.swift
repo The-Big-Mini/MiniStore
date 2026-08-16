@@ -44,6 +44,13 @@ final class AppIDsViewController: UICollectionViewController
         
         self.navigationController?.additionalSafeAreaInsets.top = 20
         self.doneBarButtonItem = self.navigationItem.rightBarButtonItem
+
+        // Main.storyboard paints this collection view `systemBackground`, which resolves to a
+        // fixed black in dark mode and cannot follow OLED mode either way — the switch is a
+        // UserDefaults change, not a trait change. `altBackground` is the dynamic colour the
+        // rest of My Apps uses, and being one of `MiniStore.dynamicColors` it is also what
+        // `MiniStore.refreshBackgrounds` matches on, so toggling OLED repaints this live.
+        self.collectionView.backgroundColor = .altBackground
         
         self.collectionView.dataSource = self.dataSource
         self.dataSource.contentView = self.collectionView
