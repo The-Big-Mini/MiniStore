@@ -1,0 +1,85 @@
+{
+  "_comment": "MiniStore's recommended sources, shown in the Add Source screen. Fetched at runtime by UpdateKnownSourcesOperation; SideStore's own list lives at https://sidestore.io/default-sources and is not used by this fork. Only `version` and `default` are decoded — `identifier` and `sourceURL` are the only keys read from each entry, and an entry without a sourceURL is not displayed.",
+  "version": 1,
+  "default": [
+    {
+      "identifier": "io.sidestore.example"
+    },
+    {
+      "identifier": "com.sidestoreapps.community",
+      "sourceURL": "https://community-apps.sidestore.io/sidecommunity.json"
+    },
+    {
+      "identifier": "com.stik.stikdebug",
+      "sourceURL": "https://stikdebug.xyz/index.json"
+    },
+    {
+      "identifier": "com.livecontainer.source",
+      "sourceURL": "https://github.com/LiveContainer/LiveContainer/releases/download/1.0/apps.json"
+    },
+    {
+      "identifier": "com.aoshuang.manicemu",
+      "sourceURL": "https://apps.manicemu.site/altstore"
+    },
+    {
+      "identifier": "com.stossy11.MeloNX",
+      "sourceURL": "https://git.ryujinx.app/melonx/emu/-/raw/XC-ios-ht/source.json"
+    },
+    {
+      "identifier": "com.chachirie.source",
+      "sourceURL": "https://github.com/chachillie/Flycast-iOS/raw/refs/heads/main/flycast-ios.json"
+    },
+    {
+      "identifier": "org.provenance-emu.provenance",
+      "sourceURL": "https://provenance-emu.com/apps.json"
+    },
+    {
+      "identifier": "com.neo.countdown",
+      "sourceURL": "https://neoarz.github.io/Countdown-App/Countdown.json"
+    },
+    {
+      "identifier": "me.oatmealdome.altstore",
+      "sourceURL": "https://altstore.oatmealdome.me"
+    },
+    {
+      "identifier": "com.utmapp.repos.UTM",
+      "sourceURL": "https://alt.getutm.app"
+    },
+    {
+      "identifier": "dev.crystall1ne.alt",
+      "sourceURL": "https://alt.crystall1ne.dev"
+    },
+    {
+      "identifier": "stream.yattee",
+      "sourceURL": "https://repos.yattee.stream/alt/apps.json"
+    },
+    {
+      "identifier": "com.litritt.litsource",
+      "sourceURL": "https://altstore.ignitedemulator.com/"
+    },
+    {
+      "identifier": "org.apptesters.repo",
+      "sourceURL": "https://repository.apptesters.org"
+    },
+    {
+      "identifier": "xyz.cypwn.ipalibrary",
+      "sourceURL": "https://ipa.cypwn.xyz/cypwn.json"
+    },
+    {
+      "identifier": "com.jayden.eevee.source",
+      "sourceURL": "https://github.com/jaydenjcpy/Eevee-Alt-Source/raw/refs/heads/main/apps.json"
+    },
+    {
+      "identifier": "com.xitrix.itorrent",
+      "sourceURL": "https://xitrix.github.io/iTorrent/AltStore.json"
+    },
+    {
+      "identifier": "com.zarzet.spotiflac.source",
+      "sourceURL": "https://raw.githubusercontent.com/spotiflacapp/SpotiFLAC-Mobile/main/apps.json"
+    },
+    {
+      "identifier": "github.com/dvntm0/altstore/raw/refs/heads/main/repo.json",
+      "sourceURL": "https://github.com/dvntm0/AltStore/raw/refs/heads/main/repo.json"
+    }
+  ]
+}

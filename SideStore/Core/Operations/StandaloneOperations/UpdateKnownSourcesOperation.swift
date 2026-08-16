@@ -10,7 +10,12 @@ import Foundation
 
 private extension URL
 {
-   static let sources = URL(string: "https://sidestore.io/default-sources")!
+   /// MiniStore's own recommended-source list, replacing `https://sidestore.io/default-sources`.
+   ///
+   /// Served straight out of this repo rather than from the fork's GitHub Pages site: the site
+   /// is only rewritten by a release workflow, so a list published there could not be corrected
+   /// without cutting a build. The raw URL tracks `develop` directly.
+   static let sources = URL(string: "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/default-sources.json")!
 }
 
 extension UpdateKnownSourcesOperation
