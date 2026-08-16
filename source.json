@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260816.11+e5a6cdd0",
-              "date": "2026-08-16T00:50:04Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.11+e5a6cdd0\"\n  - revision: \"e5a6cdd0\"\n  - timestamp: \"Sun Aug 16 00:50:04 2026\"\n\n#### What's Changed:\n- Merge pull request #9 from The-Big-Mini/MiniStoreFork\n- fix(settings): move the last mid-transition nav bar write out of viewDidLoad\n- fix(ci): publish the top-level release block on every channel\n\n#### Full Changelog: [d3db2622...e5a6cdd0](https://github.com/The-Big-Mini/MiniStore/compare/d3db2622d9d06e8076ddcea47434d680e3703a74...e5a6cdd0e584abeef7700a00baa84a0f154e3a60)\n",
+              "version": "0.6.4-20260816.13+e1d80daa",
+              "date": "2026-08-16T02:53:44Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.13+e1d80daa\"\n  - revision: \"e1d80daa\"\n  - timestamp: \"Sun Aug 16 02:53:44 2026\"\n\n#### What's Changed:\n- Merge pull request #10 from The-Big-Mini/MiniStoreFork\n- fix(oled): repaint the app detail screen's static Background asset\n\n#### Full Changelog: [e5a6cdd0...e1d80daa](https://github.com/The-Big-Mini/MiniStore/compare/e5a6cdd0e584abeef7700a00baa84a0f154e3a60...e1d80daaa74384cc2e8c3d345679cd4cc5c4404d)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25787423,
-              "sha256": "ed5f08425425c48a416f6ed38bc458fbf6232064b8a4c0742bbe0df45ef614b7"
+              "size": 25787673,
+              "sha256": "1c13335c37aeadce0539f456776e6d5c5e2e5972dde55c9e1b4917811dbc2ab6"
             }
           ]
         }
@@ -23,7 +23,7 @@
       "name": "MiniStore",
       "developerName": "The-Big-Mini",
       "subtitle": "SideStore with UI upgrades and preloaded sources",
-      "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.11+e5a6cdd0\"\n  - revision: \"e5a6cdd0\"\n  - timestamp: \"Sun Aug 16 00:50:04 2026\"\n\n#### What's Changed:\n- Merge pull request #9 from The-Big-Mini/MiniStoreFork\n- fix(settings): move the last mid-transition nav bar write out of viewDidLoad\n- fix(ci): publish the top-level release block on every channel\n\n#### Full Changelog: [d3db2622...e5a6cdd0](https://github.com/The-Big-Mini/MiniStore/compare/d3db2622d9d06e8076ddcea47434d680e3703a74...e5a6cdd0e584abeef7700a00baa84a0f154e3a60)\n",
+      "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.13+e1d80daa\"\n  - revision: \"e1d80daa\"\n  - timestamp: \"Sun Aug 16 02:53:44 2026\"\n\n#### What's Changed:\n- Merge pull request #10 from The-Big-Mini/MiniStoreFork\n- fix(oled): repaint the app detail screen's static Background asset\n\n#### Full Changelog: [e5a6cdd0...e1d80daa](https://github.com/The-Big-Mini/MiniStore/compare/e5a6cdd0e584abeef7700a00baa84a0f154e3a60...e1d80daaa74384cc2e8c3d345679cd4cc5c4404d)\n",
       "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
       "tintColor": "A405FA",
       "category": "utilities",
@@ -32,15 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260816.11+e5a6cdd0",
-      "versionDate": "2026-08-16T00:50:04Z",
-      "size": 25787423,
-      "sha256": "ed5f08425425c48a416f6ed38bc458fbf6232064b8a4c0742bbe0df45ef614b7",
+      "version": "0.6.4-20260816.13+e1d80daa",
+      "versionDate": "2026-08-16T02:53:44Z",
+      "size": 25787673,
+      "sha256": "1c13335c37aeadce0539f456776e6d5c5e2e5972dde55c9e1b4917811dbc2ab6",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260816.13+e1d80daa",
+      "title": "MiniStore Nightly — 0.6.4-20260816.13+e1d80daa",
+      "caption": "Merge pull request #10 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-16T02:53:44Z",
+      "appID": "com.SideStore.SideStore",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260816.11+e5a6cdd0",
       "title": "MiniStore Nightly — 0.6.4-20260816.11+e5a6cdd0",
