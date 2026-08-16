@@ -320,8 +320,15 @@ final class SettingsViewController: UITableViewController
     {
         super.viewWillAppear(animated)
 
-        // show nav bar if not shown already
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        // show nav bar if not shown already — and only then. This runs on every appearance,
+        // including the middle of a pop, and an animated show/hide is a bar-level animation:
+        // firing one while UIKit is already interpolating the bar's metrics for the transition
+        // is what left the header holding the outgoing screen's expanded height and snapping up
+        // afterwards. Guarding it makes the call what its comment always claimed it was.
+        if self.navigationController?.isNavigationBarHidden == true
+        {
+            self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        }
 
         self.update()
     }
