@@ -38,6 +38,34 @@ public extension MiniStore
     }
 }
 
+public extension MiniStore
+{
+    /// The static `Background` colour asset, held once so views painted with it can be found.
+    private static let staticBackground = UIColor(named: "Background", in: .main, compatibleWith: nil)
+
+    /// Repaints anything still carrying the static `Background` asset with `altBackground`.
+    ///
+    /// `Main.storyboard` paints twelve views with the raw asset. It has no OLED variant, so
+    /// those screens stay `#1C1C1E` with OLED mode on — most visibly the app detail screen,
+    /// whose table, cells and stack views are all painted that way. Swapping in the dynamic
+    /// colour also gives `MiniStore.refreshBackgrounds` an instance it can match by identity,
+    /// so a later toggle repaints them too.
+    static func adoptDynamicBackground(in view: UIView)
+    {
+        guard let asset = self.staticBackground else { return }
+
+        if let current = view.backgroundColor, current.isEqual(asset)
+        {
+            view.backgroundColor = .altBackground
+        }
+
+        for subview in view.subviews
+        {
+            self.adoptDynamicBackground(in: subview)
+        }
+    }
+}
+
 public extension View
 {
     /// Paints a settings screen with the app background and repaints it live when OLED mode

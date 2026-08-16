@@ -83,6 +83,8 @@ final class AppViewController: UIViewController
         self.contentViewControllerShadowView.layer.shadowOpacity = 0.3
         self.contentViewController.view.superview?.insertSubview(self.contentViewControllerShadowView, at: 0)
         
+        MiniStore.adoptDynamicBackground(in: self.contentView)
+
         self.contentView.addGestureRecognizer(self.scrollView.panGestureRecognizer)
         
         self.contentViewController.view.layer.cornerRadius = 38

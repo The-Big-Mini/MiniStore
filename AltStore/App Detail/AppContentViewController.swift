@@ -58,7 +58,8 @@ final class AppContentViewController: UITableViewController
         super.viewDidLoad()
         
         self.tableView.contentInset.bottom = 20
-        
+        MiniStore.adoptDynamicBackground(in: self.tableView)
+
         self.subtitleLabel.text = self.app.subtitle
         let desc = self.app.localizedDescription
         self.descriptionTextView.text = desc
@@ -179,6 +180,9 @@ extension AppContentViewController
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
         cell.tintColor = self.app.tintColor
+
+        // Cells and their stack views carry the static asset too, and only exist once dequeued.
+        MiniStore.adoptDynamicBackground(in: cell)
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
