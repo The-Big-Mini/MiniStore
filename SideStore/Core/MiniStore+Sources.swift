@@ -39,6 +39,13 @@ public extension MiniStore
         "sidestore.io/apps-v2.json",
         "raw.githubusercontent.com/the-big-mini/ministore/",
         "the-big-mini.github.io/ministore/",
+
+        // The feed's home before the repo was renamed `The-Big-Mini/SideStore` →
+        // `The-Big-Mini/MiniStore`. Its path is `/sidestore/`, so none of the prefixes above
+        // reach it, and it outlived every launch: a row still named "MiniStore" — that being
+        // the feed's own `name` — sitting in Sources reporting "failed to load", while
+        // self-updates went on working from the current feed's separate row.
+        "the-big-mini.github.io/sidestore/",
     ]
 
     /// Set once Mini's Repo has been seeded, so removing it sticks. An existence check
