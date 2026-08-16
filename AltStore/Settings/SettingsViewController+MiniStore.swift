@@ -132,12 +132,28 @@ extension SettingsViewController
         self.navigationItem.compactAppearance = standard
     }
 
-    /// `tintColor` has no per-item equivalent, so it has to be set on the shared bar — which
-    /// makes *when* the only lever available. After the transition has finished is the one point
-    /// where writing to the bar cannot disturb an animation in progress.
+    /// Everything that has to land on the *shared* navigation bar, applied after the transition
+    /// has finished — the one point where writing to the bar cannot disturb an animation in
+    /// progress. `tintColor` has no per-item equivalent, so it has no other home.
+    ///
+    /// The iOS 26 title-colour appearance is here for timing, not for this screen: the settings
+    /// screens set their own colours on `navigationItem` in `applyMiniStoreStyle()`, which wins
+    /// over anything bar-level. It is the plain UIKit screens pushed from here — anisette
+    /// servers, certificate management, error details — that have no appearance of their own and
+    /// would render a dark title on a dark bar without it.
     @objc func applyMiniStoreBarTint()
     {
         self.navigationController?.navigationBar.tintColor = .white
+
+        if #available(iOS 26.0, *)
+        {
+            let appearance = UINavigationBarAppearance()
+            appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+            appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+            self.navigationController?.navigationBar.standardAppearance = appearance
+            self.navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        }
     }
 
     func applyMiniStoreIcon(to cell: UITableViewCell, at indexPath: IndexPath)

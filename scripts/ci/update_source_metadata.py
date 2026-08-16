@@ -89,16 +89,26 @@ def ensure_app(data, bundle_id):
 # update storefront
 # ----------------------------------------------------------
 
-def update_storefront_if_needed(app, meta):
-    if meta["release_channel"] == "stable":
-        app.update({
-            "version": meta["version_ipa"],
-            "versionDate": meta["version_date"],
-            "size": meta["size"],
-            "sha256": meta["sha256"],
-            "localizedDescription": meta["localized_description"],
-            "downloadURL": meta["download_url"],
-        })
+def update_storefront(app, meta):
+    """The legacy top-level release block. Written on every channel, not just stable.
+
+    StoreApp.decodeVersions resolves versions as
+    `getReleases(default: stableTrack) ?? versions ?? createNewAppVersion(decoder:)`.
+    On a nightly-only feed the first two are empty — there is no "stable" track, and
+    `betaReleases` bails at StoreApp.swift:120 because it needs a stable release to
+    compare the beta against — so it falls through to createNewAppVersion, which decodes
+    version/versionDate/downloadURL/size *non-optionally* (StoreApp.swift:504-509).
+    Gating these fields on stable therefore made every nightly feed throw during decode:
+    the source appeared in Sources and never loaded, taking the news items with it.
+    """
+    app.update({
+        "version": meta["version_ipa"],
+        "versionDate": meta["version_date"],
+        "size": meta["size"],
+        "sha256": meta["sha256"],
+        "localizedDescription": meta["localized_description"],
+        "downloadURL": meta["download_url"],
+    })
 
 
 # ----------------------------------------------------------
@@ -274,7 +284,7 @@ def main():
     app = ensure_app(data, meta["bundle_identifier"])
 
     apply_template(data, app, template)
-    update_storefront_if_needed(app, meta)
+    update_storefront(app, meta)
     update_release_channel(app, meta)
     update_news(data, meta, template)
 
