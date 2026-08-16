@@ -267,8 +267,7 @@ struct CertificatesView: View {
             requesterEmail: cert.requesterEmail
         )
         let detailVC = UIHostingController(rootView: CertificateDetailView(certificate: cert, portalMetadata: metadata, viewModel: viewModel))
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
+        let appearance = MiniStore.pushedScreenBarAppearance
         detailVC.navigationItem.scrollEdgeAppearance = appearance
         detailVC.navigationItem.standardAppearance   = appearance
         presentingViewController?.navigationController?.pushViewController(detailVC, animated: true)

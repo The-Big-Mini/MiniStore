@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct TabVisibilityView: View
 {
@@ -21,6 +22,17 @@ struct TabVisibilityView: View
     @State private var tabs: [Tab] = []
     @State private var hiddenTabs = MiniStore.hiddenTabs
     @State private var defaultTab = MiniStore.defaultTab
+
+    /// Drag-to-reorder state. `dragStartIndex` is where the lifted row began, so the target
+    /// index can be derived from the total translation rather than accumulated deltas — the
+    /// rows shuffle underneath while the lifted one stays under the finger.
+    @State private var draggingID: Int?
+    @State private var dragTranslation: CGFloat = 0
+    @State private var dragStartIndex: Int?
+
+    /// Pinned rather than intrinsic: translation is converted to a row count, which needs a
+    /// height that cannot drift with the label.
+    private static let rowHeight: CGFloat = 56
 
     private var visibleTabs: [Tab] {
         tabs.filter { !hiddenTabs.contains($0.id) }
@@ -44,7 +56,7 @@ struct TabVisibilityView: View
                     .background(Color.miniStoreCard)
                     .cornerRadius(16)
 
-                    Text("Use the arrows to change the order tabs appear in. The last visible tab cannot be switched off. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
+                    Text("Touch and hold a tab, then drag it to change the order tabs appear in. The last visible tab cannot be switched off. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
                         .font(.system(size: 12))
                         .foregroundColor(Color.white.opacity(0.6))
                         .padding(.horizontal, 16)
@@ -81,14 +93,14 @@ struct TabVisibilityView: View
     }
 
     private func visibilityRow(for tab: Tab) -> some View {
-        HStack {
+        let isDragging = draggingID == tab.id
+
+        return HStack {
             Text(tab.title)
                 .font(.system(size: 17, weight: .bold))
                 .foregroundColor(.white)
 
             Spacer()
-
-            self.moveButtons(for: tab)
 
             Toggle("", isOn: Binding(
                 get: { !hiddenTabs.contains(tab.id) },
@@ -98,50 +110,70 @@ struct TabVisibilityView: View
             .tint(.green)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .frame(minHeight: 50)
+        .frame(height: Self.rowHeight)
+        // The lifted row rides above its neighbours and follows the finger; the rest animate
+        // into their new slots as `tabs` is reordered underneath.
+        .background(isDragging ? Color.white.opacity(0.12) : Color.clear)
+        .scaleEffect(isDragging ? 1.02 : 1)
+        .offset(y: isDragging ? liftedOffset(for: tab) : 0)
+        .zIndex(isDragging ? 1 : 0)
+        .gesture(reorderGesture(for: tab))
     }
 
-    /// Explicit arrows rather than drag-to-reorder. `.onMove` needs a `List`, and a `List` here
-    /// would mean either an iOS 16 API (`scrollContentBackground`) against a deployment target of
-    /// 15, or clearing `UITableView.appearance()` globally. Neither is worth it for five rows.
-    private func moveButtons(for tab: Tab) -> some View {
-        let index = tabs.firstIndex(of: tab)
+    /// Long-press to lift, then drag. `.onMove` would be less code but needs a `List`, and a
+    /// `List` here means either an iOS 16 API (`scrollContentBackground`) against a deployment
+    /// target of 15, or clearing `UITableView.appearance()` globally — both worse than this.
+    ///
+    /// Attached with `.gesture` rather than `.highPriorityGesture` so the row's `Toggle` keeps
+    /// its own touches.
+    private func reorderGesture(for tab: Tab) -> some Gesture {
+        LongPressGesture(minimumDuration: 0.25)
+            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .local))
+            .onChanged { value in
+                guard case .second(true, let drag?) = value else { return }
 
-        return HStack(spacing: 2) {
-            moveButton(systemImage: "chevron.up", isEnabled: index.map { $0 > 0 } ?? false) {
-                move(tab, by: -1)
+                if draggingID != tab.id
+                {
+                    draggingID = tab.id
+                    dragStartIndex = tabs.firstIndex(of: tab)
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }
+
+                dragTranslation = drag.translation.height
+                moveIfNeeded(tab)
             }
+            .onEnded { _ in
+                if draggingID != nil
+                {
+                    MiniStore.tabOrder = tabs.map(\.id)
+                    debugLog("[MiniStore] Tab order set to \(tabs.map(\.id)).")
+                }
 
-            moveButton(systemImage: "chevron.down", isEnabled: index.map { $0 < tabs.count - 1 } ?? false) {
-                move(tab, by: 1)
+                withAnimation(.easeOut(duration: 0.15)) {
+                    draggingID = nil
+                    dragTranslation = 0
+                    dragStartIndex = nil
+                }
             }
-        }
-        .padding(.trailing, 4)
     }
 
-    private func moveButton(systemImage: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
-        SwiftUI.Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Color.white.opacity(isEnabled ? 0.7 : 0.2))
-                .frame(width: 30, height: 30)
-        }
-        .disabled(!isEnabled)
-        // Without this each button would inherit the row's tap target and both would fire.
-        .buttonStyle(.borderless)
+    /// How far the lifted row is drawn from its *current* slot: the raw translation less the
+    /// distance it has already been moved by reordering, so it stays under the finger.
+    private func liftedOffset(for tab: Tab) -> CGFloat {
+        guard let start = dragStartIndex, let index = tabs.firstIndex(of: tab) else { return 0 }
+        return dragTranslation - CGFloat(index - start) * Self.rowHeight
     }
 
-    private func move(_ tab: Tab, by offset: Int) {
-        guard let index = tabs.firstIndex(of: tab) else { return }
+    private func moveIfNeeded(_ tab: Tab) {
+        guard let start = dragStartIndex, let index = tabs.firstIndex(of: tab) else { return }
 
-        let destination = index + offset
-        guard tabs.indices.contains(destination) else { return }
+        let target = min(max(start + Int((dragTranslation / Self.rowHeight).rounded()), 0), tabs.count - 1)
+        guard target != index else { return }
 
-        tabs.swapAt(index, destination)
-        MiniStore.tabOrder = tabs.map(\.id)
-
-        debugLog("[MiniStore] Tab order set to \(tabs.map(\.id)).")
+        withAnimation(.easeInOut(duration: 0.18)) {
+            let moved = tabs.remove(at: index)
+            tabs.insert(moved, at: target)
+        }
     }
 
     private func setVisible(_ isVisible: Bool, for tab: Tab) {

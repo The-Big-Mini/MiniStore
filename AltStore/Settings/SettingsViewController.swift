@@ -267,7 +267,7 @@ final class SettingsViewController: UITableViewController
         self.tableView.addGestureRecognizer(debugModeGestureRecognizer)
         
         // set the version label to show in settings screen
-        self.versionLabel.text = getVersionLabel()
+        self.versionLabel.attributedText = getVersionAttributedString()
         self.versionLabel.isUserInteractionEnabled = true
         self.versionLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(copyVersionLabelTapped)))
         
@@ -320,8 +320,15 @@ final class SettingsViewController: UITableViewController
     {
         super.viewWillAppear(animated)
 
-        // show nav bar if not shown already
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        // show nav bar if not shown already — and only then. This runs on every appearance,
+        // including the middle of a pop, and an animated show/hide is a bar-level animation:
+        // firing one while UIKit is already interpolating the bar's metrics for the transition
+        // is what left the header holding the outgoing screen's expanded height and snapping up
+        // afterwards. Guarding it makes the call what its comment always claimed it was.
+        if self.navigationController?.isNavigationBarHidden == true
+        {
+            self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        }
 
         self.update()
     }
@@ -368,20 +375,62 @@ final class SettingsViewController: UITableViewController
 private extension SettingsViewController
 {
     
-    private func getVersionLabel() -> String {
-        Bundle.Info.activeBundleVersion
+    private func getVersionAttributedString() -> NSAttributedString {
+        let appVersion = Bundle.Info.activeBundleVersion
+        let iosVersion = "iOS \(UIDevice.current.systemVersion) (\(ProcessInfo.processInfo.operatingSystemBuild))"
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        paragraphStyle.lineSpacing = 4
+        
+        let fullString = NSMutableAttributedString()
+        
+        let appVersionAttr = NSAttributedString(
+            string: appVersion,
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 14),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.7),
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+        
+        let iosVersionAttr = NSAttributedString(
+            string: "\n" + iosVersion,
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.5),
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+        
+        fullString.append(appVersionAttr)
+        fullString.append(iosVersionAttr)
+        return fullString
     }
     
     @objc private func copyVersionLabelTapped() {
-        let text = self.versionLabel.text ?? ""
-        UIPasteboard.general.string = text.hasPrefix("Version ") ? String(text.dropFirst("Version ".count)) : text
-        let original = self.versionLabel.text
-        let attributed = NSMutableAttributedString(string: "Copied! ")
-        attributed.append(NSAttributedString(string: "✓", attributes: [.foregroundColor: UIColor.systemGreen]))
+        let appVersion = Bundle.Info.activeBundleVersion
+        let iosVersion = "iOS \(UIDevice.current.systemVersion) (\(ProcessInfo.processInfo.operatingSystemBuild))"
+        let fullText = "\(appVersion)\n\(iosVersion)"
+        UIPasteboard.general.string = fullText.hasPrefix("Version ") ? String(fullText.dropFirst("Version ".count)) : fullText
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        let attributed = NSMutableAttributedString(
+            string: "Copied! ",
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 14),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.7),
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+        attributed.append(NSAttributedString(string: "✓", attributes: [
+            .font: UIFont.systemFont(ofSize: 14),
+            .foregroundColor: UIColor.systemGreen
+        ]))
         self.versionLabel.attributedText = attributed
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            self?.versionLabel.attributedText = nil
-            self?.versionLabel.text = original
+            self?.versionLabel.attributedText = self?.getVersionAttributedString()
         }
     }
     
@@ -1122,12 +1171,11 @@ extension SettingsViewController
             case .healthCheck:
                 let healthCheckView = HealthCheckView()
                 let vc = UIHostingController(rootView: healthCheckView)
-                
-                let appearance = UINavigationBarAppearance()
-                appearance.configureWithDefaultBackground()
+
+                let appearance = MiniStore.pushedScreenBarAppearance
                 vc.navigationItem.scrollEdgeAppearance = appearance
                 vc.navigationItem.standardAppearance = appearance
-                
+
                 navigationController?.pushViewController(vc, animated: true)
                 
             case .errorLog: break
@@ -1368,8 +1416,7 @@ extension SettingsViewController
                 let connectionConfigView = ConnectionConfigView()
                 let vc = UIHostingController(rootView: connectionConfigView)
 
-                let appearance = UINavigationBarAppearance()
-                appearance.configureWithDefaultBackground()   // gives solid background
+                let appearance = MiniStore.pushedScreenBarAppearance
                 vc.navigationItem.scrollEdgeAppearance = appearance
                 vc.navigationItem.standardAppearance = appearance
 

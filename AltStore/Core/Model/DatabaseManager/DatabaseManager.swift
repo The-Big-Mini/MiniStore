@@ -574,7 +574,7 @@ public class DatabaseManager
     private func migrateDatabaseToAppGroupIfNeeded(completion: @escaping (Result<Void, Error>) -> Void)
     {
         // Only migrate if we haven't migrated yet and there's a valid AltStore app group.
-        guard UserDefaults.shared.requiresAppGroupMigration && Bundle.main.altstoreAppGroup != nil else { return completion(.success(())) }
+        guard UserDefaults.standard.requiresAppGroupMigration && Bundle.main.altstoreAppGroup != nil else { return completion(.success(())) }
 
         func finish(_ result: Result<Void, Error>)
         {
@@ -582,7 +582,7 @@ public class DatabaseManager
             {
             case .failure(let error): completion(.failure(error))
             case .success:
-                UserDefaults.shared.requiresAppGroupMigration = false
+                UserDefaults.standard.requiresAppGroupMigration = false
                 completion(.success(()))
             }
         }

@@ -214,8 +214,11 @@ def update_news(data, meta, template):
     """One news item per published release.
 
     NewsItem.init(from:) requires identifier, date, title and caption; everything else is
-    optional. appID points the item at MiniStore's own store page, so tapping it opens the
-    app rather than going nowhere.
+    optional.
+
+    Deliberately no appID. NewsViewController renders a whole app banner — icon, developer,
+    OPEN button — under any item that carries one, so every release note read as MiniStore
+    listing its own IPA in the feed. `url` covers the tap: the item opens its release page.
     """
     settings = template.get("news", {})
     channel = meta["release_channel"]
