@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260816.15+4becc684",
-              "date": "2026-08-16T17:43:42Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.15+4becc684\"\n  - revision: \"4becc684\"\n  - timestamp: \"Sun Aug 16 17:43:42 2026\"\n\n#### What's Changed:\n- Merge pull request #12 from The-Big-Mini/MiniStoreFork\n- fix(sources): clear the pre-rename MiniStore feed left in the database\n\n#### Full Changelog: [81e903bd...4becc684](https://github.com/The-Big-Mini/MiniStore/compare/81e903bd588ecd03d2006cf343ec0b4e4e744cf3...4becc68400dea890a962cb38e1fc6e9bf66ad776)\n",
+              "version": "0.6.4-20260816.16+fe1558bd",
+              "date": "2026-08-16T18:24:18Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.16+fe1558bd\"\n  - revision: \"fe1558bd\"\n  - timestamp: \"Sun Aug 16 18:24:18 2026\"\n\n#### What's Changed:\n- Merge pull request #13 from The-Big-Mini/MiniStoreFork\n- fix(settings): stop the header jumping when the bar changes opacity\n\n#### Full Changelog: [4becc684...fe1558bd](https://github.com/The-Big-Mini/MiniStore/compare/4becc68400dea890a962cb38e1fc6e9bf66ad776...fe1558bd57e87c9d6f193bb28088c549c82f515a)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25855545,
-              "sha256": "d8a316d4e76f1a20b4b7894f8abe18a3ba21b5d051ef024ac86227409e219ce3"
+              "size": 25855309,
+              "sha256": "47ad457e263fd91cf58263a336accbf109a1ace0957be8f7e630841283cf5125"
             }
           ]
         }
@@ -23,7 +23,7 @@
       "name": "MiniStore",
       "developerName": "The-Big-Mini",
       "subtitle": "SideStore with UI upgrades and preloaded sources",
-      "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.15+4becc684\"\n  - revision: \"4becc684\"\n  - timestamp: \"Sun Aug 16 17:43:42 2026\"\n\n#### What's Changed:\n- Merge pull request #12 from The-Big-Mini/MiniStoreFork\n- fix(sources): clear the pre-rename MiniStore feed left in the database\n\n#### Full Changelog: [81e903bd...4becc684](https://github.com/The-Big-Mini/MiniStore/compare/81e903bd588ecd03d2006cf343ec0b4e4e744cf3...4becc68400dea890a962cb38e1fc6e9bf66ad776)\n",
+      "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.16+fe1558bd\"\n  - revision: \"fe1558bd\"\n  - timestamp: \"Sun Aug 16 18:24:18 2026\"\n\n#### What's Changed:\n- Merge pull request #13 from The-Big-Mini/MiniStoreFork\n- fix(settings): stop the header jumping when the bar changes opacity\n\n#### Full Changelog: [4becc684...fe1558bd](https://github.com/The-Big-Mini/MiniStore/compare/4becc68400dea890a962cb38e1fc6e9bf66ad776...fe1558bd57e87c9d6f193bb28088c549c82f515a)\n",
       "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
       "tintColor": "A405FA",
       "category": "utilities",
@@ -32,15 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260816.15+4becc684",
-      "versionDate": "2026-08-16T17:43:42Z",
-      "size": 25855545,
-      "sha256": "d8a316d4e76f1a20b4b7894f8abe18a3ba21b5d051ef024ac86227409e219ce3",
+      "version": "0.6.4-20260816.16+fe1558bd",
+      "versionDate": "2026-08-16T18:24:18Z",
+      "size": 25855309,
+      "sha256": "47ad457e263fd91cf58263a336accbf109a1ace0957be8f7e630841283cf5125",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260816.16+fe1558bd",
+      "title": "MiniStore Nightly — 0.6.4-20260816.16+fe1558bd",
+      "caption": "Merge pull request #13 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-16T18:24:18Z",
+      "appID": "com.SideStore.SideStore",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260816.15+4becc684",
       "title": "MiniStore Nightly — 0.6.4-20260816.15+4becc684",
