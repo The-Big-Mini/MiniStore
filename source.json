@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260816.14+81e903bd",
-              "date": "2026-08-16T17:14:17Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.14+81e903bd\"\n  - revision: \"81e903bd\"\n  - timestamp: \"Sun Aug 16 17:14:17 2026\"\n\n#### What's Changed:\n- Merge pull request #11 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix(oled): make the App IDs screen follow OLED mode\n- feat(settings): drag tabs to reorder instead of arrow buttons\n- fix(ci): stop attaching appID to release news items\n- fix(settings): only show the nav bar when it is actually hidden\n- fix(settings): stop writing bar appearance to the shared navigation bar\n- added ios version below our version number\n- fix: cert view doesnt need full auth so explicitly ignore provisioning, device registration\n- added ability to show subnet mask on the deviceIP\n- fix: temporarily reverting the no default overrideIP coz though our auto discovery works perfectly, localDevVPN is flawed in its routing table - so until it is fixed, to reduce friction we are okay with this\n- refine more\n- refined master switch for disabling app checks\n- added master switch for disabling app checks\n- more refinements in user cust screen icons\n- fix button sizing in the source detail vc which shows \"Free\" for sources such as StikNES\n- group few customizations stuff into own sections\n- promote app verification into user cust + tie permission checks to app verification\n- cleanup\n- fix: move out widget shared defaults into widged manager\n- bug-fix: app layer should be using Userdefaults.standard and not shared, unless it wants to share data with only other component being widgets\n- promote permissions check from experimental to user cust\n- fix: removebackup shouldnt throw if backup not found coz we fine\n- refine the delete app dialog\n- feat: added remove only (from sidestore) option when deleting app\n- feat: added remove only (from sidestore) option when deleting app\n- fix: widget reload was not invoked after resign causing issue coz we skip reload at end during resign/self install.\n- moved export wireguard config into user customizations screen to be more accessible\n- minimuxer: cpu 3% hog issue fix\n- fix: emp - should invoke bind before we do intial handshake so that config is ready to be used in handshake.\n- emp toggling requires a restart - so enforce it, by asking user, otherwise do not accept changes if they dont wanna do it now\n- show reachability yes/no only when valid otherwise N/A\n- improve messaging in footer (connection config)\n- fix: removed defaultOverrideIP so that auto discovery may kick in\n- qol: in connection config show override active or not only when present + show reachability\n- fix: make ddi mount error not criticial\n- minimuxer: use refined apis newly added in minimuxer for push based networking changes\n\n#### Full Changelog: [e1d80daa...81e903bd](https://github.com/The-Big-Mini/MiniStore/compare/e1d80daaa74384cc2e8c3d345679cd4cc5c4404d...81e903bd588ecd03d2006cf343ec0b4e4e744cf3)\n",
+              "version": "0.6.4-20260816.15+4becc684",
+              "date": "2026-08-16T17:43:42Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.15+4becc684\"\n  - revision: \"4becc684\"\n  - timestamp: \"Sun Aug 16 17:43:42 2026\"\n\n#### What's Changed:\n- Merge pull request #12 from The-Big-Mini/MiniStoreFork\n- fix(sources): clear the pre-rename MiniStore feed left in the database\n\n#### Full Changelog: [81e903bd...4becc684](https://github.com/The-Big-Mini/MiniStore/compare/81e903bd588ecd03d2006cf343ec0b4e4e744cf3...4becc68400dea890a962cb38e1fc6e9bf66ad776)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25855432,
-              "sha256": "dbad9732e99142c760ef7aa2f6c8def44fe058fd7949edc62dc1507022f82614"
+              "size": 25855545,
+              "sha256": "d8a316d4e76f1a20b4b7894f8abe18a3ba21b5d051ef024ac86227409e219ce3"
             }
           ]
         }
@@ -23,7 +23,7 @@
       "name": "MiniStore",
       "developerName": "The-Big-Mini",
       "subtitle": "SideStore with UI upgrades and preloaded sources",
-      "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.14+81e903bd\"\n  - revision: \"81e903bd\"\n  - timestamp: \"Sun Aug 16 17:14:17 2026\"\n\n#### What's Changed:\n- Merge pull request #11 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix(oled): make the App IDs screen follow OLED mode\n- feat(settings): drag tabs to reorder instead of arrow buttons\n- fix(ci): stop attaching appID to release news items\n- fix(settings): only show the nav bar when it is actually hidden\n- fix(settings): stop writing bar appearance to the shared navigation bar\n- added ios version below our version number\n- fix: cert view doesnt need full auth so explicitly ignore provisioning, device registration\n- added ability to show subnet mask on the deviceIP\n- fix: temporarily reverting the no default overrideIP coz though our auto discovery works perfectly, localDevVPN is flawed in its routing table - so until it is fixed, to reduce friction we are okay with this\n- refine more\n- refined master switch for disabling app checks\n- added master switch for disabling app checks\n- more refinements in user cust screen icons\n- fix button sizing in the source detail vc which shows \"Free\" for sources such as StikNES\n- group few customizations stuff into own sections\n- promote app verification into user cust + tie permission checks to app verification\n- cleanup\n- fix: move out widget shared defaults into widged manager\n- bug-fix: app layer should be using Userdefaults.standard and not shared, unless it wants to share data with only other component being widgets\n- promote permissions check from experimental to user cust\n- fix: removebackup shouldnt throw if backup not found coz we fine\n- refine the delete app dialog\n- feat: added remove only (from sidestore) option when deleting app\n- feat: added remove only (from sidestore) option when deleting app\n- fix: widget reload was not invoked after resign causing issue coz we skip reload at end during resign/self install.\n- moved export wireguard config into user customizations screen to be more accessible\n- minimuxer: cpu 3% hog issue fix\n- fix: emp - should invoke bind before we do intial handshake so that config is ready to be used in handshake.\n- emp toggling requires a restart - so enforce it, by asking user, otherwise do not accept changes if they dont wanna do it now\n- show reachability yes/no only when valid otherwise N/A\n- improve messaging in footer (connection config)\n- fix: removed defaultOverrideIP so that auto discovery may kick in\n- qol: in connection config show override active or not only when present + show reachability\n- fix: make ddi mount error not criticial\n- minimuxer: use refined apis newly added in minimuxer for push based networking changes\n\n#### Full Changelog: [e1d80daa...81e903bd](https://github.com/The-Big-Mini/MiniStore/compare/e1d80daaa74384cc2e8c3d345679cd4cc5c4404d...81e903bd588ecd03d2006cf343ec0b4e4e744cf3)\n",
+      "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260816.15+4becc684\"\n  - revision: \"4becc684\"\n  - timestamp: \"Sun Aug 16 17:43:42 2026\"\n\n#### What's Changed:\n- Merge pull request #12 from The-Big-Mini/MiniStoreFork\n- fix(sources): clear the pre-rename MiniStore feed left in the database\n\n#### Full Changelog: [81e903bd...4becc684](https://github.com/The-Big-Mini/MiniStore/compare/81e903bd588ecd03d2006cf343ec0b4e4e744cf3...4becc68400dea890a962cb38e1fc6e9bf66ad776)\n",
       "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
       "tintColor": "A405FA",
       "category": "utilities",
@@ -32,15 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260816.14+81e903bd",
-      "versionDate": "2026-08-16T17:14:17Z",
-      "size": 25855432,
-      "sha256": "dbad9732e99142c760ef7aa2f6c8def44fe058fd7949edc62dc1507022f82614",
+      "version": "0.6.4-20260816.15+4becc684",
+      "versionDate": "2026-08-16T17:43:42Z",
+      "size": 25855545,
+      "sha256": "d8a316d4e76f1a20b4b7894f8abe18a3ba21b5d051ef024ac86227409e219ce3",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260816.15+4becc684",
+      "title": "MiniStore Nightly — 0.6.4-20260816.15+4becc684",
+      "caption": "Merge pull request #12 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-16T17:43:42Z",
+      "appID": "com.SideStore.SideStore",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260816.14+81e903bd",
       "title": "MiniStore Nightly — 0.6.4-20260816.14+81e903bd",
