@@ -1324,31 +1324,84 @@ private extension MyAppsViewController
     {
         guard installedApp.isActive else { return }
         
-        Task { @MainActor in
-            AppManager.shared.deleteApp(installedApp, presentingViewController: self) { (result) in
-                do
-                {
-                    let app = try result.get()
-                    try? app.managedObjectContext?.save()
-                    
-                    debugLog("Finished deleting app: \(app.bundleIdentifier)")
-                }
-                catch is CancellationError
-                {
-                    // Ignore
-                }
-                catch
-                {
-                    debugLog("Failed to delete app: \(error)")
-                    
-                    DispatchQueue.main.async {
-                        ToastView(error: error, opensLog: true).show(in: self)
+        let appName = installedApp.name
+        let title = String(format: NSLocalizedString("Delete “%@”?", comment: ""), appName)
+        
+        let message = String(format: NSLocalizedString("This will remove “%@” from SideStore and erase any backup data for this app.", comment: ""), appName)
+        
+        let contentVC = DeleteAppAlertViewController()
+        
+        let alertController = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alertController.setValue(contentVC, forKey: "contentViewController")
+        
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil)
+        
+        let actionTitleForState: (Bool) -> String = { isChecked in
+            isChecked ? NSLocalizedString("Delete", comment: "") : NSLocalizedString("Remove", comment: "")
+        }
+        
+        let confirmAction = UIAlertAction(title: actionTitleForState(contentVC.isChecked), style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            let deleteFromDevice = contentVC.isChecked
+            
+            Task { @MainActor in
+                if deleteFromDevice {
+                    AppManager.shared.deleteApp(installedApp, presentingViewController: self) { (result) in
+                        do
+                        {
+                            let app = try result.get()
+                            try? app.managedObjectContext?.save()
+                            
+                            debugLog("Finished deleting app: \(app.bundleIdentifier)")
+                        }
+                        catch is CancellationError
+                        {
+                            // Ignore
+                        }
+                        catch
+                        {
+                            debugLog("Failed to delete app: \(error)")
+                            
+                            DispatchQueue.main.async {
+                                ToastView(error: error, opensLog: true).show(in: self)
+                            }
+                        }
+                        
+                        completionHandler?(result)
+                    }
+                } else {
+                    AppManager.shared.removeApp(installedApp, presentingViewController: self) { (result) in
+                        switch result
+                        {
+                        case .success:
+                            debugLog("Finished removing app: \(installedApp.bundleIdentifier)")
+                            completionHandler?(.success(installedApp))
+                        case .failure(let error):
+                            debugLog("Failed to remove app: \(error)")
+                            
+                            DispatchQueue.main.async {
+                                ToastView(error: error, opensLog: true).show(in: self)
+                            }
+                            completionHandler?(.failure(error))
+                        }
                     }
                 }
-                
-                completionHandler?(result)
             }
         }
+        
+        contentVC.onToggle = { [weak confirmAction] isChecked in
+            confirmAction?.setValue(actionTitleForState(isChecked), forKey: "title")
+        }
+        
+        alertController.addAction(cancelAction)
+        alertController.addAction(confirmAction)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
     
     func remove(_ installedApp: InstalledApp)
@@ -1362,7 +1415,7 @@ private extension MyAppsViewController
         }
         else
         {
-            message = NSLocalizedString("This will also erase all backup data for this app.", comment: "")
+            message = NSLocalizedString("This will also erase any backup data for this app.", comment: "")
         }
 
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
