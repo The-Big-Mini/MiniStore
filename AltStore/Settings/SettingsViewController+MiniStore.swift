@@ -112,6 +112,19 @@ extension SettingsViewController
     {
         self.tableView.backgroundColor = .settingsBackground
 
+        // The standard appearance below is opaque and the scroll-edge one is not, so the bar's
+        // `isTranslucent` flips whenever it switches between them. With the default
+        // `extendedLayoutIncludesOpaqueBars == false`, an opaque bar stops the layout being
+        // extended underneath it: the view's frame origin drops to the bar's bottom edge and the
+        // top safe-area inset falls to zero. The scroll view absorbs that in its adjusted content
+        // inset, so the rows do not move — only the top clip does, which is exactly the artifact.
+        //
+        // The bar re-resolves standard vs. scroll-edge against the *destination's* scroll view,
+        // and only once the transition has settled, so the flip lands as a discrete jump some way
+        // into the pop rather than as part of it. Extending the layout under opaque bars makes
+        // the two states lay out identically, which leaves nothing for the flip to move.
+        self.extendedLayoutIncludesOpaqueBars = true
+
         let standard = UINavigationBarAppearance()
         standard.configureWithOpaqueBackground()
         standard.backgroundColor = .settingsBackground
