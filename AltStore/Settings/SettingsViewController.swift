@@ -1122,12 +1122,11 @@ extension SettingsViewController
             case .healthCheck:
                 let healthCheckView = HealthCheckView()
                 let vc = UIHostingController(rootView: healthCheckView)
-                
-                let appearance = UINavigationBarAppearance()
-                appearance.configureWithDefaultBackground()
+
+                let appearance = MiniStore.pushedScreenBarAppearance
                 vc.navigationItem.scrollEdgeAppearance = appearance
                 vc.navigationItem.standardAppearance = appearance
-                
+
                 navigationController?.pushViewController(vc, animated: true)
                 
             case .errorLog: break
@@ -1368,8 +1367,7 @@ extension SettingsViewController
                 let connectionConfigView = ConnectionConfigView()
                 let vc = UIHostingController(rootView: connectionConfigView)
 
-                let appearance = UINavigationBarAppearance()
-                appearance.configureWithDefaultBackground()   // gives solid background
+                let appearance = MiniStore.pushedScreenBarAppearance
                 vc.navigationItem.scrollEdgeAppearance = appearance
                 vc.navigationItem.standardAppearance = appearance
 
