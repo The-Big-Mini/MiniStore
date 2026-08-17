@@ -156,6 +156,51 @@ extension SettingsViewController
         }
     }
 
+    /// Pushes a screen out of Settings without the header artifact — the header settling low
+    /// and snapping into place a beat later, on the way in and again on the way back.
+    ///
+    /// The cause is the large title. Settings has one; the screens it pushes do not. UIKit
+    /// resolves that as a nav-bar height change, and resolves it *late* — the destination's
+    /// `adjustedContentInset.top` is still the large-title height as it comes on screen, so
+    /// content lands ~37pt low and jumps once the real height is known.
+    ///
+    /// Three things have to happen together, and each one on its own is visible:
+    ///
+    /// - The destination is set to a small title *before* the push, so it never flashes a
+    ///   large one on entry.
+    /// - This screen's large title collapses **in lock-step with the push**, driven by the
+    ///   transition coordinator, so the resize is interpolated over the same duration as the
+    ///   slide. Collapsing it beforehand instead — `UIView.performWithoutAnimation` plus a
+    ///   forced layout pass — trades the late snap for an equally visible one just before the
+    ///   push starts. `layoutIfNeeded()` is deliberately absent below for the same reason: a
+    ///   synchronous layout inside the animation block snaps the title instead of
+    ///   interpolating it.
+    /// - `viewWillAppear` puts `.automatic` back, so the large title animates in on the pop.
+    ///
+    /// Carried over from the discontinued MiniStore rewrite, where this shape was arrived at
+    /// over several rounds and is the version that actually held.
+    func pushMiniStoreSettingsScreen(_ viewController: UIViewController)
+    {
+        viewController.navigationItem.largeTitleDisplayMode = .never
+
+        self.navigationController?.pushViewController(viewController, animated: true)
+
+        guard let coordinator = self.navigationController?.transitionCoordinator else
+        {
+            self.navigationItem.largeTitleDisplayMode = .never
+            return
+        }
+
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            self?.navigationItem.largeTitleDisplayMode = .never
+        }, completion: { [weak self] context in
+            // A cancelled interactive transition would otherwise leave this screen's title
+            // collapsed for good, with no push left to restore it.
+            guard context.isCancelled else { return }
+            self?.navigationItem.largeTitleDisplayMode = .automatic
+        })
+    }
+
     func applyMiniStoreIcon(to cell: UITableViewCell, at indexPath: IndexPath)
     {
         guard let icon = miniStoreRowIcons[indexPath.section]?[indexPath.row] else { return }

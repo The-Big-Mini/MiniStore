@@ -161,6 +161,9 @@ final class SettingsViewController: UITableViewController
     @IBOutlet private var betaTrackLabel: UILabel!
     @IBOutlet private var betaTrackPopupButton: UIButton!
 
+    /// Gates the one-time content-offset pin in `viewDidAppear`.
+    private var hasAppeared = false
+
     private var debugGestureCounter = 0
     private weak var debugGestureTimer: Timer?
     
@@ -323,6 +326,10 @@ final class SettingsViewController: UITableViewController
         // show nav bar if not shown already
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
 
+        // Undoes the collapse `pushMiniStoreSettingsScreen` applied on the way out, so the
+        // large title animates back in as part of the pop rather than appearing after it.
+        self.navigationItem.largeTitleDisplayMode = .automatic
+
         self.update()
     }
 
@@ -334,6 +341,15 @@ final class SettingsViewController: UITableViewController
         // and viewWillAppear runs while the push or pop is still animating. See
         // `applyMiniStoreBarTint()`.
         self.applyMiniStoreBarTint()
+
+        // First appearance only. `adjustedContentInset.top` is the large-title bar height by
+        // now, and an offset of 0 against it reads as already-scrolled to UIKit, which is what
+        // leaves the header sitting low on entry. Re-pinning on every appearance would throw away
+        // the scroll position each time the user came back from a category.
+        guard !self.hasAppeared else { return }
+        self.hasAppeared = true
+
+        self.tableView.setContentOffset(CGPoint(x: 0, y: -self.tableView.adjustedContentInset.top), animated: false)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -348,15 +364,17 @@ final class SettingsViewController: UITableViewController
                 appearance.configureWithDefaultBackground()
                 appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
                 appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-                controller.navigationItem.largeTitleDisplayMode = .always
                 controller.navigationItem.standardAppearance = appearance
                 controller.navigationItem.scrollEdgeAppearance = appearance
             }
-            
+
             // disable bottom tab bar since 'back' button is already available
 //            controller.hidesBottomBarWhenPushed = true
-            
-            self.show(controller, sender: nil)
+
+            // Was `show(_:sender:)` with the destination forced to `.always`. A large title on
+            // the destination is the half of the header artifact that shows up on entry, so
+            // these screens now take small titles like every other push out of Settings.
+            self.pushMiniStoreSettingsScreen(controller)
         } else {
             super.prepare(for: segue, sender: sender)
         }
@@ -941,7 +959,7 @@ private extension SettingsViewController
         }
 
         categoryViewController.visibleCategory = category
-        self.navigationController?.pushViewController(categoryViewController, animated: true)
+        self.pushMiniStoreSettingsScreen(categoryViewController)
     }
 
     func showWhatsNew()
