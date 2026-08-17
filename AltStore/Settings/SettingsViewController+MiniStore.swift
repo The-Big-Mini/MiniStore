@@ -128,8 +128,24 @@ extension SettingsViewController
         scrollEdge.shadowColor = nil
 
         self.navigationItem.standardAppearance = standard
-        self.navigationItem.scrollEdgeAppearance = scrollEdge
         self.navigationItem.compactAppearance = standard
+
+        // A pushed category runs `largeTitleDisplayMode = .never`, so the constraint above does
+        // not apply to it: there is no large title for an opaque scroll-edge background to
+        // suppress. Giving it the opaque appearance in both states is what stops the bar going
+        // see-through mid-push.
+        //
+        // The two states differ in opacity, and UIKit cross-fades the *source's* current
+        // appearance into the *destination's* across a transition. Push from a scrolled root and
+        // that is opaque (root, standard) → translucent (category, scroll-edge, because a fresh
+        // table is at offset 0): the bar loses its background for the whole animation and the
+        // rows behind it show through. Only visible when scrolled — at the top the root is
+        // already on its translucent scroll-edge appearance, over a `.settingsBackground` table,
+        // so translucent and opaque look identical.
+        //
+        // Four earlier attempts missed this by treating the artifact as large-title *height*.
+        // It is the background, and it only appears once the small title is showing.
+        self.navigationItem.scrollEdgeAppearance = self.isCategoryScreen ? standard : scrollEdge
     }
 
     /// Everything that has to land on the *shared* navigation bar, applied after the transition
