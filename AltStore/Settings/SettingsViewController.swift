@@ -328,7 +328,16 @@ final class SettingsViewController: UITableViewController
 
         // Undoes the collapse `pushMiniStoreSettingsScreen` applied on the way out, so the
         // large title animates back in as part of the pop rather than appearing after it.
-        self.navigationItem.largeTitleDisplayMode = .automatic
+        //
+        // Root only. A pushed category is another instance of this same class, so without the
+        // guard this ran on the *destination* mid-push and put back the large title that
+        // `pushMiniStoreSettingsScreen` had just taken off it — which is what turned the pop
+        // into an upward one on entry. Pushed screens keep small titles and have nothing to
+        // restore.
+        if self.visibleCategory == nil
+        {
+            self.navigationItem.largeTitleDisplayMode = .automatic
+        }
 
         self.update()
     }
@@ -342,11 +351,16 @@ final class SettingsViewController: UITableViewController
         // `applyMiniStoreBarTint()`.
         self.applyMiniStoreBarTint()
 
-        // First appearance only. `adjustedContentInset.top` is the large-title bar height by
-        // now, and an offset of 0 against it reads as already-scrolled to UIKit, which is what
-        // leaves the header sitting low on entry. Re-pinning on every appearance would throw away
-        // the scroll position each time the user came back from a category.
-        guard !self.hasAppeared else { return }
+        // First appearance of the root only. `adjustedContentInset.top` is the large-title bar
+        // height by now, and an offset of 0 against it reads as already-scrolled to UIKit, which
+        // is what left the header sitting low on entry. Re-pinning on every appearance would
+        // throw away the scroll position each time the user came back from a category.
+        //
+        // The root's first appearance has no transition running, so the pin is invisible. On a
+        // pushed category there *is* one, and it has just finished — `viewDidAppear` is too late
+        // to move content without it being seen, which is where the upward jerk on entry came
+        // from. A pushed screen gets its offset right on its own; it never needed this.
+        guard self.visibleCategory == nil, !self.hasAppeared else { return }
         self.hasAppeared = true
 
         self.tableView.setContentOffset(CGPoint(x: 0, y: -self.tableView.adjustedContentInset.top), animated: false)
