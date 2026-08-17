@@ -186,16 +186,17 @@ public class Source: BaseEntity, Decodable
                                 
             for newsItem in newsItems
             {
-                guard let appID = newsItem.appID else { continue }
-                
-                if let storeApp = appsByID[appID]
-                {
-                    newsItem.storeApp = storeApp
-                }
-                else
+                // Assigned on every path, including the no-appID one. `continue`ing instead left
+                // the property untouched, so an item that *used* to carry an appID kept the
+                // relationship it was given back then even after the feed dropped the key — and
+                // `storeApp` is what draws the app banner with the OPEN button under an item.
+                guard let appID = newsItem.appID else
                 {
                     newsItem.storeApp = nil
+                    continue
                 }
+
+                newsItem.storeApp = appsByID[appID]
             }
             self._newsItems = NSMutableOrderedSet(array: newsItems)
             
