@@ -5,13 +5,13 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Nightly build](https://github.com/The-Big-Mini/MiniStore/actions/workflows/nightly.yml/badge.svg)](https://github.com/The-Big-Mini/MiniStore/actions/workflows/nightly.yml)
 
-MiniStore is a fork of [SideStore](https://github.com/SideStore/SideStore) — an alternative
+MiniStore is a fork of [SideStore](https://github.com/SideStore/SideStore), an alternative
 app store that sideloads apps onto non-jailbroken iOS devices using only an Apple ID. It
 resigns apps with your personal development certificate and refreshes them in the background
 so the 7-day development period doesn't expire.
 
-Everything SideStore does, MiniStore does. This fork is a **thin layer of interface work and
-preloaded sources on top of upstream** — deliberately small, so that merging new SideStore
+Everything SideStore does, MiniStore does. This fork is a thin layer of interface work and
+preloaded sources on top of upstream, deliberately small so that merging new SideStore
 releases stays routine rather than becoming a rewrite. If you want the reference
 implementation, use SideStore. If you want the same thing with the interface sanded down,
 use this.
@@ -44,7 +44,7 @@ MiniStore updates itself through its own source, published by this repo's CI:
 https://the-big-mini.github.io/MiniStore/source.json
 ```
 
-That feed lists MiniStore only — it is the self-update channel, not an app catalogue. Stable,
+That feed lists MiniStore only: it is the self-update channel, not an app catalogue. Stable,
 nightly and alpha are release tracks *within* it, so switching channels is a toggle in
 settings rather than a different URL.
 
@@ -94,7 +94,7 @@ make fakesign   # ldid fake-sign with release entitlements
 make ipa        # package the archive → SideStore.ipa
 ```
 
-`make build` performs an archive, not a plain build — only the archive path runs the
+`make build` performs an archive, not a plain build. Only the archive path runs the
 SideBackup packaging phase, so a plain `xcodebuild build` can pass on code that fails CI.
 
 Versions and identifiers live in `Build.xcconfig`. Don't hard-code bundle IDs. Local signing
@@ -103,7 +103,7 @@ overrides belong in `CodeSigning.xcconfig`, which is gitignored.
 ## Contributing
 
 Bug reports and fixes that aren't MiniStore-specific belong
-[upstream at SideStore](https://github.com/SideStore/SideStore) — a fix merged there reaches
+[upstream at SideStore](https://github.com/SideStore/SideStore): a fix merged there reaches
 every user of both projects and costs this fork nothing to inherit. See
 [CONTRIBUTING.md](./CONTRIBUTING.md) for build and PR conventions.
 
@@ -113,3 +113,15 @@ AGPLv3, inherited from SideStore. See [LICENSE](./LICENSE).
 
 SideStore is itself a community fork of [AltStore](https://github.com/rileytestut/AltStore)
 by Riley Testut. Credit for the foundation belongs to both projects.
+
+## 🤖 AI SLOP DETECTED
+
+Yes. Guilty.
+
+MiniStore is developed with [Claude Code](https://claude.com/claude-code), running Opus 5
+as the primary model. It writes the code, it writes the commit messages, and it wrote this
+section. Which is a strange thing to be told by a README.
+
+Nothing ships without being built and run on a real device first, and the diff against
+upstream is kept short enough that a person can read all of it. So if something in here is
+broken, a human merged it.
