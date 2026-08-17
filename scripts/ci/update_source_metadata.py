@@ -100,13 +100,23 @@ def update_storefront(app, meta):
     version/versionDate/downloadURL/size *non-optionally* (StoreApp.swift:504-509).
     Gating these fields on stable therefore made every nightly feed throw during decode:
     the source appeared in Sources and never loaded, taking the news items with it.
+
+    `versionDescription`, not `localizedDescription`, is the release notes. createNewAppVersion
+    reads the changelog from `versionDescription` (StoreApp.swift:506) and passes it through as
+    the AppVersion's localizedDescription; `localizedDescription` at this level is the store
+    page blurb, decoded non-optionally by StoreApp.init(from:) and authored in the template.
+
+    Writing the notes into the wrong one of those cost both: the update card in My Apps read
+    `latestSupportedVersion.localizedDescription ?? "nil"` and printed a literal **nil**, while
+    the store page showed the release notes where its description belongs. `localizedDescription`
+    is therefore left to apply_template, which runs first.
     """
     app.update({
         "version": meta["version_ipa"],
         "versionDate": meta["version_date"],
         "size": meta["size"],
         "sha256": meta["sha256"],
-        "localizedDescription": meta["localized_description"],
+        "versionDescription": changelog_body(meta["localized_description"]),
         "downloadURL": meta["download_url"],
     })
 
@@ -185,6 +195,25 @@ def apply_template(data, app, template):
 # ----------------------------------------------------------
 # news
 # ----------------------------------------------------------
+
+def changelog_body(localized_description):
+    """The release notes with generate_source_metadata.py's preamble taken off.
+
+    That preamble repeats the version, the revision and the build timestamp, all of which the
+    update card already shows beside the notes. Everything from the first `#### What's Changed`
+    onwards is the part worth reading.
+
+    Falls back to the description unchanged if that heading is missing, so a release whose notes
+    were written by hand still gets published rather than being silently emptied.
+    """
+    marker = "#### What's Changed"
+    index = localized_description.find(marker)
+
+    if index == -1:
+        return localized_description
+
+    return localized_description[index:].strip()
+
 
 def changelog_caption(localized_description):
     """First changelog bullet — the closest thing to a one-line summary of a release.

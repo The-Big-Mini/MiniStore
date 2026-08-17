@@ -61,6 +61,30 @@ public extension MiniStore
         Source.removeLegacySideStoreSource(in: context)
         Source.seedCatalogueSourceIfNeeded(in: context)
         self.renameSelfAppIfNeeded(in: context)
+        self.detachOrphanedNewsBanners(in: context)
+    }
+
+    /// Clears `NewsItem.storeApp` wherever `appID` is gone.
+    ///
+    /// `NewsViewController` draws a whole app banner — icon, developer, OPEN button — under any
+    /// item with a `storeApp`, which is what made every MiniStore release note read as MiniStore
+    /// listing its own IPA. CI no longer publishes `appID`, and `Source.init(from:)` now clears
+    /// the relationship when the key is absent, but neither reaches a row the feed has since
+    /// scrolled past: those are never decoded again and keep whatever they were given.
+    ///
+    /// A `storeApp` without an `appID` is not a valid state in the first place, so this enforces
+    /// the invariant rather than special-casing MiniStore's own feed.
+    private static func detachOrphanedNewsBanners(in context: NSManagedObjectContext)
+    {
+        let predicate = NSPredicate(format: "%K == nil AND %K != nil",
+                                    #keyPath(NewsItem.appID),
+                                    #keyPath(NewsItem.storeApp))
+
+        for newsItem in NewsItem.all(satisfying: predicate, in: context)
+        {
+            debugLog("[MiniStore] Detaching the app banner from news item \(newsItem.identifier).")
+            newsItem.storeApp = nil
+        }
     }
 
     /// `InstalledApp.update` only runs when the app is installed or refreshed, so a database
