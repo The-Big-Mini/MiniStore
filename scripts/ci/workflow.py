@@ -148,7 +148,10 @@ def build():
     )
     run("make fakesign | tee -a build/logs/build.log")
     run("make ipa | tee -a build/logs/build.log")
-    run("zip -r -9 ./SideStore.dSYMs.zip ./SideStore.xcarchive/dSYMs")
+    # MiniStore.dSYMs.zip, from SideStore.xcarchive: the archive name is the Xcode product
+    # name, which stays SideStore for pairing and certificate lookup. Only the released
+    # asset is renamed.
+    run("zip -r -9 ./MiniStore.dSYMs.zip ./SideStore.xcarchive/dSYMs")
 
 # ----------------------------------------------------------
 # TESTS BUILD
@@ -447,7 +450,7 @@ def upload_release(release_name, release_tag, commit_sha, repo, upstream_tag_rec
 
     run(
         f'gh release upload "{release_tag}" '
-        f'MiniStore.ipa SideStore.dSYMs.zip build-logs.zip '
+        f'MiniStore.ipa MiniStore.dSYMs.zip build-logs.zip '
         f'--clobber'
     )
 
