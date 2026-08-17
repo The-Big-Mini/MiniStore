@@ -30,6 +30,11 @@ use this.
   the app.
 - **Preloaded source** — [Mini's Repo](https://OofMini.github.io/Minis-Repo/mini.json) is
   seeded on first launch, so there's a catalogue to browse immediately.
+- **Its own recommended sources** — the list behind *Add Source* is MiniStore's, not
+  SideStore's. Several repos have been added to it, and some of the ones SideStore ships have
+  been dropped: a few had gone dead, and one was large enough on its own to hold up the whole
+  screen while it loaded. The list lives in [`default-sources.json`](default-sources.json) and
+  is fetched at runtime, so it can be changed without shipping a build.
 
 ## Installing
 
