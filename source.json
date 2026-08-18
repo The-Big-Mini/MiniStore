@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260818.26+dba49bac",
-              "date": "2026-08-18T04:47:34Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260818.26+dba49bac\"\n  - revision: \"dba49bac\"\n  - timestamp: \"Tue Aug 18 04:47:34 2026\"\n\n#### What's Changed:\n- Merge pull request #19 from The-Big-Mini/MiniStoreFork\n- fix(anisette): break up the decode chain that times out the type checker on Xcode 26.2\n- ci: print the compiler errors xcbeautify drops when the build fails\n- fix(settings): restyle upstream's new ANISETTE section, which did not compile\n- Merge branch 'SideStore:develop' into develop\n- Merge pull request #18 from The-Big-Mini/MiniStoreFork\n- feat: added ondevice anisette data generation\n- fix(settings): give the nav bar one appearance so a push cannot flip its opacity\n- fix: appids screen edit feature for free in experimental features was broken\n- updated submodule to latest (altsign user agent for provision updated from akd/1.0 and mojave to latest ua)\n\n#### Full Changelog: [9f2de165...dba49bac](https://github.com/The-Big-Mini/MiniStore/compare/9f2de1654a7f59c5ed7e6e0f4ff314ec9382ba46...dba49bac37dd6585a5f7b279e7ccb6a1237ee7b9)\n",
+              "version": "0.6.4-20260818.27+e6f1b9f4",
+              "date": "2026-08-18T06:24:19Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260818.27+e6f1b9f4\"\n  - revision: \"e6f1b9f4\"\n  - timestamp: \"Tue Aug 18 06:24:19 2026\"\n\n#### What's Changed:\n- Merge pull request #20 from The-Big-Mini/MiniStoreFork\n- ci: pin every workflow to Xcode 26.4\n- Revert the two nav-bar appearance experiments\n\n#### Full Changelog: [dba49bac...e6f1b9f4](https://github.com/The-Big-Mini/MiniStore/compare/dba49bac37dd6585a5f7b279e7ccb6a1237ee7b9...e6f1b9f408eb8d5e474c2f7123cf513b74a2e13f)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 23902275,
-              "sha256": "f129dc94bf07d057327b78a622d965ceb5440cf41033fb86a42cf3fdf0b692df"
+              "size": 23904001,
+              "sha256": "5cb950d5f2fc5522979a94860b022276585aaef0c3e505314942eebd87e740b0"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260818.26+dba49bac",
-      "versionDate": "2026-08-18T04:47:34Z",
-      "size": 23902275,
-      "sha256": "f129dc94bf07d057327b78a622d965ceb5440cf41033fb86a42cf3fdf0b692df",
+      "version": "0.6.4-20260818.27+e6f1b9f4",
+      "versionDate": "2026-08-18T06:24:19Z",
+      "size": 23904001,
+      "sha256": "5cb950d5f2fc5522979a94860b022276585aaef0c3e505314942eebd87e740b0",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #19 from The-Big-Mini/MiniStoreFork\n- fix(anisette): break up the decode chain that times out the type checker on Xcode 26.2\n- ci: print the compiler errors xcbeautify drops when the build fails\n- fix(settings): restyle upstream's new ANISETTE section, which did not compile\n- Merge branch 'SideStore:develop' into develop\n- Merge pull request #18 from The-Big-Mini/MiniStoreFork\n- feat: added ondevice anisette data generation\n- fix(settings): give the nav bar one appearance so a push cannot flip its opacity\n- fix: appids screen edit feature for free in experimental features was broken\n- updated submodule to latest (altsign user agent for provision updated from akd/1.0 and mojave to latest ua)\n\n#### Full Changelog: [9f2de165...dba49bac](https://github.com/The-Big-Mini/MiniStore/compare/9f2de1654a7f59c5ed7e6e0f4ff314ec9382ba46...dba49bac37dd6585a5f7b279e7ccb6a1237ee7b9)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #20 from The-Big-Mini/MiniStoreFork\n- ci: pin every workflow to Xcode 26.4\n- Revert the two nav-bar appearance experiments\n\n#### Full Changelog: [dba49bac...e6f1b9f4](https://github.com/The-Big-Mini/MiniStore/compare/dba49bac37dd6585a5f7b279e7ccb6a1237ee7b9...e6f1b9f408eb8d5e474c2f7123cf513b74a2e13f)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260818.27+e6f1b9f4",
+      "title": "MiniStore Nightly — 0.6.4-20260818.27+e6f1b9f4",
+      "caption": "Merge pull request #20 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-18T06:24:19Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260818.26+dba49bac",
       "title": "MiniStore Nightly — 0.6.4-20260818.26+dba49bac",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260816.14+81e903bd",
       "caption": "Merge pull request #11 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-16T17:14:17Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260816.13+e1d80daa",
-      "title": "MiniStore Nightly — 0.6.4-20260816.13+e1d80daa",
-      "caption": "Merge pull request #10 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-16T02:53:44Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
