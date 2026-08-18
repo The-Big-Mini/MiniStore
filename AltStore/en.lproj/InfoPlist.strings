@@ -1,6 +1,21 @@
-/* Home Screen name.
+/* Deliberately empty.
 
-   Overrides CFBundleDisplayName for display only. The raw Info.plist value stays
-   "SideStore" because that is what installation_proxy reports, and iLoader and
-   idevice_pair match sideloaders against that exact string with no fallback. */
-"CFBundleDisplayName" = "MiniStore";
+   This file used to override CFBundleDisplayName to "MiniStore" for the Home Screen, on the
+   assumption that installation_proxy reports the raw Info.plist value and a localized override
+   is display-only. It does not: `get_apps` returns the *localized* CFBundleDisplayName, so the
+   device reported "MiniStore".
+
+   iLoader's get_sidestore_info (nab138/iloader, src-tauri/src/pairing.rs) calls
+   `get_apps(Some("User"), None)` with no return_attributes and then matches
+
+       if n == "SideStore" || (live_container && n == "LiveContainer")
+
+   on that exact string, with no bundle-identifier fallback. So the override made MiniStore
+   invisible to stock iLoader — it could not find the app to place a pairing file next to.
+
+   The Home Screen and installation_proxy read the same value, so this is either/or, and
+   iLoader detection wins. The name is still "MiniStore" everywhere the app controls it:
+   My Apps (InstalledApp.name) and the store listing (StoreApp.makeAltStoreApp) both override
+   it in code, and neither is visible to installation_proxy.
+
+   Keep the key out of here. Adding it back breaks pairing for every stock-iLoader user. */
