@@ -112,35 +112,24 @@ extension SettingsViewController
     {
         self.tableView.backgroundColor = .settingsBackground
 
-        // One appearance for every state, and deliberately so. The bar picks scroll-edge at the
-        // top of a table and standard once it scrolls; UIKit cross-fades the *source's* current
-        // choice into the *destination's* across a push. Any difference in opacity between the
-        // two therefore becomes a visible transition artifact, and which way it breaks depends
-        // only on where the source happened to be scrolled:
-        //
-        // - opaque standard → translucent scroll-edge (push while scrolled down) left the bar
-        //   with no background for the whole animation, so the rows behind it showed through.
-        // - translucent scroll-edge → opaque standard (push from the top) is worse: an opaque
-        //   bar stops the layout extending underneath it, so the destination's top inset
-        //   changes mid-transition and its first rows get covered, then resolve.
-        //
-        // Both are the same defect. Discriminating by screen only chooses which one to ship.
-        //
-        // `configureWithDefaultBackground()` rather than `configureWithOpaqueBackground()`:
-        // iOS 26 needs a default background to draw a large title at all, and it keeps the bar
-        // translucent-class, which is what avoids the layout flip above. `.settingsBackground`
-        // is alpha 1 in both modes, so painting it over the blur renders solid regardless —
-        // the bar looks opaque without being opaque.
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
-        appearance.backgroundColor = .settingsBackground
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        appearance.shadowColor = nil
+        let standard = UINavigationBarAppearance()
+        standard.configureWithOpaqueBackground()
+        standard.backgroundColor = .settingsBackground
+        standard.titleTextAttributes = [.foregroundColor: UIColor.white]
+        standard.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        standard.shadowColor = nil
 
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
+        // The scroll-edge appearance keeps its default (blurred) background: iOS 26 needs one
+        // to render a large title at all, and an opaque one suppresses it.
+        let scrollEdge = UINavigationBarAppearance()
+        scrollEdge.configureWithDefaultBackground()
+        scrollEdge.titleTextAttributes = [.foregroundColor: UIColor.white]
+        scrollEdge.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        scrollEdge.shadowColor = nil
+
+        self.navigationItem.standardAppearance = standard
+        self.navigationItem.scrollEdgeAppearance = scrollEdge
+        self.navigationItem.compactAppearance = standard
     }
 
     /// Everything that has to land on the *shared* navigation bar, applied after the transition
