@@ -99,9 +99,10 @@ struct UserCustomizationsView: View {
 
                 // Section 1: ANISETTE
                 VStack(alignment: .leading, spacing: 8) {
+                    // Upstream's section, this fork's header style — as with GENERAL below.
                     Text("ANISETTE")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color.white.opacity(0.6))
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.white.opacity(0.75))
                         .padding(.horizontal, 16)
                     
                     VStack(spacing: 0) {
@@ -117,8 +118,11 @@ struct UserCustomizationsView: View {
                             )
                         )
                     }
-                    .background(Color.settingsRowBackground)
-                    .cornerRadius(14)
+                    // `Color.settingsRowBackground` as merged: it is declared `fileprivate` in
+                    // each view that wants it, and this file has none, so the merge did not
+                    // compile. `miniStoreCard` is what the rest of this screen uses anyway.
+                    .background(Color.miniStoreCard)
+                    .cornerRadius(16)
                 }
 
                 // Section 2: GENERAL
