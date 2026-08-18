@@ -139,13 +139,42 @@ def clean_spm_cache():
 # BUILD
 # ----------------------------------------------------------
 
+def echo_build_errors():
+    """Print the compiler diagnostics `xcbeautify` dropped.
+
+    The build pipes through `xcbeautify`, which is the only thing that reaches the step log,
+    and it does not forward Swift `error:` lines. The raw output goes to build/logs/build.log,
+    which is uploaded by a later step that never runs when the build fails — so a failed CI
+    build reported nothing but a Python traceback saying `make` exited 2.
+
+    That cost two rounds of diagnosis. Reproducing locally is not a substitute either: CI runs
+    Xcode 26.2, so a build that passes on a newer local Xcode says nothing about this failure.
+    """
+    log = ROOT / "build/logs/build.log"
+    if not log.exists():
+        print("!! no build/logs/build.log to read", flush=True, file=sys.stderr)
+        return
+
+    lines = log.read_text(encoding="utf-8", errors="replace").splitlines()
+    errors = [l for l in lines if re.search(r"\b(error|fatal error):", l)]
+
+    print("\n===== build failed: diagnostics from build.log =====", flush=True, file=sys.stderr)
+    for line in errors[:50] or lines[-80:]:
+        print(line, flush=True, file=sys.stderr)
+    print("===== end diagnostics =====\n", flush=True, file=sys.stderr)
+
+
 def build():
     run("mkdir -p build/logs")
-    run(
-        "set -o pipefail && "
-        "NSUnbufferedIO=YES make -B build "
-        "2>&1 | tee -a build/logs/build.log | xcbeautify --renderer github-actions"
-    )
+    try:
+        run(
+            "set -o pipefail && "
+            "NSUnbufferedIO=YES make -B build "
+            "2>&1 | tee -a build/logs/build.log | xcbeautify --renderer github-actions"
+        )
+    except subprocess.CalledProcessError:
+        echo_build_errors()
+        raise
     run("make fakesign | tee -a build/logs/build.log")
     run("make ipa | tee -a build/logs/build.log")
     # MiniStore.dSYMs.zip, from SideStore.xcarchive: the archive name is the Xcode product

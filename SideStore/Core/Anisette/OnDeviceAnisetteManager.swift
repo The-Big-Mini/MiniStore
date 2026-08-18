@@ -36,15 +36,25 @@ public struct ODAInfo: Codable, Equatable, Sendable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.sha256 = (try? container.decodeIfPresent(String.self, forKey: .sha256))
-            ?? (try? container.decodeIfPresent(String.self, forKey: .sha))
-            ?? (try? container.decodeIfPresent(String.self, forKey: .s))
 
-        let lVal = (try? container.decodeIfPresent(String.self, forKey: .l))
-            ?? (try? container.decodeIfPresent(String.self, forKey: .libraries))
-            ?? (try? container.decodeIfPresent(String.self, forKey: .payload))
-            ?? (try? container.decodeIfPresent(String.self, forKey: .data))
-        let urlVal = try? container.decodeIfPresent(String.self, forKey: .url)
+        // Each key read separately, annotated `String?`, rather than one `??` chain.
+        //
+        // `try? container.decodeIfPresent(String.self, ...)` is `String??`, so chaining four of
+        // them with `??` leaves the type checker searching the `??` overloads across a
+        // double-optional at every link. On Xcode 26.2 — which is what CI runs — that fails
+        // outright: "the compiler is unable to type-check this expression in reasonable time".
+        // It happens to compile on newer toolchains, so it only ever showed up on CI.
+        //
+        // `(try? ...) ?? nil` against an explicit `String?` collapses the double optional at one
+        // known type, so each line resolves on its own and the chain is a plain first-non-nil.
+        func decode(_ key: CodingKeys) -> String? {
+            (try? container.decodeIfPresent(String.self, forKey: key)) ?? nil
+        }
+
+        self.sha256 = decode(.sha256) ?? decode(.sha) ?? decode(.s)
+
+        let lVal: String? = decode(.l) ?? decode(.libraries) ?? decode(.payload) ?? decode(.data)
+        let urlVal: String? = decode(.url)
 
         if let raw = lVal ?? urlVal {
             if raw.hasPrefix("http://") || raw.hasPrefix("https://") {
