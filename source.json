@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260818.27+e6f1b9f4",
-              "date": "2026-08-18T06:24:19Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260818.27+e6f1b9f4\"\n  - revision: \"e6f1b9f4\"\n  - timestamp: \"Tue Aug 18 06:24:19 2026\"\n\n#### What's Changed:\n- Merge pull request #20 from The-Big-Mini/MiniStoreFork\n- ci: pin every workflow to Xcode 26.4\n- Revert the two nav-bar appearance experiments\n\n#### Full Changelog: [dba49bac...e6f1b9f4](https://github.com/The-Big-Mini/MiniStore/compare/dba49bac37dd6585a5f7b279e7ccb6a1237ee7b9...e6f1b9f408eb8d5e474c2f7123cf513b74a2e13f)\n",
+              "version": "0.6.4-20260818.28+84c18aa2",
+              "date": "2026-08-18T17:05:55Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260818.28+84c18aa2\"\n  - revision: \"84c18aa2\"\n  - timestamp: \"Tue Aug 18 17:05:55 2026\"\n\n#### What's Changed:\n- Merge pull request #21 from The-Big-Mini/MiniStoreFork\n- fix(naming): stop overriding CFBundleDisplayName so stock iLoader finds the app\n\n#### Full Changelog: [e6f1b9f4...84c18aa2](https://github.com/The-Big-Mini/MiniStore/compare/e6f1b9f408eb8d5e474c2f7123cf513b74a2e13f...84c18aa2e0b03d42f59bb23b27e471f31f9ac436)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 23904001,
-              "sha256": "5cb950d5f2fc5522979a94860b022276585aaef0c3e505314942eebd87e740b0"
+              "size": 23903955,
+              "sha256": "49e01d058005143d1edfd5aa84c38fdb35246dc61c33aca91767b4bbc1b10903"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260818.27+e6f1b9f4",
-      "versionDate": "2026-08-18T06:24:19Z",
-      "size": 23904001,
-      "sha256": "5cb950d5f2fc5522979a94860b022276585aaef0c3e505314942eebd87e740b0",
+      "version": "0.6.4-20260818.28+84c18aa2",
+      "versionDate": "2026-08-18T17:05:55Z",
+      "size": 23903955,
+      "sha256": "49e01d058005143d1edfd5aa84c38fdb35246dc61c33aca91767b4bbc1b10903",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #20 from The-Big-Mini/MiniStoreFork\n- ci: pin every workflow to Xcode 26.4\n- Revert the two nav-bar appearance experiments\n\n#### Full Changelog: [dba49bac...e6f1b9f4](https://github.com/The-Big-Mini/MiniStore/compare/dba49bac37dd6585a5f7b279e7ccb6a1237ee7b9...e6f1b9f408eb8d5e474c2f7123cf513b74a2e13f)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #21 from The-Big-Mini/MiniStoreFork\n- fix(naming): stop overriding CFBundleDisplayName so stock iLoader finds the app\n\n#### Full Changelog: [e6f1b9f4...84c18aa2](https://github.com/The-Big-Mini/MiniStore/compare/e6f1b9f408eb8d5e474c2f7123cf513b74a2e13f...84c18aa2e0b03d42f59bb23b27e471f31f9ac436)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260818.28+84c18aa2",
+      "title": "MiniStore Nightly — 0.6.4-20260818.28+84c18aa2",
+      "caption": "Merge pull request #21 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-18T17:05:55Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260818.27+e6f1b9f4",
       "title": "MiniStore Nightly — 0.6.4-20260818.27+e6f1b9f4",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260816.15+4becc684",
       "caption": "Merge pull request #12 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-16T17:43:42Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260816.14+81e903bd",
-      "title": "MiniStore Nightly — 0.6.4-20260816.14+81e903bd",
-      "caption": "Merge pull request #11 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-16T17:14:17Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
