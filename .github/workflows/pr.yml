@@ -42,7 +42,10 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1.6.0
         with:
-          xcode-version: "26.2"
+          # Must match nightly.yml and stable.yml. A PR check on an older toolchain than the
+          # one that builds releases fails on things that would never ship — 26.2 rejected an
+          # expression 26.4 accepts, so a PR went red for a build the nightly had passed.
+          xcode-version: "26.4"
 
       - name: Restore Cache (exact)
         id: xcode-cache-exact
