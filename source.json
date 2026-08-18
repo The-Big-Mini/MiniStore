@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260817.21+e270234c",
-              "date": "2026-08-17T23:02:43Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260817.21+e270234c\"\n  - revision: \"e270234c\"\n  - timestamp: \"Mon Aug 17 23:02:43 2026\"\n\n#### What's Changed:\n- Merge pull request #16 from The-Big-Mini/MiniStoreFork\n- docs(readme): disclose Claude Code development, and de-slop the prose\n- chore(ci): name the released dSYMs archive MiniStore, not SideStore\n- docs(readme): note that the recommended-source list is MiniStore's own\n- fix(ci): publish release notes as versionDescription so updates stop showing \"nil\"\n- fix(news): clear the app banner from items the feed no longer flags\n- fix(sources): drop six recommended sources, five of them broken or huge\n- fix(settings): scope the header fix to the root screen\n\n#### Full Changelog: [1f7949a1...e270234c](https://github.com/The-Big-Mini/MiniStore/compare/1f7949a1f6b0540338b6ecd8deccbaea3cc8bd49...e270234ce3fd28b756734817a8d69e425eae3f7e)\n",
+              "version": "0.6.4-20260818.22+9f2de165",
+              "date": "2026-08-18T00:16:48Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260818.22+9f2de165\"\n  - revision: \"9f2de165\"\n  - timestamp: \"Tue Aug 18 00:16:48 2026\"\n\n#### What's Changed:\n- Merge pull request #17 from The-Big-Mini/MiniStoreFork\n- fix(settings): keep the nav bar opaque when a pushed category comes from a scrolled root\n\n#### Full Changelog: [e270234c...9f2de165](https://github.com/The-Big-Mini/MiniStore/compare/e270234ce3fd28b756734817a8d69e425eae3f7e...9f2de1654a7f59c5ed7e6e0f4ff314ec9382ba46)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 23310115,
-              "sha256": "f42332b42ce1cc454847dd0cb6ed1994c92ca3be080f8756f8837fb424ec93e3"
+              "size": 23309831,
+              "sha256": "dd00dbc2d85a9a06ccf2d1e04b2fcab4f340a8aa85a699b0f564eee4769158d3"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260817.21+e270234c",
-      "versionDate": "2026-08-17T23:02:43Z",
-      "size": 23310115,
-      "sha256": "f42332b42ce1cc454847dd0cb6ed1994c92ca3be080f8756f8837fb424ec93e3",
+      "version": "0.6.4-20260818.22+9f2de165",
+      "versionDate": "2026-08-18T00:16:48Z",
+      "size": 23309831,
+      "sha256": "dd00dbc2d85a9a06ccf2d1e04b2fcab4f340a8aa85a699b0f564eee4769158d3",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #16 from The-Big-Mini/MiniStoreFork\n- docs(readme): disclose Claude Code development, and de-slop the prose\n- chore(ci): name the released dSYMs archive MiniStore, not SideStore\n- docs(readme): note that the recommended-source list is MiniStore's own\n- fix(ci): publish release notes as versionDescription so updates stop showing \"nil\"\n- fix(news): clear the app banner from items the feed no longer flags\n- fix(sources): drop six recommended sources, five of them broken or huge\n- fix(settings): scope the header fix to the root screen\n\n#### Full Changelog: [1f7949a1...e270234c](https://github.com/The-Big-Mini/MiniStore/compare/1f7949a1f6b0540338b6ecd8deccbaea3cc8bd49...e270234ce3fd28b756734817a8d69e425eae3f7e)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #17 from The-Big-Mini/MiniStoreFork\n- fix(settings): keep the nav bar opaque when a pushed category comes from a scrolled root\n\n#### Full Changelog: [e270234c...9f2de165](https://github.com/The-Big-Mini/MiniStore/compare/e270234ce3fd28b756734817a8d69e425eae3f7e...9f2de1654a7f59c5ed7e6e0f4ff314ec9382ba46)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260818.22+9f2de165",
+      "title": "MiniStore Nightly — 0.6.4-20260818.22+9f2de165",
+      "caption": "Merge pull request #17 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-18T00:16:48Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260817.21+e270234c",
       "title": "MiniStore Nightly — 0.6.4-20260817.21+e270234c",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260816.11+e5a6cdd0",
       "caption": "Merge pull request #9 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-16T00:50:04Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260815.10+d3db2622",
-      "title": "MiniStore Nightly — 0.6.4-20260815.10+d3db2622",
-      "caption": "Merge pull request #8 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-15T22:26:41Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
