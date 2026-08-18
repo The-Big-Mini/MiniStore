@@ -153,10 +153,6 @@ final class SettingsViewController: UITableViewController
     /// `nil` on the root screen. Set on a pushed instance to show only one category's sections.
     private var visibleCategory: Category?
 
-    /// `visibleCategory != nil`, reachable from `SettingsViewController+MiniStore.swift`.
-    /// `private` is file-scoped, and that extension needs to tell the two roles apart.
-    var isCategoryScreen: Bool { self.visibleCategory != nil }
-
     private var activeTeam: Team?
 
     private var prototypeHeaderFooterView: SettingsHeaderFooterView!
