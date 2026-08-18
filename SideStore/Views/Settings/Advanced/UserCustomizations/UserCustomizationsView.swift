@@ -13,6 +13,7 @@ private extension Color {
 }
 
 struct UserCustomizationsView: View {
+    @State private var useOnDeviceAnisette: Bool = UserDefaults.standard.useOnDeviceAnisette
     @State private var customizeAppId: Bool = UserDefaults.standard.customizeAppId
     @State private var customizeAppExtensions: Bool = UserDefaults.standard.customizeAppExtensions
     @State private var autoFixAppGroupIDs: Bool = UserDefaults.standard.autoFixAppGroupIDs
@@ -96,7 +97,31 @@ struct UserCustomizationsView: View {
                     .cornerRadius(16)
                 }
 
-                // Section 1: GENERAL
+                // Section 1: ANISETTE
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("ANISETTE")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Color.white.opacity(0.6))
+                        .padding(.horizontal, 16)
+                    
+                    VStack(spacing: 0) {
+                        toggleRow(
+                            title: "On-Device Anisette",
+                            subtitle: "Run ADI emulation directly on device instead of remote servers",
+                            isOn: Binding(
+                                get: { useOnDeviceAnisette },
+                                set: { newValue in
+                                    useOnDeviceAnisette = newValue
+                                    UserDefaults.standard.useOnDeviceAnisette = newValue
+                                }
+                            )
+                        )
+                    }
+                    .background(Color.settingsRowBackground)
+                    .cornerRadius(14)
+                }
+
+                // Section 2: GENERAL
                 VStack(alignment: .leading, spacing: 8) {
                     // Upstream's section name, this fork's header style — the same one the
                     // other sections on this screen and TabVisibilityView already use.
