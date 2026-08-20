@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260818.29+4530c44d",
-              "date": "2026-08-18T17:58:34Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260818.29+4530c44d\"\n  - revision: \"4530c44d\"\n  - timestamp: \"Tue Aug 18 17:58:34 2026\"\n\n#### What's Changed:\n- You got me...\n\n#### Full Changelog: [84c18aa2...4530c44d](https://github.com/The-Big-Mini/MiniStore/compare/84c18aa2e0b03d42f59bb23b27e471f31f9ac436...4530c44d419d5d72797f91f7f1b76722615fb9e4)\n",
+              "version": "0.6.4-20260820.32+5119a0e7",
+              "date": "2026-08-20T05:06:32Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260820.32+5119a0e7\"\n  - revision: \"5119a0e7\"\n  - timestamp: \"Thu Aug 20 05:06:32 2026\"\n\n#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- disabled ondevice ani flow for now - to not cause trouble to users\n\n#### Full Changelog: [4530c44d...5119a0e7](https://github.com/The-Big-Mini/MiniStore/compare/4530c44d419d5d72797f91f7f1b76722615fb9e4...5119a0e74891b8e47e04b422914a6de70ef93f52)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 23903959,
-              "sha256": "9e75fc45ecad3a3c8be3e63e15d03e436ef5f3fb21a3a7c87a84f0e572daf8fa"
+              "size": 23903913,
+              "sha256": "ad356ae821bac75c2fc86853da3cf379e3551d1b3fde2fe84a66a6e01b7391ec"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260818.29+4530c44d",
-      "versionDate": "2026-08-18T17:58:34Z",
-      "size": 23903959,
-      "sha256": "9e75fc45ecad3a3c8be3e63e15d03e436ef5f3fb21a3a7c87a84f0e572daf8fa",
+      "version": "0.6.4-20260820.32+5119a0e7",
+      "versionDate": "2026-08-20T05:06:32Z",
+      "size": 23903913,
+      "sha256": "ad356ae821bac75c2fc86853da3cf379e3551d1b3fde2fe84a66a6e01b7391ec",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- You got me...\n\n#### Full Changelog: [84c18aa2...4530c44d](https://github.com/The-Big-Mini/MiniStore/compare/84c18aa2e0b03d42f59bb23b27e471f31f9ac436...4530c44d419d5d72797f91f7f1b76722615fb9e4)"
+      "versionDescription": "#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- disabled ondevice ani flow for now - to not cause trouble to users\n\n#### Full Changelog: [4530c44d...5119a0e7](https://github.com/The-Big-Mini/MiniStore/compare/4530c44d419d5d72797f91f7f1b76722615fb9e4...5119a0e74891b8e47e04b422914a6de70ef93f52)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260820.32+5119a0e7",
+      "title": "MiniStore Nightly — 0.6.4-20260820.32+5119a0e7",
+      "caption": "Merge branch 'SideStore:develop' into develop",
+      "date": "2026-08-20T05:06:32Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260818.29+4530c44d",
       "title": "MiniStore Nightly — 0.6.4-20260818.29+4530c44d",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260816.17+387c9631",
       "caption": "Merge pull request #14 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-16T23:01:51Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260816.16+fe1558bd",
-      "title": "MiniStore Nightly — 0.6.4-20260816.16+fe1558bd",
-      "caption": "Merge pull request #13 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-16T18:24:18Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
