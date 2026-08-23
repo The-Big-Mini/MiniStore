@@ -112,24 +112,36 @@ extension SettingsViewController
     {
         self.tableView.backgroundColor = .settingsBackground
 
-        let standard = UINavigationBarAppearance()
-        standard.configureWithOpaqueBackground()
-        standard.backgroundColor = .settingsBackground
-        standard.titleTextAttributes = [.foregroundColor: UIColor.white]
-        standard.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        standard.shadowColor = nil
+        // One appearance, default background, and deliberately no `backgroundColor`.
+        //
+        // The bar picks scroll-edge at the top of a table and standard once it scrolls, and UIKit
+        // cross-fades the *source's* current appearance into the *destination's* across a push.
+        // Any difference between the two shows up as a transition artifact, and both halves of
+        // the difference were measured on iPhone Air / iOS 26.5:
+        //
+        // - Source opaque `.settingsBackground`, destination blurred: pushing from a *scrolled*
+        //   root left the bar with no background for the whole animation and the rows behind it
+        //   showed through. Purple pixels inside the bar band went 0 → 146 → 0.
+        // - Colouring the *destination's* scroll edge to match instead moves its first row 43pt
+        //   down for the whole transition, snapping back a frame after it ends (522 → 393px).
+        //   That is not about opacity: it was measured with `configureWithOpaqueBackground`,
+        //   `configureWithDefaultBackground` and `configureWithTransparentBackground`, and with
+        //   `extendedLayoutIncludesOpaqueBars = true`. **Any** `backgroundColor` on a pushed
+        //   screen's `scrollEdgeAppearance` does it. 053c5510 and 4c60b07f both died here.
+        //
+        // So the colour has to go, not move. `.settingsBackground` is what the table is painted
+        // with anyway, and the default background is a blur over that same black — which is why
+        // the bar still reads solid without being told a colour. It also keeps the large title:
+        // on iOS 26 an opaque scroll-edge background suppresses it entirely.
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.shadowColor = nil
 
-        // The scroll-edge appearance keeps its default (blurred) background: iOS 26 needs one
-        // to render a large title at all, and an opaque one suppresses it.
-        let scrollEdge = UINavigationBarAppearance()
-        scrollEdge.configureWithDefaultBackground()
-        scrollEdge.titleTextAttributes = [.foregroundColor: UIColor.white]
-        scrollEdge.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        scrollEdge.shadowColor = nil
-
-        self.navigationItem.standardAppearance = standard
-        self.navigationItem.scrollEdgeAppearance = scrollEdge
-        self.navigationItem.compactAppearance = standard
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
     }
 
     /// Everything that has to land on the *shared* navigation bar, applied after the transition
