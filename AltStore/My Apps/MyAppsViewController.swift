@@ -62,6 +62,7 @@ class MyAppsViewController: UICollectionViewController, PeekPopPreviewing
     
     private var _imagePickerInstalledApp: InstalledApp?
     private var _viewDidAppear = false
+    private var pendingImportURL: URL?
     
     private var minimuxerStatusCheckTask: Task<Void, Never>?
     
@@ -167,6 +168,11 @@ class MyAppsViewController: UICollectionViewController, PeekPopPreviewing
         super.viewDidAppear(animated)
         
         _viewDidAppear = true
+
+        if let pendingURL = self.pendingImportURL {
+            self.pendingImportURL = nil
+            self.presentImportDialog(for: pendingURL)
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool)
@@ -1641,10 +1647,6 @@ private extension MyAppsViewController
     }
     
     func enableJIT(for installedApp: InstalledApp) {
-        guard UserDefaults.standard.sidejitenable else {
-            debugLog("MyAppsViewController: userdefaults for 'sidejitenable' was not enabled")
-            return
-        }
         AppManager.shared.enableJIT(for: installedApp) { result in
             DispatchQueue.main.async {
                 switch result {
@@ -1675,6 +1677,17 @@ private extension MyAppsViewController
         
         guard let url = notification.userInfo?[AppDelegate.importAppDeepLinkURLKey] as? URL else { return }
         
+        // If view is not yet attached to the active window hierarchy, queue it for viewDidAppear
+        guard self.view.window != nil && self._viewDidAppear else {
+            self.pendingImportURL = url
+            return
+        }
+        
+        self.presentImportDialog(for: url)
+    }
+
+    private func presentImportDialog(for url: URL)
+    {
         let cleanup = {
             guard url.isFileURL else { return }
             do

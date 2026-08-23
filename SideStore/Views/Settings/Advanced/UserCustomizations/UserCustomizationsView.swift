@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import Minimuxer
 
 private extension Color {
     static let settingsDivider = Color.miniStoreSeparator
 }
 
 struct UserCustomizationsView: View {
+    @State private var selectedBackend: GatewayBackend = selectedGatewayBackendCache
     @State private var useOnDeviceAnisette: Bool = UserDefaults.standard.useOnDeviceAnisette
     @State private var customizeAppId: Bool = UserDefaults.standard.customizeAppId
     @State private var customizeAppExtensions: Bool = UserDefaults.standard.customizeAppExtensions
@@ -21,6 +23,8 @@ struct UserCustomizationsView: View {
     @State private var enableEMPforWireguard: Bool = UserDefaults.standard.enableEMPforWireguard
     @State private var pendingEMPOption: Bool = false
     @State private var showEMPRestartConfirmation: Bool = false
+    @State private var pendingBackendOption: GatewayBackend? = nil
+    @State private var showBackendRestartConfirmation: Bool = false
     @State private var skipNonCopyableFiles: Bool = UserDefaults.standard.skipNonCopyableBackupFiles
     @State private var isOLEDModeEnabled: Bool = MiniStore.isOLEDModeEnabled
     @State private var appVerificationDisabled: Bool = UserDefaults.standard.appVerificationDisabled
@@ -327,6 +331,44 @@ struct UserCustomizationsView: View {
                     .background(Color.miniStoreCard)
                     .cornerRadius(16)
                 }
+
+                // Section 5: MINIMUXER BACKEND
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("MINIMUXER BACKEND")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Color.white.opacity(0.6))
+                        .padding(.horizontal, 16)
+                    
+                    VStack(spacing: 0) {
+                        ForEach(GatewayBackend.allCases, id: \.self) { backend in
+                            SwiftUI.Button(action: {
+                                if selectedBackend != backend {
+                                    pendingBackendOption = backend
+                                    showBackendRestartConfirmation = true
+                                }
+                            }) {
+                                HStack {
+                                    Text(backend.rawValue)
+                                        .font(.system(size: 17, weight: .bold))
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    if selectedBackend == backend {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 16, weight: .bold))
+                                            .foregroundColor(Color(uiColor: ThemeManager.shared.primaryColor))
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 14)
+                            }
+                            if backend != GatewayBackend.allCases.last {
+                                divider
+                            }
+                        }
+                    }
+                    .background(Color.settingsRowBackground)
+                    .cornerRadius(14)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
@@ -344,6 +386,21 @@ struct UserCustomizationsView: View {
             SwiftUI.Button("Cancel", role: .cancel) {}
         } message: {
             Text("Changing the EMProxy setting requires restarting SideStore. If canceled, changes will not be saved.")
+        }
+        .alert("Restart Required", isPresented: $showBackendRestartConfirmation) {
+            SwiftUI.Button("Restart Now", role: .destructive) {
+                if let newBackend = pendingBackendOption {
+                    selectedBackend = newBackend
+                    selectedGatewayBackendCache = newBackend
+                    UserDefaults.standard.minimuxerGatewayBackend = newBackend.rawValue
+                    exit(0)
+                }
+            }
+            SwiftUI.Button("Cancel", role: .cancel) {
+                pendingBackendOption = nil
+            }
+        } message: {
+            Text("Changing the Minimuxer backend requires restarting SideStore. If canceled, changes will not be saved.")
         }
     }
 

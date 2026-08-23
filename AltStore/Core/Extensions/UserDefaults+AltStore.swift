@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Minimuxer
 
 public extension UserDefaults
 {
@@ -30,7 +31,7 @@ public extension UserDefaults
         get { self.bool(forKey: #function) }
         set { self.set(newValue, forKey: #function) }
     }
-    @objc var sidejitenable: Bool {
+    @objc var isSideJITServerEnabled: Bool {
         get { self.bool(forKey: #function) }
         set { self.set(newValue, forKey: #function) }
     }
@@ -69,6 +70,14 @@ public extension UserDefaults
     }
     @objc var enableEMPforWireguard: Bool {
         get { self.bool(forKey: #function) }
+        set { self.set(newValue, forKey: #function) }
+    }
+    @objc var minimuxerGatewayBackend: String {
+        get { self.string(forKey: #function) ?? GatewayBackend.idevice.rawValue }
+        set { self.set(newValue, forKey: #function) }
+    }
+    @objc var remotePairingPortOverride: Int {
+        get { self.integer(forKey: #function) }
         set { self.set(newValue, forKey: #function) }
     }
     @objc var skipNonCopyableBackupFiles: Bool {
@@ -350,6 +359,7 @@ public extension UserDefaults
             #keyPath(UserDefaults._preferredAppSorting): preferredAppSorting.rawValue,
 
             // sidestore actively used
+            #keyPath(UserDefaults.minimuxerGatewayBackend): GatewayBackend.idevice.rawValue,
             #keyPath(UserDefaults.keepSigningCertsAfterLogout): true,
             #keyPath(UserDefaults.keepAnisetteDataAfterLogout): true,
             #keyPath(UserDefaults.isBackgroundRefreshEnabled): true,
@@ -386,6 +396,9 @@ public extension UserDefaults
             #keyPath(UserDefaults.isDebugModeEnabled): false,
 
         ] as [String: Any]
+
+        // TODO: temporarily forcing this to be visible in nightlies, remove this in stable release later
+        UserDefaults.standard.isDebugModeEnabled = true
         
         UserDefaults.standard.register(defaults: defaults)
         
