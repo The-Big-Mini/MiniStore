@@ -366,8 +366,8 @@ struct UserCustomizationsView: View {
                             }
                         }
                     }
-                    .background(Color.settingsRowBackground)
-                    .cornerRadius(14)
+                    .background(Color.miniStoreCard)
+                    .cornerRadius(16)
                 }
             }
             .padding(.horizontal, 16)
