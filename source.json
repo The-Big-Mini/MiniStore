@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260825.40+2f106c39",
-              "date": "2026-08-25T17:25:30Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260825.40+2f106c39\"\n  - revision: \"2f106c39\"\n  - timestamp: \"Tue Aug 25 17:25:30 2026\"\n\n#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- updated minimuxer to latest\n- fixes for wireless pairing + validated on apple tv manually end-to-end\n- rework wiring for both wireless pairing server and manually triggered client-pairing mode\n- move to bg thread on getaddrinfo, removed invalid host probing\n- make json response in sidejit manager to be pretty printed\n- fix the bonjour discovery, formatting issues + sidejit mdns validation\n- added logging + refine constants for bonjour\n- added more logging for sidejit diagnostics\n- jit: added alias domain for sidejit server in mDNS discovery\n- fix most of bonjour issues and reduced unncessary scans + added more info in detail view\n- added toolbar button to turn off auto-refresh\n- fix: bonjour service entries weren't cleared for old/out of date ones.\n- bonjour: bring back period refresh\n- restored wireless pair coz it was too clunky - will redo properly in next few commits (+bonjour view make it manual for now)\n- refine and consolidate the wireless pairing flow + manual pair trigger (+ some bonjour services enhancements)\n- added more mdns addrs that we scan for including apple tv's remotepairing manual tcp\n- attempt integrating wireless pair setup properly\n- mDNS-sd: Fixes for infinite resolving issue in bonjour manager\n\n#### Full Changelog: [9c6a3f0a...2f106c39](https://github.com/The-Big-Mini/MiniStore/compare/9c6a3f0ad6cf52a89186d553603a0fa69052c915...2f106c399b8af603cb4a0296b316e9ebcb92446d)\n",
+              "version": "0.6.4-20260825.41+d8ca5267",
+              "date": "2026-08-25T18:22:46Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260825.41+d8ca5267\"\n  - revision: \"d8ca5267\"\n  - timestamp: \"Tue Aug 25 18:22:46 2026\"\n\n#### What's Changed:\n- Merge pull request #23 from The-Big-Mini/MiniStoreFork\n- fix(settings): delete the orphaned Prompt AppExtns Customization cell\n- feat(settings): promote User Customizations to a root category, retire Display\n- docs(settings): correct the nav bar comment's claim that the bar reads solid\n\n#### Full Changelog: [2f106c39...d8ca5267](https://github.com/The-Big-Mini/MiniStore/compare/2f106c399b8af603cb4a0296b316e9ebcb92446d...d8ca5267030d4e106c0031807b0ad2fa51de1330)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25069068,
-              "sha256": "74d7ccb349ce1728b786a9c9e258fa8693af036d4941626894264191ab8f049b"
+              "size": 25066507,
+              "sha256": "feb16d1cca3c0d0315fe2b4f48ef97ebb57838c2ce04e046926ea2b1373cf76e"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260825.40+2f106c39",
-      "versionDate": "2026-08-25T17:25:30Z",
-      "size": 25069068,
-      "sha256": "74d7ccb349ce1728b786a9c9e258fa8693af036d4941626894264191ab8f049b",
+      "version": "0.6.4-20260825.41+d8ca5267",
+      "versionDate": "2026-08-25T18:22:46Z",
+      "size": 25066507,
+      "sha256": "feb16d1cca3c0d0315fe2b4f48ef97ebb57838c2ce04e046926ea2b1373cf76e",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- updated minimuxer to latest\n- fixes for wireless pairing + validated on apple tv manually end-to-end\n- rework wiring for both wireless pairing server and manually triggered client-pairing mode\n- move to bg thread on getaddrinfo, removed invalid host probing\n- make json response in sidejit manager to be pretty printed\n- fix the bonjour discovery, formatting issues + sidejit mdns validation\n- added logging + refine constants for bonjour\n- added more logging for sidejit diagnostics\n- jit: added alias domain for sidejit server in mDNS discovery\n- fix most of bonjour issues and reduced unncessary scans + added more info in detail view\n- added toolbar button to turn off auto-refresh\n- fix: bonjour service entries weren't cleared for old/out of date ones.\n- bonjour: bring back period refresh\n- restored wireless pair coz it was too clunky - will redo properly in next few commits (+bonjour view make it manual for now)\n- refine and consolidate the wireless pairing flow + manual pair trigger (+ some bonjour services enhancements)\n- added more mdns addrs that we scan for including apple tv's remotepairing manual tcp\n- attempt integrating wireless pair setup properly\n- mDNS-sd: Fixes for infinite resolving issue in bonjour manager\n\n#### Full Changelog: [9c6a3f0a...2f106c39](https://github.com/The-Big-Mini/MiniStore/compare/9c6a3f0ad6cf52a89186d553603a0fa69052c915...2f106c399b8af603cb4a0296b316e9ebcb92446d)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #23 from The-Big-Mini/MiniStoreFork\n- fix(settings): delete the orphaned Prompt AppExtns Customization cell\n- feat(settings): promote User Customizations to a root category, retire Display\n- docs(settings): correct the nav bar comment's claim that the bar reads solid\n\n#### Full Changelog: [2f106c39...d8ca5267](https://github.com/The-Big-Mini/MiniStore/compare/2f106c399b8af603cb4a0296b316e9ebcb92446d...d8ca5267030d4e106c0031807b0ad2fa51de1330)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260825.41+d8ca5267",
+      "title": "MiniStore Nightly — 0.6.4-20260825.41+d8ca5267",
+      "caption": "Merge pull request #23 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-25T18:22:46Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260825.40+2f106c39",
       "title": "MiniStore Nightly — 0.6.4-20260825.40+2f106c39",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260817.21+e270234c",
       "caption": "Merge pull request #16 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-17T23:02:43Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260817.20+1f7949a1",
-      "title": "MiniStore Nightly — 0.6.4-20260817.20+1f7949a1",
-      "caption": "Merge pull request #15 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-17T16:27:59Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
