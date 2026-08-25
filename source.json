@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260824.38+9c6a3f0a",
-              "date": "2026-08-24T04:48:58Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260824.38+9c6a3f0a\"\n  - revision: \"9c6a3f0a\"\n  - timestamp: \"Mon Aug 24 04:48:58 2026\"\n\n#### What's Changed:\n- Merge pull request #22 from The-Big-Mini/MiniStoreFork\n- fix(settings): repaint the merged Minimuxer Backend section with miniStoreCard\n- fix(settings): drop the nav bar's background colour so a push has nothing to cross-fade\n- Merge branch 'SideStore:develop' into develop\n- ensure config changes for rppairing port are reflected asap\n- fix compile issues\n- optimize: handle onFailure bonjour scan to not be doing timeouts when nw is down or other types of issues.\n- make bonjour scan for rppairing port run only on failure as a one time retry per failure.\n- wip - implemented bonjour based rppairing port discovery - this is costly eating 4% cpu, so gotta need to only try if a failure occured as a retry and if we detect a port change\n- fix all sidejit issues and use bonjour sergices to look up remote server on lan\n- fix: restored JIT functionality - tested with remote server on LAN\n- freeze anisetteKit to latest\n- keep fetch sources timeout to 5 secs\n- updated minimuxer to latest\n- fix-oda: handle with server's UUID if our current uuid instatiation failed\n- recommended sources - reduce timeout to 10 secs, coz let them retry if required\n- updated submodule to latest\n- feat: added capability to switch between idevice (rust) or limd+remotepair (cpp)\n- prepare minimuxer wrapper for adding capability to switch backend (idevice/limd based)\n- shared ipa on cold lauch/boot doesn't show install prompt\n- fix certificates import with password not having securityScopedAccess\n- fix: updated altsign back to use static linking now that minimuxer's device gateways are dynamic to prevent symbol collision during static linking + limd/rsd in cpp based devicegateway\n- enable dignostics menu for all\n- updated operations to print elapsed time\n- added maintenance manager that could be used for performing maintenance (currently clears keychain so that OnDeviceAnisette take work properly - will initiate a fresh sign in)\n- ensure signout doesn't crash if db isn't ready\n- Revert \"disabled ondevice ani flow for now - to not cause trouble to users\"\n\n#### Full Changelog: [5119a0e7...9c6a3f0a](https://github.com/The-Big-Mini/MiniStore/compare/5119a0e74891b8e47e04b422914a6de70ef93f52...9c6a3f0ad6cf52a89186d553603a0fa69052c915)\n",
+              "version": "0.6.4-20260825.40+2f106c39",
+              "date": "2026-08-25T17:25:30Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260825.40+2f106c39\"\n  - revision: \"2f106c39\"\n  - timestamp: \"Tue Aug 25 17:25:30 2026\"\n\n#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- updated minimuxer to latest\n- fixes for wireless pairing + validated on apple tv manually end-to-end\n- rework wiring for both wireless pairing server and manually triggered client-pairing mode\n- move to bg thread on getaddrinfo, removed invalid host probing\n- make json response in sidejit manager to be pretty printed\n- fix the bonjour discovery, formatting issues + sidejit mdns validation\n- added logging + refine constants for bonjour\n- added more logging for sidejit diagnostics\n- jit: added alias domain for sidejit server in mDNS discovery\n- fix most of bonjour issues and reduced unncessary scans + added more info in detail view\n- added toolbar button to turn off auto-refresh\n- fix: bonjour service entries weren't cleared for old/out of date ones.\n- bonjour: bring back period refresh\n- restored wireless pair coz it was too clunky - will redo properly in next few commits (+bonjour view make it manual for now)\n- refine and consolidate the wireless pairing flow + manual pair trigger (+ some bonjour services enhancements)\n- added more mdns addrs that we scan for including apple tv's remotepairing manual tcp\n- attempt integrating wireless pair setup properly\n- mDNS-sd: Fixes for infinite resolving issue in bonjour manager\n\n#### Full Changelog: [9c6a3f0a...2f106c39](https://github.com/The-Big-Mini/MiniStore/compare/9c6a3f0ad6cf52a89186d553603a0fa69052c915...2f106c399b8af603cb4a0296b316e9ebcb92446d)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 24883573,
-              "sha256": "fdf37eadb39f84d5157c2a0093b1114c23b43b3edaa368339a8ef92e5fc9e171"
+              "size": 25069068,
+              "sha256": "74d7ccb349ce1728b786a9c9e258fa8693af036d4941626894264191ab8f049b"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260824.38+9c6a3f0a",
-      "versionDate": "2026-08-24T04:48:58Z",
-      "size": 24883573,
-      "sha256": "fdf37eadb39f84d5157c2a0093b1114c23b43b3edaa368339a8ef92e5fc9e171",
+      "version": "0.6.4-20260825.40+2f106c39",
+      "versionDate": "2026-08-25T17:25:30Z",
+      "size": 25069068,
+      "sha256": "74d7ccb349ce1728b786a9c9e258fa8693af036d4941626894264191ab8f049b",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #22 from The-Big-Mini/MiniStoreFork\n- fix(settings): repaint the merged Minimuxer Backend section with miniStoreCard\n- fix(settings): drop the nav bar's background colour so a push has nothing to cross-fade\n- Merge branch 'SideStore:develop' into develop\n- ensure config changes for rppairing port are reflected asap\n- fix compile issues\n- optimize: handle onFailure bonjour scan to not be doing timeouts when nw is down or other types of issues.\n- make bonjour scan for rppairing port run only on failure as a one time retry per failure.\n- wip - implemented bonjour based rppairing port discovery - this is costly eating 4% cpu, so gotta need to only try if a failure occured as a retry and if we detect a port change\n- fix all sidejit issues and use bonjour sergices to look up remote server on lan\n- fix: restored JIT functionality - tested with remote server on LAN\n- freeze anisetteKit to latest\n- keep fetch sources timeout to 5 secs\n- updated minimuxer to latest\n- fix-oda: handle with server's UUID if our current uuid instatiation failed\n- recommended sources - reduce timeout to 10 secs, coz let them retry if required\n- updated submodule to latest\n- feat: added capability to switch between idevice (rust) or limd+remotepair (cpp)\n- prepare minimuxer wrapper for adding capability to switch backend (idevice/limd based)\n- shared ipa on cold lauch/boot doesn't show install prompt\n- fix certificates import with password not having securityScopedAccess\n- fix: updated altsign back to use static linking now that minimuxer's device gateways are dynamic to prevent symbol collision during static linking + limd/rsd in cpp based devicegateway\n- enable dignostics menu for all\n- updated operations to print elapsed time\n- added maintenance manager that could be used for performing maintenance (currently clears keychain so that OnDeviceAnisette take work properly - will initiate a fresh sign in)\n- ensure signout doesn't crash if db isn't ready\n- Revert \"disabled ondevice ani flow for now - to not cause trouble to users\"\n\n#### Full Changelog: [5119a0e7...9c6a3f0a](https://github.com/The-Big-Mini/MiniStore/compare/5119a0e74891b8e47e04b422914a6de70ef93f52...9c6a3f0ad6cf52a89186d553603a0fa69052c915)"
+      "versionDescription": "#### What's Changed:\n- Merge branch 'SideStore:develop' into develop\n- updated minimuxer to latest\n- fixes for wireless pairing + validated on apple tv manually end-to-end\n- rework wiring for both wireless pairing server and manually triggered client-pairing mode\n- move to bg thread on getaddrinfo, removed invalid host probing\n- make json response in sidejit manager to be pretty printed\n- fix the bonjour discovery, formatting issues + sidejit mdns validation\n- added logging + refine constants for bonjour\n- added more logging for sidejit diagnostics\n- jit: added alias domain for sidejit server in mDNS discovery\n- fix most of bonjour issues and reduced unncessary scans + added more info in detail view\n- added toolbar button to turn off auto-refresh\n- fix: bonjour service entries weren't cleared for old/out of date ones.\n- bonjour: bring back period refresh\n- restored wireless pair coz it was too clunky - will redo properly in next few commits (+bonjour view make it manual for now)\n- refine and consolidate the wireless pairing flow + manual pair trigger (+ some bonjour services enhancements)\n- added more mdns addrs that we scan for including apple tv's remotepairing manual tcp\n- attempt integrating wireless pair setup properly\n- mDNS-sd: Fixes for infinite resolving issue in bonjour manager\n\n#### Full Changelog: [9c6a3f0a...2f106c39](https://github.com/The-Big-Mini/MiniStore/compare/9c6a3f0ad6cf52a89186d553603a0fa69052c915...2f106c399b8af603cb4a0296b316e9ebcb92446d)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260825.40+2f106c39",
+      "title": "MiniStore Nightly — 0.6.4-20260825.40+2f106c39",
+      "caption": "Merge branch 'SideStore:develop' into develop",
+      "date": "2026-08-25T17:25:30Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260824.38+9c6a3f0a",
       "title": "MiniStore Nightly — 0.6.4-20260824.38+9c6a3f0a",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260817.20+1f7949a1",
       "caption": "Merge pull request #15 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-17T16:27:59Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260817.18+387c9631",
-      "title": "MiniStore Nightly — 0.6.4-20260817.18+387c9631",
-      "caption": "Merge pull request #14 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-17T00:38:32Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
