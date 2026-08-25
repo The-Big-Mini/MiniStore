@@ -34,7 +34,7 @@ private func resolveDiscoveredRemotePairingPort() async -> UInt16? {
     if overridePort > 0 && overridePort <= 65535 {
         return UInt16(overridePort)
     }
-    if let resolved = await BonjourDiscoveryManagerV2.resolveFirstService(
+    if let resolved = await BonjourDiscoveryManager.resolveFirstService(
         ofType: MinimuxerConstants.remotePairingDaemonServiceType,
         timeout: AppConstants.Bonjour.defaultDiscoveryTimeout
     ) {
@@ -545,7 +545,6 @@ public struct MinimuxerPairedDevice: Codable, Sendable {
     }
 }
 
-@MainActor
 public final class WirelessPairWrapper {
     public static let shared = WirelessPairWrapper()
     
@@ -581,12 +580,64 @@ public final class WirelessPairWrapper {
         }
     }
     
+    public var onRequestPin: ((@escaping (String) -> Void) -> Void)? {
+        get {
+            #if !targetEnvironment(simulator)
+            return minimuxer.wirelessPair.onRequestPin
+            #else
+            return nil
+            #endif
+        }
+        set {
+            #if !targetEnvironment(simulator)
+            minimuxer.wirelessPair.onRequestPin = newValue
+            #endif
+        }
+    }
+    
     public func start(
         outPath: String,
         completion: @escaping (Result<MinimuxerPairedDevice, Error>) -> Void
     ) {
+        debugLog("[WirelessPairWrapper] start(outPath: '\(outPath)')")
         #if !targetEnvironment(simulator)
         minimuxer.wirelessPair.start(outPath: outPath) { result in
+            debugLog("[WirelessPairWrapper] start callback received: result=\(result)")
+            switch result {
+            case .success(let device):
+                completion(.success(MinimuxerPairedDevice(
+                    name: device.name,
+                    model: device.model,
+                    udid: device.udid,
+                    pairingFilePath: device.pairingFilePath
+                )))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+        #else
+        completion(.failure(MinimuxerWrapperError.pairingFile))
+        #endif
+    }
+
+    public func trigger(
+        targetIp: String,
+        targetPort: UInt16,
+        hostName: String = MinimuxerConstants.defaultHostName,
+        hostModel: String = MinimuxerConstants.defaultHostModel,
+        outPath: String,
+        completion: @escaping (Result<MinimuxerPairedDevice, Error>) -> Void
+    ) {
+        debugLog("[WirelessPairWrapper] trigger(targetIp: '\(targetIp)', targetPort: \(targetPort), hostName: '\(hostName)', hostModel: '\(hostModel)', outPath: '\(outPath)')")
+        #if !targetEnvironment(simulator)
+        minimuxer.wirelessPair.trigger(
+            targetIp: targetIp,
+            targetPort: targetPort,
+            hostName: hostName,
+            hostModel: hostModel,
+            outPath: outPath
+        ) { result in
+            debugLog("[WirelessPairWrapper] trigger callback received: result=\(result)")
             switch result {
             case .success(let device):
                 completion(.success(MinimuxerPairedDevice(
@@ -605,11 +656,11 @@ public final class WirelessPairWrapper {
     }
     
     public func stop() {
+        debugLog("[WirelessPairWrapper] stop() invoked")
         #if !targetEnvironment(simulator)
         minimuxer.wirelessPair.stop()
         #endif
     }
 }
 
-@MainActor
 let wirelessPairing = WirelessPairWrapper.shared

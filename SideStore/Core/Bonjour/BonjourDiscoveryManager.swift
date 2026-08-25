@@ -7,14 +7,13 @@
 //
 
 import Foundation
+import Network
+import Combine
 
-// MARK: - Data Models
-
-/// Information about a discovered Bonjour service type
 struct ServiceTypeInfo: Identifiable, Hashable {
-    let id = UUID()
-    let rawType: String        // e.g. "_airplay._tcp."
-    let friendlyName: String?  // e.g. "AirPlay" (nil if unknown)
+    var id: String { rawType }
+    let rawType: String
+    let friendlyName: String?
     
     var displayName: String {
         friendlyName ?? rawType
@@ -29,303 +28,671 @@ struct ServiceTypeInfo: Identifiable, Hashable {
     }
 }
 
-/// A discovered service instance (before resolution)
 struct DiscoveredService: Identifiable, Hashable {
-    let id = UUID()
+    var id: String { "\(domain)/\(type)/\(name)" }
     let name: String
     let type: String
     let domain: String
+    let result: NWBrowser.Result
+    let txtRecords: [(key: String, value: String)]
+    let interfaces: [NWInterface]
     
-    // The underlying NetService reference for resolution
-    let netService: NetService
+    init(name: String, type: String, domain: String, result: NWBrowser.Result, txtRecords: [(key: String, value: String)] = [], interfaces: [NWInterface] = []) {
+        self.name = name
+        self.type = type
+        self.domain = domain
+        self.result = result
+        self.txtRecords = txtRecords
+        self.interfaces = interfaces
+    }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(type)
-        hasher.combine(domain)
+        hasher.combine(id)
     }
     
     static func == (lhs: DiscoveredService, rhs: DiscoveredService) -> Bool {
-        lhs.name == rhs.name && lhs.type == rhs.type && lhs.domain == rhs.domain
+        lhs.id == rhs.id
     }
 }
 
-/// Fully resolved service details
-struct ResolvedServiceInfo: Identifiable {
-    let id = UUID()
+struct ResolvedServiceInfo: Identifiable, Equatable {
+    var id: String { "\(domain)/\(type)/\(name)/\(hostname):\(port)" }
     let name: String
     let type: String
     let domain: String
     let hostname: String
-    let port: Int
-    let addresses: [String]      // Formatted IP address strings
+    let port: UInt16
+    let addresses: [String]
     let txtRecords: [(key: String, value: String)]
+    
+    static func == (lhs: ResolvedServiceInfo, rhs: ResolvedServiceInfo) -> Bool {
+        lhs.name == rhs.name &&
+        lhs.type == rhs.type &&
+        lhs.domain == rhs.domain &&
+        lhs.hostname == rhs.hostname &&
+        lhs.port == rhs.port &&
+        lhs.addresses == rhs.addresses &&
+        lhs.txtRecords.count == rhs.txtRecords.count &&
+        zip(lhs.txtRecords, rhs.txtRecords).allSatisfy { $0.0 == $1.0 && $0.1 == $1.1 }
+    }
 }
 
-
-// MARK: - BonjourDiscoveryManager
-
-/// Manages Bonjour/DNS-SD discovery of domains, service types, instances, and resolution
-final class BonjourDiscoveryManager: NSObject, ObservableObject {
+final class BonjourDiscoveryManager: NSObject, ObservableObject, NetServiceDelegate, NetServiceBrowserDelegate {
+    static let shared = BonjourDiscoveryManager()
     
-    // MARK: Published State
-    
+    // Published State
     @Published var domains: [String] = []
     @Published var serviceTypes: [ServiceTypeInfo] = []
     @Published var instances: [DiscoveredService] = []
     @Published var resolvedService: ResolvedServiceInfo? = nil
     @Published var isSearching = false
+    @Published var isResolving = false
     @Published var resolveError: String? = nil
     
-    // MARK: Private
-    
+    // Private State
     private var domainBrowser: NetServiceBrowser?
     private var typeBrowser: NetServiceBrowser?
-    private var instanceBrowser: NetServiceBrowser?
-    private var resolvingService: NetService?
-    
-    private var fallbackBrowsers: [NetServiceBrowser] = []
-    private var fallbackTask: Task<Void, Never>?
+    private var fallbackTypeBrowsers: [NWBrowser] = []
+    private var instanceBrowsers: [NWBrowser] = []
+    private var activeConnection: NWConnection?
+    private var resolvingNetService: NetService?
+    private var activeTxtRecords: [(key: String, value: String)] = []
+    private var currentResolvingService: DiscoveredService?
     private var timeoutTask: Task<Void, Never>?
     
     private var discoveredDomains = Set<String>()
     private var discoveredTypes = Set<String>()
-    private var discoveredInstances: [String: DiscoveredService] = [:]
-    private var currentDomain: String = AppConstants.Bonjour.defaultDomain
+    private var discoveredInstances = Set<DiscoveredService>()
     
     override init() {
         super.init()
     }
     
-    deinit {
-        stopAll()
-    }
-    
-    // MARK: - Domain Discovery
-    
-    /// Discover browsable Bonjour domains (typically just "local.")
-    func discoverDomains() {
+    // Domain Discovery
+    func discoverDomains(clearExisting: Bool = false) {
         debugLog("[BonjourDiscovery] Starting domain discovery...")
         stopDomainSearch()
-        discoveredDomains.removeAll()
-        domains.removeAll()
+        if clearExisting {
+            discoveredDomains.removeAll()
+            domains.removeAll()
+        }
         isSearching = true
         
         let browser = NetServiceBrowser()
         browser.delegate = self
+        browser.searchForRegistrationDomains()
         domainBrowser = browser
-        browser.searchForBrowsableDomains()
+        
+        if !domains.contains("local") {
+            domains.append("local")
+            discoveredDomains.insert("local")
+        }
     }
     
     func stopDomainSearch() {
-        debugLog("[BonjourDiscovery] Stopping domain discovery.")
         domainBrowser?.stop()
         domainBrowser = nil
+        isSearching = false
     }
     
-    // MARK: - Service Type Discovery
-    
-    /// Discover all service types registered in a given domain
-    func discoverServiceTypes(in domain: String) {
+    // Service Type Discovery
+    func discoverServiceTypes(in domain: String = "local.", probeTypes: [String]? = nil, clearExisting: Bool = false) {
         let domainWithDot = domain.hasSuffix(".") ? domain : domain + "."
         debugLog("[BonjourDiscovery] Starting service type discovery in domain '\(domainWithDot)'...")
         stopTypeSearch()
-        discoveredTypes.removeAll()
-        serviceTypes.removeAll()
-        currentDomain = domainWithDot
+        if clearExisting {
+            discoveredTypes.removeAll()
+            serviceTypes.removeAll()
+        }
         isSearching = true
         
         let browser = NetServiceBrowser()
         browser.delegate = self
-        typeBrowser = browser
         browser.searchForServices(ofType: "_services._dns-sd._udp.", inDomain: domainWithDot)
+        typeBrowser = browser
         
-        // Start fallback parallel searches after 1.5 seconds if we haven't found anything
-        fallbackTask = Task { [weak self] in
-            do {
-                try await Task.sleep(nanoseconds: 1_500_000_000)
-                // Accessing self inside non-MainActor context requires explicitly checking and dispatching state update
-                // properties to MainActor. But here self.serviceTypes is a MainActor-isolated property accessed on main thread
-                // or we can run the check on MainActor:
-                await MainActor.run { [weak self] in
-                    guard let self = self else { return }
-                    debugLog("[BonjourDiscovery] Fallback task resumed. Current service types count: \(self.serviceTypes.count)")
-                    if self.serviceTypes.isEmpty {
-                        debugLog("[BonjourDiscovery] Falling back to searching declared service types in parallel...")
-                        self.startFallbackSearches(in: domainWithDot)
-                    }
-                }
-            } catch {
-                debugLog("[BonjourDiscovery] Fallback task sleep cancelled: \(error.localizedDescription)")
-            }
+        let typesToProbe = probeTypes ?? commonServiceTypesToBrowse
+        if !typesToProbe.isEmpty {
+            startFallbackSearches(types: typesToProbe, in: domainWithDot)
         }
         
-        // Stop loading spinner after 5.0 seconds if we haven't found anything
-        timeoutTask = Task { [weak self] in
-            do {
-                try await Task.sleep(nanoseconds: 5_000_000_000)
-                await MainActor.run { [weak self] in
-                    guard let self = self else { return }
-                    debugLog("[BonjourDiscovery] Search timeout reached.")
-                    self.isSearching = false
-                }
-            } catch {
-                debugLog("[BonjourDiscovery] Timeout task sleep cancelled: \(error.localizedDescription)")
-            }
+        timeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard let self = self, !Task.isCancelled else { return }
+            self.isSearching = false
         }
     }
     
-    private func startFallbackSearches(in domain: String) {
-        let typesToBrowse = commonServiceTypesToBrowse
-        
-        Task { @MainActor [weak self] in
-            for t in typesToBrowse {
-                // Yield control to let UI draw between browser creation cycles
-                await Task.yield()
+    private func startFallbackSearches(types: [String], in domain: String) {
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let self = self else { return }
+            
+            for t in types {
+                let typeWithoutDot = t.hasSuffix(".") ? String(t.dropLast()) : t
+                let parameters = typeWithoutDot.contains("_tcp") ? NWParameters.tcp : NWParameters.udp
+                parameters.includePeerToPeer = true
                 
-                guard let self = self else { return }
-                let browser = NetServiceBrowser()
-                browser.delegate = self
-                self.fallbackBrowsers.append(browser)
-                browser.searchForServices(ofType: t, inDomain: domain)
-                debugLog("[BonjourDiscovery] Fallback: Started browsing for service type '\(t)' in domain '\(domain)'")
+                let descriptor = NWBrowser.Descriptor.bonjour(type: typeWithoutDot, domain: domain)
+                let browser = NWBrowser(for: descriptor, using: parameters)
+                
+                browser.browseResultsChangedHandler = { [weak self] results, _ in
+                    guard let self = self else { return }
+                    if !results.isEmpty {
+                        Task { @MainActor in
+                            if self.discoveredTypes.insert(t).inserted {
+                                let info = ServiceTypeInfo(
+                                    rawType: t,
+                                    friendlyName: Self.friendlyName(for: t)
+                                )
+                                if !self.serviceTypes.contains(where: { $0.rawType == t }) {
+                                    self.serviceTypes.append(info)
+                                    self.serviceTypes.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                browser.start(queue: .global(qos: .userInitiated))
+                
+                Task { @MainActor in
+                    self.fallbackTypeBrowsers.append(browser)
+                }
             }
         }
     }
     
     func stopTypeSearch() {
-        debugLog("[BonjourDiscovery] Stopping service type discovery.")
         typeBrowser?.stop()
         typeBrowser = nil
-        fallbackTask?.cancel()
-        fallbackTask = nil
         timeoutTask?.cancel()
         timeoutTask = nil
-        for b in fallbackBrowsers {
-            b.stop()
+        for b in fallbackTypeBrowsers {
+            b.cancel()
         }
-        fallbackBrowsers.removeAll()
+        fallbackTypeBrowsers.removeAll()
         isSearching = false
     }
     
-    // MARK: - Instance Discovery
+    // Service Instance Discovery
+    func discoverInstances(ofType type: String, inDomain domain: String = "local.", clearExisting: Bool = false) {
+        discoverInstances(ofTypes: [type], inDomain: domain, clearExisting: clearExisting)
+    }
     
-    /// Discover all instances of a specific service type in a domain
-    func discoverInstances(ofType type: String, inDomain domain: String) {
+    func discoverInstances(ofTypes types: [String], inDomain domain: String = "local.", clearExisting: Bool = false) {
         let domainWithDot = domain.hasSuffix(".") ? domain : domain + "."
-        let typeWithDot = type.hasSuffix(".") ? type : type + "."
-        debugLog("[BonjourDiscovery] Starting instance discovery for type '\(typeWithDot)' in domain '\(domainWithDot)'...")
+        debugLog("[BonjourDiscovery] Starting instance discovery for types: \(types) in '\(domainWithDot)'...")
         stopInstanceSearch()
-        discoveredInstances.removeAll()
-        instances.removeAll()
+        if clearExisting {
+            discoveredInstances.removeAll()
+            instances.removeAll()
+        }
         isSearching = true
         
-        let browser = NetServiceBrowser()
-        browser.delegate = self
-        instanceBrowser = browser
-        browser.searchForServices(ofType: typeWithDot, inDomain: domainWithDot)
+        for type in types {
+            let typeWithoutDot = type.hasSuffix(".") ? String(type.dropLast()) : type
+            let descriptor = NWBrowser.Descriptor.bonjour(type: typeWithoutDot, domain: domainWithDot)
+            let parameters = typeWithoutDot.contains("_tcp") ? NWParameters.tcp : NWParameters.udp
+            parameters.includePeerToPeer = true
+            
+            let browser = NWBrowser(for: descriptor, using: parameters)
+            browser.browseResultsChangedHandler = { [weak self] results, _ in
+                self?.handleInstanceResults(results, forType: type, domain: domain)
+            }
+            
+            browser.stateUpdateHandler = { [weak self] state in
+                if case .failed = state {
+                    Task { @MainActor in
+                        self?.isSearching = false
+                    }
+                }
+            }
+            
+            instanceBrowsers.append(browser)
+            browser.start(queue: .global(qos: .userInitiated))
+        }
+        
+        timeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            guard let self = self, !Task.isCancelled else { return }
+            self.isSearching = false
+        }
+    }
+    
+    private func handleInstanceResults(_ results: Set<NWBrowser.Result>, forType type: String, domain: String) {
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            
+            var currentTypeInstances: [DiscoveredService] = []
+            for result in results {
+                if case .service(let name, _, _, let iface) = result.endpoint {
+                    let ifaceNames = result.interfaces.map { "\($0.name)(\($0.type))" }.joined(separator: ", ")
+                    let epIface = iface?.name ?? "none"
+                    var txtRecords: [(key: String, value: String)] = []
+                    if case .bonjour(let txt) = result.metadata {
+                        for (k, v) in txt.dictionary {
+                            txtRecords.append((key: k, value: v))
+                        }
+                        txtRecords.sort { $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending }
+                    }
+                    let txtSummary = txtRecords.map { "\($0.key)=\($0.value)" }.joined(separator: ",")
+                    debugLog("[BonjourDiscovery] Discovered '\(name)' (\(type)): ifaces=[\(ifaceNames)], epIface=\(epIface), txt=[\(txtSummary)]")
+                    
+                    let discovered = DiscoveredService(
+                        name: name,
+                        type: type,
+                        domain: domain,
+                        result: result,
+                        txtRecords: txtRecords,
+                        interfaces: Array(result.interfaces)
+                    )
+                    currentTypeInstances.append(discovered)
+                }
+            }
+            
+            var otherInstances = self.instances.filter { $0.type != type }
+            otherInstances.append(contentsOf: currentTypeInstances)
+            otherInstances.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            self.instances = otherInstances
+            debugLog("[BonjourDiscovery] Live NWBrowser results updated for '\(type)': \(currentTypeInstances.count) active instance(s)")
+        }
     }
     
     func stopInstanceSearch() {
         debugLog("[BonjourDiscovery] Stopping instance discovery.")
-        instanceBrowser?.stop()
-        instanceBrowser = nil
+        timeoutTask?.cancel()
+        timeoutTask = nil
+        for b in instanceBrowsers {
+            b.cancel()
+        }
+        instanceBrowsers.removeAll()
+        isSearching = false
     }
     
-    // MARK: - Service Resolution
-    
-    /// Resolve a service to get its hostname, addresses, port, and TXT records
-    func resolveService(_ service: DiscoveredService) {
-        debugLog("[BonjourDiscovery] Starting resolution for service '\(service.name)' (\(service.type))...")
+    // Service Resolution
+    func resolveService(_ service: DiscoveredService, clearExisting: Bool = false) {
+        debugLog("[BonjourDiscovery] Resolving service '\(service.name)'...")
         stopResolving()
-        resolvedService = nil
-        resolveError = nil
-        isSearching = true
         
-        let netService = service.netService
-        netService.delegate = self
-        netService.resolve(withTimeout: 10.0)
-        resolvingService = netService
+        if clearExisting || resolvedService?.name != service.name {
+            resolvedService = nil
+            resolveError = nil
+        }
+        isResolving = true
+        currentResolvingService = service
+        
+        var txtRecords: [(key: String, value: String)] = []
+        if case .bonjour(let txtRecord) = service.result.metadata {
+            let dict = txtRecord.dictionary
+            for (key, value) in dict {
+                txtRecords.append((key: key, value: value))
+            }
+            txtRecords.sort { $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending }
+        }
+        activeTxtRecords = txtRecords
+        
+        let isTCP = service.type.contains("_tcp")
+        let parameters = isTCP ? NWParameters.tcp : NWParameters.udp
+        parameters.includePeerToPeer = true
+        
+        let connection = NWConnection(to: service.result.endpoint, using: parameters)
+        activeConnection = connection
+        
+        connection.pathUpdateHandler = { [weak self] path in
+            guard let self = self else { return }
+            debugLog("[BonjourDiscovery] NWConnection path update for '\(service.name)': status=\(path.status), remoteEndpoint=\(String(describing: path.remoteEndpoint))")
+            if let remote = path.remoteEndpoint, case .hostPort(let host, let port) = remote {
+                var resolvedHost = "\(host)"
+                if let percentIndex = resolvedHost.firstIndex(of: "%") {
+                    resolvedHost = String(resolvedHost[..<percentIndex])
+                }
+                let portVal = port.rawValue
+                let directIPs: [String]
+                if resolvedHost.contains(":") || resolvedHost.filter({ $0 == "." }).count == 3 {
+                    directIPs = [resolvedHost]
+                } else {
+                    directIPs = Self.resolveHostToIPs(resolvedHost)
+                }
+                
+                self.finishResolution(
+                    service: service,
+                    hostname: resolvedHost,
+                    port: portVal,
+                    addresses: directIPs,
+                    txtRecords: txtRecords
+                )
+            }
+        }
+        
+        connection.stateUpdateHandler = { [weak self] state in
+            guard let self = self else { return }
+            debugLog("[BonjourDiscovery] NWConnection state for '\(service.name)': \(state)")
+            
+            switch state {
+            case .ready:
+                if let path = connection.currentPath, let remote = path.remoteEndpoint {
+                    var resolvedHost = ""
+                    var portVal: UInt16 = 0
+                    
+                    switch remote {
+                    case .hostPort(let host, let port):
+                        resolvedHost = "\(host)"
+                        if let percentIndex = resolvedHost.firstIndex(of: "%") {
+                            resolvedHost = String(resolvedHost[..<percentIndex])
+                        }
+                        portVal = port.rawValue
+                    case .service(let sName, _, let sDomain, _):
+                        let cleanDomain = sDomain.isEmpty ? "local" : (sDomain.hasSuffix(".") ? String(sDomain.dropLast()) : sDomain)
+                        resolvedHost = "\(sName).\(cleanDomain)"
+                        if let localEndpoint = path.localEndpoint, case .hostPort(_, let p) = localEndpoint {
+                            portVal = p.rawValue
+                        }
+                    default:
+                        resolvedHost = service.name
+                    }
+                    
+                    let directIPs: [String]
+                    if resolvedHost.contains(":") || resolvedHost.filter({ $0 == "." }).count == 3 {
+                        directIPs = [resolvedHost]
+                    } else {
+                        directIPs = Self.resolveHostToIPs(resolvedHost)
+                    }
+                    
+                    self.finishResolution(
+                        service: service,
+                        hostname: resolvedHost,
+                        port: portVal,
+                        addresses: directIPs,
+                        txtRecords: txtRecords
+                    )
+                }
+            case .waiting:
+                if let path = connection.currentPath,
+                   let remote = path.remoteEndpoint,
+                   case .hostPort(let host, let port) = remote {
+                    
+                    var resolvedHost = "\(host)"
+                    if let percentIndex = resolvedHost.firstIndex(of: "%") {
+                        resolvedHost = String(resolvedHost[..<percentIndex])
+                    }
+                    let portVal = port.rawValue
+                    let directIPs: [String]
+                    if resolvedHost.contains(":") || resolvedHost.filter({ $0 == "." }).count == 3 {
+                        directIPs = [resolvedHost]
+                    } else {
+                        directIPs = Self.resolveHostToIPs(resolvedHost)
+                    }
+                    
+                    self.finishResolution(
+                        service: service,
+                        hostname: resolvedHost,
+                        port: portVal,
+                        addresses: directIPs,
+                        txtRecords: txtRecords
+                    )
+                }
+            case .failed(let error):
+                debugLog("[BonjourDiscovery] NWConnection resolution failed: \(error)")
+                Task { @MainActor [weak self] in
+                    guard let self = self, self.isResolving, self.resolvedService == nil else { return }
+                    self.resolveError = "Connection failed: \(error.localizedDescription)"
+                    self.stopResolving()
+                }
+            default:
+                break
+            }
+        }
+        connection.start(queue: .global(qos: .userInitiated))
+        
+        let netType = service.type.hasSuffix(".") ? String(service.type.dropLast()) : service.type
+        let netDomain = service.domain.isEmpty ? "local." : (service.domain.hasSuffix(".") ? service.domain : service.domain + ".")
+        let ns = NetService(domain: netDomain, type: netType, name: service.name)
+        ns.delegate = self
+        ns.schedule(in: .main, forMode: .common)
+        resolvingNetService = ns
+        ns.resolve(withTimeout: 3.5)
+        
+        timeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 3_500_000_000)
+            guard let self = self, !Task.isCancelled else { return }
+            if self.isResolving && self.resolvedService == nil {
+                debugLog("[BonjourDiscovery] Resolution timed out for '\(service.name)'")
+                self.resolveError = "Resolution timed out (no response from endpoint)"
+                self.stopResolving()
+            }
+        }
+    }
+    
+    private func finishResolution(
+        service: DiscoveredService,
+        hostname: String,
+        port: UInt16,
+        addresses: [String],
+        txtRecords: [(key: String, value: String)]
+    ) {
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let self = self else { return }
+            
+            var allAddresses = addresses
+            let cleanHost = hostname.strippingInterfaceScope
+            if !cleanHost.isEmpty && !cleanHost.contains(":") && cleanHost.filter({ $0 == "." }).count < 3 {
+                let resolved = Self.resolveHostToIPs(cleanHost)
+                for ip in resolved {
+                    if !allAddresses.contains(ip) {
+                        allAddresses.append(ip)
+                    }
+                }
+            }
+            
+            await MainActor.run {
+                guard self.isResolving, self.resolvedService == nil else { return }
+                
+                self.resolvedService = ResolvedServiceInfo(
+                    name: service.name,
+                    type: service.type,
+                    domain: service.domain,
+                    hostname: cleanHost.isEmpty ? service.name : cleanHost,
+                    port: port,
+                    addresses: allAddresses,
+                    txtRecords: txtRecords
+                )
+                self.isResolving = false
+                self.stopResolving()
+            }
+        }
     }
     
     func stopResolving() {
-        debugLog("[BonjourDiscovery] Stopping service resolution.")
-        resolvingService?.stop()
-        resolvingService = nil
+        timeoutTask?.cancel()
+        timeoutTask = nil
+        activeConnection?.cancel()
+        activeConnection = nil
+        resolvingNetService?.stop()
+        resolvingNetService = nil
+        currentResolvingService = nil
+        isResolving = false
     }
     
-    // MARK: - Stop All
-    
     func stopAll() {
-        debugLog("[BonjourDiscovery] Stopping all discovery activities.")
         stopDomainSearch()
         stopTypeSearch()
         stopInstanceSearch()
         stopResolving()
-        isSearching = false
     }
     
-    // MARK: - Helpers
+    // NetServiceBrowserDelegate
+    func netServiceBrowser(_ browser: NetServiceBrowser, didFindDomain domainString: String, moreComing: Bool) {
+        let cleanDomain = domainString.hasSuffix(".") ? String(domainString.dropLast()) : domainString
+        Task { @MainActor in
+            if self.discoveredDomains.insert(cleanDomain).inserted {
+                self.domains.append(cleanDomain)
+            }
+            if !moreComing {
+                self.isSearching = false
+            }
+        }
+    }
     
+    func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
+        let rawType = "\(service.name).\(service.type)"
+        Task { @MainActor in
+            if self.discoveredTypes.insert(rawType).inserted {
+                let info = ServiceTypeInfo(
+                    rawType: rawType,
+                    friendlyName: Self.friendlyName(for: rawType)
+                )
+                self.serviceTypes.append(info)
+                self.serviceTypes.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+            }
+        }
+    }
+    
+    func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String: NSNumber]) {
+        Task { @MainActor in
+            self.isSearching = false
+        }
+    }
+    
+    func netServiceBrowserDidStopSearch(_ browser: NetServiceBrowser) {
+        Task { @MainActor in
+            self.isSearching = false
+        }
+    }
+    
+    // NetServiceDelegate
+    func netServiceDidResolveAddress(_ sender: NetService) {
+        let hostname = sender.hostName ?? ""
+        let port = UInt16(sender.port)
+        
+        var cleanHost = hostname
+        if cleanHost.hasSuffix(".") {
+            cleanHost = String(cleanHost.dropLast())
+        }
+        
+        var txtRecords: [(key: String, value: String)] = []
+        if let txtData = sender.txtRecordData() {
+            let dict = NetService.dictionary(fromTXTRecord: txtData)
+            for (k, v) in dict {
+                let valStr = String(data: v, encoding: .utf8) ?? ""
+                txtRecords.append((key: k, value: valStr))
+            }
+        }
+        
+        let netAddresses = Self.addressesFromNetService(sender)
+        let resolvedAddresses = netAddresses.isEmpty ? Self.resolveHostToIPs(cleanHost) : netAddresses
+        
+        Task { @MainActor in
+            guard let service = self.currentResolvingService else { return }
+            let finalRecords = self.activeTxtRecords.isEmpty ? txtRecords : self.activeTxtRecords
+            debugLog("[BonjourDiscovery] Resolved '\(sender.name)' -> \(cleanHost):\(port), addresses: \(resolvedAddresses.count), txt: \(finalRecords.count)")
+            self.finishResolution(
+                service: service,
+                hostname: cleanHost.isEmpty ? service.name : cleanHost,
+                port: port,
+                addresses: resolvedAddresses,
+                txtRecords: finalRecords
+            )
+        }
+    }
+    
+    func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
+        debugLog("[BonjourDiscovery] NetService failed to resolve: \(errorDict)")
+        let errorCode = errorDict[NetService.errorCode]?.intValue ?? -1
+        Task { @MainActor in
+            guard self.isResolving, self.resolvedService == nil else { return }
+            self.resolveError = errorCode == -72007 ? "Resolution timed out (no response from endpoint)" : "NetService resolution failed (error \(errorCode))"
+            self.stopResolving()
+        }
+    }
+    
+    // Helpers
+    static func addressesFromNetService(_ netService: NetService) -> [String] {
+        var results: [String] = []
+        guard let addresses = netService.addresses else { return results }
+        
+        for addressData in addresses {
+            addressData.withUnsafeBytes { rawBuffer in
+                guard let socketAddress = rawBuffer.baseAddress?.assumingMemoryBound(to: sockaddr.self) else { return }
+                var hostBuffer = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                let sockLen: socklen_t
+                if socketAddress.pointee.sa_family == sa_family_t(AF_INET) {
+                    sockLen = socklen_t(MemoryLayout<sockaddr_in>.size)
+                } else if socketAddress.pointee.sa_family == sa_family_t(AF_INET6) {
+                    sockLen = socklen_t(MemoryLayout<sockaddr_in6>.size)
+                } else {
+                    return
+                }
+                
+                if getnameinfo(socketAddress, sockLen, &hostBuffer, socklen_t(hostBuffer.count), nil, 0, NI_NUMERICHOST) == 0 {
+                    let ip = String(cString: hostBuffer)
+                    if !ip.isEmpty && !results.contains(ip) {
+                        results.append(ip)
+                    }
+                }
+            }
+        }
+        return results
+    }
     static func friendlyName(for rawType: String) -> String? {
         let normalized = rawType.hasSuffix(".") ? rawType : rawType + "."
         return commonKnownServiceTypes[normalized]
     }
     
-    /// Format socket address data into a readable string
-    private static func formatAddress(_ data: Data) -> String? {
-        var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+    static func resolveHostToIPs(_ host: String) -> [String] {
+        var addresses: [String] = []
+        var results: UnsafeMutablePointer<addrinfo>?
         
-        let result = data.withUnsafeBytes { rawBufferPointer -> Int32 in
-            guard let baseAddress = rawBufferPointer.baseAddress else { return -1 }
-            let sockAddr = baseAddress.assumingMemoryBound(to: sockaddr.self)
-            return getnameinfo(
-                sockAddr,
-                socklen_t(data.count),
-                &hostname,
-                socklen_t(hostname.count),
-                nil,
-                0,
-                NI_NUMERICHOST
-            )
+        let rc = getaddrinfo(host, nil, nil, &results)
+        if rc == 0, let firstAddr = results {
+            var ptr: UnsafeMutablePointer<addrinfo>? = firstAddr
+            while ptr != nil {
+                if let addr = ptr?.pointee {
+                    var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                    let saLen = socklen_t(addr.ai_addrlen)
+                    let nameInfoResult = getnameinfo(
+                        addr.ai_addr,
+                        saLen,
+                        &hostname,
+                        socklen_t(hostname.count),
+                        nil,
+                        0,
+                        NI_NUMERICHOST
+                    )
+                    if nameInfoResult == 0 {
+                        let ipStr = String(cString: hostname)
+                        if !ipStr.isEmpty && !addresses.contains(ipStr) {
+                            addresses.append(ipStr)
+                        }
+                    }
+                }
+                ptr = ptr?.pointee.ai_next
+            }
+            freeaddrinfo(results)
         }
-        
-        guard result == 0 else { return nil }
-        
-        let addressString = String(cString: hostname)
-        guard !addressString.isEmpty else { return nil }
-        
-        return addressString
+        return addresses
     }
     
-    /// Parse TXT record data into key-value pairs
-    static func parseTXTRecord(_ data: Data) -> [(key: String, value: String)] {
-        let dict = NetService.dictionary(fromTXTRecord: data)
-        return dict.map { key, value in
-            let valueStr = String(data: value, encoding: .utf8) ?? value.map { String(format: "%02x", $0) }.joined()
-            return (key: key, value: valueStr)
-        }.sorted { $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending }
-    }
-    
-    private final class OneShotNetServiceResolver: NSObject, NetServiceBrowserDelegate, NetServiceDelegate, @unchecked Sendable {
+    private final class OneShotResolver: @unchecked Sendable {
         private let lock = NSLock()
         private var isResumed = false
-        private var browser: NetServiceBrowser?
-        private var resolvingService: NetService?
+        private var browser: NWBrowser?
+        private var activeConnection: NWConnection?
         private var continuation: CheckedContinuation<(host: String, port: UInt16)?, Never>?
-        private let namePrefix: String
         
-        init(namePrefix: String, continuation: CheckedContinuation<(host: String, port: UInt16)?, Never>) {
-            self.namePrefix = namePrefix
+        init(continuation: CheckedContinuation<(host: String, port: UInt16)?, Never>) {
             self.continuation = continuation
-            super.init()
         }
         
-        func start(type: String, domain: String) {
-            let browser = NetServiceBrowser()
+        func setBrowser(_ browser: NWBrowser) {
+            lock.lock()
             self.browser = browser
-            browser.delegate = self
-            browser.searchForServices(ofType: type, inDomain: domain)
+            lock.unlock()
+        }
+        
+        func setActiveConnection(_ connection: NWConnection) {
+            lock.lock()
+            self.activeConnection = connection
+            lock.unlock()
         }
         
         func resumeOnce(_ result: (host: String, port: UInt16)?) {
@@ -339,239 +706,140 @@ final class BonjourDiscoveryManager: NSObject, ObservableObject {
             self.continuation = nil
             let browser = self.browser
             self.browser = nil
-            let service = self.resolvingService
-            self.resolvingService = nil
+            let connection = self.activeConnection
+            self.activeConnection = nil
             lock.unlock()
             
-            browser?.stop()
-            service?.stop()
+            browser?.cancel()
+            connection?.cancel()
             continuation?.resume(returning: result)
         }
+    }
+    
+    static func resolveFirstService(
+        ofType rawType: String,
+        namePrefix: String = "",
+        domain: String? = nil,
+        timeout: TimeInterval = AppConstants.Bonjour.defaultDiscoveryTimeout
+    ) async -> (host: String, port: UInt16)? {
+        let typeWithoutDot = rawType.hasSuffix(".") ? String(rawType.dropLast()) : rawType
+        let descriptor = NWBrowser.Descriptor.bonjour(type: typeWithoutDot, domain: domain)
+        let parameters = typeWithoutDot.contains("_tcp") ? NWParameters.tcp : NWParameters.udp
+        parameters.includePeerToPeer = true
         
-        func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
-            if namePrefix.isEmpty || service.name.localizedCaseInsensitiveContains(namePrefix) {
-                lock.lock()
-                self.resolvingService = service
-                lock.unlock()
-                service.delegate = self
-                service.resolve(withTimeout: 3.0)
+        debugLog("[BonjourDiscovery] resolveFirstService: starting NWBrowser for type='\(typeWithoutDot)', namePrefix='\(namePrefix)', domain=\(domain ?? "nil") (timeout: \(timeout)s)")
+        let browser = NWBrowser(for: descriptor, using: parameters)
+        
+        return await withCheckedContinuation { continuation in
+            let resolver = OneShotResolver(continuation: continuation)
+            resolver.setBrowser(browser)
+            
+            Task {
+                try? await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
+                debugLog("[BonjourDiscovery] resolveFirstService: timeout reached after \(timeout)s")
+                resolver.resumeOnce(nil)
             }
-        }
-        
-        func netServiceDidResolveAddress(_ sender: NetService) {
-            var resolvedHost = sender.hostName ?? ""
-            if let addressData = sender.addresses {
-                for data in addressData {
-                    if let addr = BonjourDiscoveryManager.formatAddress(data) {
-                        resolvedHost = addr
+            
+            browser.browseResultsChangedHandler = { results, changes in
+                debugLog("[BonjourDiscovery] resolveFirstService: received \(results.count) results (changes: \(changes.count))")
+                for res in results {
+                    debugLog("[BonjourDiscovery] resolveFirstService: found endpoint '\(res.endpoint)' (interfaces: \(res.interfaces.map { $0.name }))")
+                }
+                
+                let exactMatch = results.first(where: {
+                    guard case .service(let name, _, _, _) = $0.endpoint else { return false }
+                    return name.localizedCaseInsensitiveCompare(namePrefix) == .orderedSame
+                })
+                
+                guard let target = exactMatch ?? results.first(where: {
+                    guard case .service(let name, _, _, _) = $0.endpoint else { return false }
+                    return namePrefix.isEmpty || name.localizedCaseInsensitiveContains(namePrefix)
+                }), case .service(let name, _, _, _) = target.endpoint else {
+                    debugLog("[BonjourDiscovery] resolveFirstService: no result matched prefix '\(namePrefix)'")
+                    return
+                }
+                
+                debugLog("[BonjourDiscovery] resolveFirstService: matched service '\(name)', initiating NWConnection")
+                let conn = NWConnection(to: target.endpoint, using: parameters)
+                resolver.setActiveConnection(conn)
+                
+                conn.pathUpdateHandler = { path in
+                    debugLog("[BonjourDiscovery] resolveFirstService: conn pathUpdate status=\(path.status), remote=\(String(describing: path.remoteEndpoint))")
+                    if path.status == .satisfied, let remote = path.remoteEndpoint {
+                        var resolvedHost = ""
+                        var portVal: UInt16 = 0
+                        
+                        switch remote {
+                        case .hostPort(let host, let port):
+                            resolvedHost = "\(host)".strippingInterfaceScope
+                            portVal = port.rawValue
+                        case .service(let sName, _, let sDomain, _):
+                            let cleanDomain = sDomain.isEmpty ? "local" : (sDomain.hasSuffix(".") ? String(sDomain.dropLast()) : sDomain)
+                            resolvedHost = "\(sName).\(cleanDomain)"
+                            if let localEndpoint = path.localEndpoint, case .hostPort(_, let p) = localEndpoint {
+                                portVal = p.rawValue
+                            }
+                        default:
+                            resolvedHost = name
+                        }
+                        
+                        guard portVal > 0 else { return }
+                        let ips = resolveHostToIPs(resolvedHost)
+                        let finalHost = ips.first ?? resolvedHost
+                        debugLog("[BonjourDiscovery] Auto-resolved '\(name)' via pathUpdate to \(finalHost):\(portVal)")
+                        resolver.resumeOnce((host: finalHost, port: portVal))
+                    }
+                }
+                
+                conn.stateUpdateHandler = { state in
+                    debugLog("[BonjourDiscovery] resolveFirstService: conn stateUpdate -> \(state)")
+                    switch state {
+                    case .ready, .waiting:
+                        guard let remote = conn.currentPath?.remoteEndpoint else { return }
+                        var resolvedHost = ""
+                        var portVal: UInt16 = 0
+                        
+                        switch remote {
+                        case .hostPort(let host, let port):
+                            resolvedHost = "\(host)".strippingInterfaceScope
+                            portVal = port.rawValue
+                        case .service(let sName, _, let sDomain, _):
+                            let cleanDomain = sDomain.isEmpty ? "local" : (sDomain.hasSuffix(".") ? String(sDomain.dropLast()) : sDomain)
+                            resolvedHost = "\(sName).\(cleanDomain)"
+                            if let localEndpoint = conn.currentPath?.localEndpoint, case .hostPort(_, let p) = localEndpoint {
+                                portVal = p.rawValue
+                            }
+                        default:
+                            resolvedHost = name
+                        }
+                        
+                        guard portVal > 0 else { return }
+                        let ips = resolveHostToIPs(resolvedHost)
+                        let finalHost = ips.first ?? resolvedHost
+                        debugLog("[BonjourDiscovery] Auto-resolved '\(name)' to \(finalHost):\(portVal)")
+                        resolver.resumeOnce((host: finalHost, port: portVal))
+                        
+                    case .failed(let err):
+                        debugLog("[BonjourDiscovery] resolveFirstService: conn failed with error: \(err)")
+                        resolver.resumeOnce(nil)
+                        
+                    default:
                         break
                     }
                 }
-            }
-            if !resolvedHost.isEmpty {
-                resumeOnce((host: resolvedHost, port: UInt16(sender.port)))
-            } else {
-                resumeOnce(nil)
-            }
-        }
-        
-        func netService(_ sender: NetService, didNotResolve errorDict: [String : NSNumber]) {
-            resumeOnce(nil)
-        }
-    }
-    
-    public static func resolveFirstService(
-        ofType rawType: String,
-        namePrefix: String = "",
-        timeout: TimeInterval = AppConstants.Bonjour.defaultDiscoveryTimeout
-    ) async -> (host: String, port: UInt16)? {
-        let typeWithDot = rawType.hasSuffix(".") ? rawType : rawType + "."
-        return await withCheckedContinuation { continuation in
-            let resolver = OneShotNetServiceResolver(namePrefix: namePrefix, continuation: continuation)
-            resolver.start(type: typeWithDot, domain: AppConstants.Bonjour.defaultDomain)
-            Task {
-                try? await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
-                resolver.resumeOnce(nil)
-            }
-        }
-    }
-}
-
-
-// MARK: - NetServiceBrowserDelegate
-
-extension BonjourDiscoveryManager: NetServiceBrowserDelegate {
-    
-    func netServiceBrowserWillSearch(_ browser: NetServiceBrowser) {
-        debugLog("[BonjourDiscovery] netServiceBrowserWillSearch: Browser search started successfully.")
-    }
-    
-    func netServiceBrowserDidStopSearch(_ browser: NetServiceBrowser) {
-        debugLog("[BonjourDiscovery] netServiceBrowserDidStopSearch: Browser search stopped.")
-        Task { @MainActor [weak self] in
-            self?.isSearching = false
-        }
-    }
-    
-    func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String : NSNumber]) {
-        debugLog("[BonjourDiscovery] netServiceBrowser didNotSearch: Error dictionary: \(errorDict)")
-        if browser === self.typeBrowser {
-            Task { @MainActor [weak self] in
-                guard let self = self else { return }
-                debugLog("[BonjourDiscovery] Meta-browser failed. Triggering fallback parallel search immediately...")
-                self.fallbackTask?.cancel()
-                self.fallbackTask = nil
                 
-                self.startFallbackSearches(in: self.currentDomain)
+                conn.start(queue: .global(qos: .userInitiated))
             }
-        } else {
-            Task { @MainActor [weak self] in
-                self?.isSearching = false
-            }
-        }
-    }
-    
-    func netServiceBrowser(_ browser: NetServiceBrowser, didFindDomain domainString: String, moreComing: Bool) {
-        debugLog("[BonjourDiscovery] didFindDomain: Found domain '\(domainString)' (moreComing: \(moreComing))")
-        let trimmed = domainString.trimmingCharacters(in: CharacterSet(charactersIn: "."))
-        guard !trimmed.isEmpty else { return }
-        
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            if self.discoveredDomains.insert(trimmed).inserted {
-                self.domains.append(trimmed)
-                self.domains.sort()
-            }
-            if !moreComing {
-                self.isSearching = false
-            }
-        }
-    }
-    
-    func netServiceBrowser(_ browser: NetServiceBrowser, didRemoveDomain domainString: String, moreComing: Bool) {
-        debugLog("[BonjourDiscovery] didRemoveDomain: Removed domain '\(domainString)' (moreComing: \(moreComing))")
-        let trimmed = domainString.trimmingCharacters(in: CharacterSet(charactersIn: "."))
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            self.discoveredDomains.remove(trimmed)
-            self.domains.removeAll { $0 == trimmed }
-        }
-    }
-    
-    func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
-        let isFallbackTypeSearch = self.fallbackBrowsers.contains(browser)
-        let isTypeSearch = (browser === self.typeBrowser) || isFallbackTypeSearch
-        debugLog("[BonjourDiscovery] didFind: Found service name='\(service.name)', type='\(service.type)', domain='\(service.domain)' (isTypeSearch: \(isTypeSearch), isFallbackTypeSearch: \(isFallbackTypeSearch), moreComing: \(moreComing))")
-        
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
             
-            if isTypeSearch {
-                let fullType: String
-                if isFallbackTypeSearch {
-                    fullType = service.type.hasSuffix(".") ? service.type : service.type + "."
-                } else {
-                    let reconstructed = "\(service.name).\(service.type)"
-                        .replacingOccurrences(of: "..", with: ".")
-                    fullType = reconstructed.hasSuffix(".") ? reconstructed : reconstructed + "."
-                }
-                
-                debugLog("[BonjourDiscovery] Found service type reconstructed: '\(fullType)'")
-                if self.discoveredTypes.insert(fullType).inserted {
-                    let info = ServiceTypeInfo(
-                        rawType: fullType,
-                        friendlyName: BonjourDiscoveryManager.friendlyName(for: fullType)
-                    )
-                    self.serviceTypes.append(info)
-                    self.serviceTypes.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
-                }
-            } else if browser === self.instanceBrowser {
-                let key = "\(service.name)|\(service.type)|\(service.domain)"
-                debugLog("[BonjourDiscovery] Found instance key: '\(key)'")
-                if self.discoveredInstances[key] == nil {
-                    let discovered = DiscoveredService(
-                        name: service.name,
-                        type: service.type,
-                        domain: service.domain,
-                        netService: service
-                    )
-                    self.discoveredInstances[key] = discovered
-                    self.instances.append(discovered)
+            browser.stateUpdateHandler = { state in
+                debugLog("[BonjourDiscovery] resolveFirstService: browser stateUpdate -> \(state)")
+                if case .failed(let err) = state {
+                    debugLog("[BonjourDiscovery] resolveFirstService: browser failed with error: \(err)")
+                    resolver.resumeOnce(nil)
                 }
             }
             
-            if !moreComing {
-                self.isSearching = false
-            }
-        }
-    }
-    
-    func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            if browser === self.typeBrowser {
-                let fullType = "\(service.name).\(service.type)"
-                    .replacingOccurrences(of: "..", with: ".")
-                self.discoveredTypes.remove(fullType)
-                self.serviceTypes.removeAll { $0.rawType == fullType }
-            } else if browser === self.instanceBrowser {
-                let key = "\(service.name)|\(service.type)|\(service.domain)"
-                self.discoveredInstances.removeValue(forKey: key)
-                self.instances.removeAll { $0.name == service.name && $0.type == service.type }
-            }
-        }
-    }
-}
-
-
-// MARK: - NetServiceDelegate (for resolution)
-
-extension BonjourDiscoveryManager: NetServiceDelegate {
-    
-    func netServiceDidResolveAddress(_ sender: NetService) {
-        debugLog("[BonjourDiscovery] netServiceDidResolveAddress: Successfully resolved '\(sender.name)' to host: \(sender.hostName ?? "nil"), port: \(sender.port)")
-        
-        var addresses: [String] = []
-        if let addressData = sender.addresses {
-            for data in addressData {
-                if let addr = BonjourDiscoveryManager.formatAddress(data) {
-                    addresses.append(addr)
-                }
-            }
-        }
-        debugLog("[BonjourDiscovery] Resolved addresses: \(addresses)")
-        
-        var txtRecords: [(key: String, value: String)] = []
-        if let txtData = sender.txtRecordData() {
-            txtRecords = BonjourDiscoveryManager.parseTXTRecord(txtData)
-        }
-        debugLog("[BonjourDiscovery] Resolved TXT record count: \(txtRecords.count)")
-        
-        let resolved = ResolvedServiceInfo(
-            name: sender.name,
-            type: sender.type,
-            domain: sender.domain,
-            hostname: sender.hostName ?? "Unknown",
-            port: sender.port,
-            addresses: addresses,
-            txtRecords: txtRecords
-        )
-        
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            self.resolvedService = resolved
-            self.isSearching = false
-        }
-    }
-    
-    func netService(_ sender: NetService, didNotResolve errorDict: [String : NSNumber]) {
-        debugLog("[BonjourDiscovery] netService didNotResolve: Resolution failed for '\(sender.name)'. Errors: \(errorDict)")
-        let errorCode = errorDict[NetService.errorCode] ?? -1
-        
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            self.resolveError = "Failed to resolve service (error \(errorCode))"
-            self.isSearching = false
+            browser.start(queue: .global(qos: .userInitiated))
         }
     }
 }
