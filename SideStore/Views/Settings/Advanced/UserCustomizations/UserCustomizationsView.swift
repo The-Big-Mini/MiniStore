@@ -71,6 +71,24 @@ struct UserCustomizationsView: View {
 
                         divider
 
+                        NavigationLink(destination: AppIconPickerView()
+                            .navigationTitle("Change App Icon")
+                            .navigationBarTitleDisplayMode(.inline)) {
+                            HStack {
+                                Text("App Icon")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(Color.white.opacity(0.4))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                        }
+
+                        divider
+
                         NavigationLink(destination: TabVisibilityView()) {
                             HStack {
                                 Text("Tab Bar")
