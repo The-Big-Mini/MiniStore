@@ -129,10 +129,18 @@ extension SettingsViewController
         //   `extendedLayoutIncludesOpaqueBars = true`. **Any** `backgroundColor` on a pushed
         //   screen's `scrollEdgeAppearance` does it. 053c5510 and 4c60b07f both died here.
         //
-        // So the colour has to go, not move. `.settingsBackground` is what the table is painted
-        // with anyway, and the default background is a blur over that same black — which is why
-        // the bar still reads solid without being told a colour. It also keeps the large title:
-        // on iOS 26 an opaque scroll-edge background suppresses it entirely.
+        // So the colour has to go, not move. It also keeps the large title: on iOS 26 an opaque
+        // scroll-edge background suppresses it entirely.
+        //
+        // The trade is visible and accepted. On iOS 26 the default background is a thin blur, so
+        // while the table scrolls the rows passing behind the bar show through — it does not read
+        // as a solid fill. That was checked on device and kept deliberately: the artifact-free
+        // property comes from scroll-edge and standard being *identical*, and `backgroundColor`
+        // is the one way to make them solid that measurement has already ruled out. Any future
+        // attempt has to change **both** appearances together and be measured on both metrics
+        // (at-top `cardTop` step, scrolled bar-band bleed) before it ships. `backgroundImage` and
+        // `backgroundEffect` are untried and are not `backgroundColor`, so the law above may not
+        // bind them — that is a hypothesis, not a plan.
         let appearance = UINavigationBarAppearance()
         appearance.configureWithDefaultBackground()
         appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
