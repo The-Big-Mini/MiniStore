@@ -25,7 +25,6 @@ extension SettingsViewController
         case account
         case patreon
         case categories     // the root's list of groups; every section below it is reached through one
-        case display
         case appRefresh
         case instructions
         case techyThings
@@ -43,7 +42,7 @@ extension SettingsViewController
     /// entries are last — they drop off the end together when debug mode is off.
     private enum Category: Int, CaseIterable
     {
-        case display
+        case userCustomizations
         case refreshingApps
         case techThings
         case betaTesting
@@ -55,7 +54,7 @@ extension SettingsViewController
         var localizedName: String {
             switch self
             {
-            case .display: return NSLocalizedString("Display", comment: "")
+            case .userCustomizations: return NSLocalizedString("User Customizations", comment: "")
             case .refreshingApps: return NSLocalizedString("Refreshing Apps", comment: "")
             case .techThings: return NSLocalizedString("Tech Things", comment: "")
             case .betaTesting: return NSLocalizedString("Beta Testing", comment: "")
@@ -73,12 +72,11 @@ extension SettingsViewController
         var sections: [Section] {
             switch self
             {
-            case .display: return [.display]
             case .refreshingApps: return [.appRefresh]
             case .techThings: return [.instructions, .techyThings, .credits]
             case .betaTesting: return [.betaTesting]
             case .advancedSettings: return [.advancedSettings]
-            case .whatsNew, .experimental, .developer: return []
+            case .userCustomizations, .whatsNew, .experimental, .developer: return []
             }
         }
 
@@ -133,7 +131,6 @@ extension SettingsViewController
         case connectionConfig       // row 5 - Connection Configuration
         case certificateManagement  // row 6 - Certificate Management
         case backupAndRestore       // row 7 - Backup & Restore
-        case userCustomizations     // row 8 - User Customizations
     }
 
     private enum BetaTestingRow: Int, CaseIterable {
@@ -552,17 +549,6 @@ private extension SettingsViewController
                 settingsHeaderFooterView.secondaryLabel.text = NSLocalizedString("Enable Background Refresh to automatically refresh apps in the background when connected to Wi-Fi. \n\nEnable Disable Idle Timeout to allow SideStore to keep your device awake during a refresh or install of any apps.", comment: "")
             }
             
-        case .display:
-            if isHeader
-            {
-                settingsHeaderFooterView.primaryLabel.text = NSLocalizedString("DISPLAY", comment: "")
-            }
-            else
-            {
-                settingsHeaderFooterView.secondaryLabel.text = NSLocalizedString("Personalize your SideStore experience by choosing an alternate app icon.", comment: "")
-            }
-            
-            
         case .instructions:
             break
             
@@ -956,6 +942,7 @@ private extension SettingsViewController
         switch category
         {
         // These push a screen of their own rather than filtering the table.
+        case .userCustomizations: return self.showUserCustomizations()
         case .whatsNew: return self.showWhatsNew()
         case .developer: return self.showDeveloperOptions()
         case .experimental: return self.showExperimentalFeatures()
@@ -974,6 +961,16 @@ private extension SettingsViewController
 
         categoryViewController.visibleCategory = category
         self.pushMiniStoreSettingsScreen(categoryViewController)
+    }
+
+    /// Reached from the root category list rather than from an Advanced Settings row. The
+    /// alternate-icon grid moved in here too, which is what retired the `display` section.
+    func showUserCustomizations()
+    {
+        let hostingController = UIHostingController(rootView: UserCustomizationsView())
+        hostingController.view.backgroundColor = .settingsBackground
+        hostingController.title = NSLocalizedString("User Customizations", comment: "")
+        self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: hostingController), sender: nil)
     }
 
     func showWhatsNew()
@@ -1108,7 +1105,7 @@ extension SettingsViewController
         case _ where isSectionHidden(section) || isHeaderHidden(section): return nil
         case .signIn where self.activeTeam != nil: return nil
         case .account where self.activeTeam == nil: return nil
-        case .signIn, .account, .patreon, .categories, .display, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics /* ,.macDirtyCow */:
+        case .signIn, .account, .patreon, .categories, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics /* ,.macDirtyCow */:
             let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "HeaderFooterView") as! SettingsHeaderFooterView
             self.prepare(headerView, for: section, isHeader: true)
             return headerView
@@ -1125,7 +1122,7 @@ extension SettingsViewController
         case _ where isSectionHidden(section): return nil
         case .signIn where self.activeTeam != nil: return nil
         // case .signIn, .patreon, .display, .appRefresh, .techyThings, .macDirtyCow:
-        case .signIn, .patreon, .display, .appRefresh, .techyThings, .betaTesting:
+        case .signIn, .patreon, .appRefresh, .techyThings, .betaTesting:
             let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "HeaderFooterView") as! SettingsHeaderFooterView
             self.prepare(footerView, for: section, isHeader: false)
             return footerView
@@ -1142,7 +1139,7 @@ extension SettingsViewController
         case _ where isSectionHidden(section) || isHeaderHidden(section): return 1.0
         case .signIn where self.activeTeam != nil: return 1.0
         case .account where self.activeTeam == nil: return 1.0
-        case .signIn, .account, .patreon, .categories, .display, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics:
+        case .signIn, .account, .patreon, .categories, .appRefresh, .techyThings, .credits, .advancedSettings, .betaTesting, .diagnostics:
             let height = self.preferredHeight(for: self.prototypeHeaderFooterView, in: section, isHeader: true)
             return height
             
@@ -1159,7 +1156,7 @@ extension SettingsViewController
         case .signIn where self.activeTeam != nil: return 1.0
         case .account where self.activeTeam == nil: return 1.0            
         // case .signIn, .patreon, .display, .appRefresh, .techyThings, .macDirtyCow:
-        case .signIn, .patreon, .display, .appRefresh, .techyThings, .betaTesting:
+        case .signIn, .patreon, .appRefresh, .techyThings, .betaTesting:
             let height = self.preferredHeight(for: self.prototypeHeaderFooterView, in: section, isHeader: false)
             return height
             
@@ -1380,13 +1377,6 @@ extension SettingsViewController
                 vc.title = NSLocalizedString("Backup & Restore", comment: "")
                 self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: vc), sender: nil)
                 
-            case .userCustomizations:
-                let userCustomizationsView = UserCustomizationsView()
-                let vc = UIHostingController(rootView: userCustomizationsView)
-                vc.view.backgroundColor = .settingsBackground
-                vc.title = NSLocalizedString("User Customizations", comment: "")
-                self.prepare(for: UIStoryboardSegue(identifier: "diagnostics", source: self, destination: vc), sender: nil)
-                
             case .refreshAttempts: break
             }
         
@@ -1402,7 +1392,7 @@ extension SettingsViewController
 
 
         // case .account, .patreon, .display, .instructions, .macDirtyCow: break
-        case .account, .patreon, .display, .instructions, .betaTesting: break
+        case .account, .patreon, .instructions, .betaTesting: break
         }
         
         
