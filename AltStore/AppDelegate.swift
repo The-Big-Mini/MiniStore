@@ -12,11 +12,7 @@ import AVFoundation
 import Intents
 @preconcurrency import AltSign
 import CoreData
-
-
 import Nuke
-
-extension UIApplication: LegacyBackgroundFetching {}
 
 extension AppDelegate
 {
@@ -67,8 +63,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
+    #if !os(tvOS)
     private let intentHandler = IntentHandler()
     private let viewAppIntentHandler = ViewAppIntentHandler()
+    #endif
     
     public let consoleLog = ConsoleLog()
 
@@ -238,6 +236,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         return self.open(url)
     }
     
+    #if !os(tvOS)
     func application(_ application: UIApplication, handlerFor intent: INIntent) -> Any?
     {
         switch intent
@@ -247,6 +246,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         default: return nil
         }
     }
+    #endif
     
     func applicationWillTerminate(_ application: UIApplication) {
         // Stop console logging and clean up resources
@@ -308,7 +308,7 @@ private extension AppDelegate
         
         ImagePipeline.shared = pipeline
         
-        if let dataCache = ImagePipeline.shared.configuration.dataCache as? DataCache, #available(iOS 15, *)
+        if let dataCache = ImagePipeline.shared.configuration.dataCache as? DataCache
         {
             debugLog("[AppDelegate] Current image cache size: \(dataCache.totalSize.formatted(.byteCount(style: .file)))")
         }
@@ -364,10 +364,8 @@ extension AppDelegate
 {
     private func prepareForBackgroundFetch()
     {
-        // "Fetch" every hour, but then refresh only those that need to be refreshed (so we don't drain the battery).
-        (UIApplication.shared as LegacyBackgroundFetching).setMinimumBackgroundFetchInterval(1 * 60 * 60)
-        
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (success, error) in
+            // no-op
         }
         
         #if DEBUG && targetEnvironment(simulator)
@@ -394,6 +392,7 @@ extension AppDelegate
     
     func application(_ application: UIApplication, performFetchWithCompletionHandler backgroundFetchCompletionHandler: @escaping (UIBackgroundFetchResult) -> Void)
     {
+        #if !os(tvOS)
         if UserDefaults.standard.isBackgroundRefreshEnabled && !UserDefaults.standard.presentedLaunchReminderNotification
         {
             let threeHours: TimeInterval = 3 * 60 * 60
@@ -408,6 +407,7 @@ extension AppDelegate
             
             UserDefaults.standard.presentedLaunchReminderNotification = true
         }
+        #endif
         
         BackgroundTaskManager.shared.performExtendedBackgroundTask { (taskResult, taskCompletionHandler) in
             if let error = taskResult.error
@@ -505,6 +505,7 @@ private extension AppDelegate
                 let updates = try context.fetch(updatesFetchRequest)
                 let newsItems = try context.fetch(newsItemsFetchRequest)
                 
+                #if !os(tvOS)
                 for update in updates
                 {
                     guard let storeApp = update.storeApp, let latestSupportedVersion = storeApp.latestSupportedVersion, latestSupportedVersion.isSupported else { continue }
@@ -552,6 +553,18 @@ private extension AppDelegate
                     let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
                     UNUserNotificationCenter.current().add(request)
                 }
+                #else
+                DispatchQueue.main.async {
+                    if UIApplication.shared.applicationState == .active {
+                        if !updates.isEmpty, let window = UIApplication.shared.connectedScenes.compactMap({ ($0 as? UIWindowScene)?.windows.first(where: { $0.isKeyWindow }) }).first {
+                            let toastView = ToastView(text: "New Update Available", detailText: "\(updates.count) update(s) available")
+                            toastView.show(in: window)
+                        }
+                    } else {
+                        NotificationCenter.default.post(name: NSNotification.Name("TVTopShelfItemsDidChangeNotification"), object: nil)
+                    }
+                }
+                #endif
 
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = updates.count
@@ -697,10 +710,6 @@ private extension AppDelegate {
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        if #available(iOS 14.0, *) {
-            completionHandler([.banner, .sound])
-        } else {
-            completionHandler([.alert, .sound])
-        }
+        completionHandler([.banner, .sound])
     }
 }

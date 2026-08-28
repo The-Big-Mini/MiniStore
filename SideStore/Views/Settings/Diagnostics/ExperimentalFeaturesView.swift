@@ -100,7 +100,9 @@ struct ExperimentalFeaturesView: View {
         }
         .miniStoreBackground()
         .navigationTitle("Experimental Features")
+        #if !os(tvOS)
         .navigationBarTitleDisplayMode(.large)
+        #endif
     }
 
     private var divider: some View {

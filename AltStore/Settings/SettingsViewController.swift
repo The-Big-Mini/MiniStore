@@ -8,10 +8,13 @@
 
 @preconcurrency import UIKit
 import SwiftUI
-import SafariServices
+#if !os(tvOS)
 import MessageUI
+#endif
 import Intents
+#if !os(tvOS)
 import IntentsUI
+#endif
 
 import SemanticVersion
 @preconcurrency import AltSign
@@ -189,9 +192,11 @@ final class SettingsViewController: UITableViewController
     
     @IBOutlet private var recreateDatabaseSwitch: UISwitch!
     
+    #if !os(tvOS)
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
+    #endif
     
     private static var exportDBInProgress = false
     private static var deleteDBInProgress = false
@@ -239,7 +244,13 @@ final class SettingsViewController: UITableViewController
                          options: [.singleSelection, .displayInline], // Add displayInline
                          children: items
         )
+        #if !os(tvOS)
         betaTrackPopupButton.menu = menu
+        #else
+        if #available(tvOS 17.0, *) {
+            betaTrackPopupButton.menu = menu
+        }
+        #endif
 
         // Set initial state
         updateReleaseChannelButtonTitle()
@@ -254,7 +265,8 @@ final class SettingsViewController: UITableViewController
         // from viewDidLoad, and a pushed category is a second SettingsViewController whose
         // viewDidLoad runs while the push is still animating — the same mid-transition bar write
         // that `applyMiniStoreStyle()` was moved off. It now runs from `applyMiniStoreBarTint()`
-        // in viewDidAppear, with the other shared-bar work.
+        // in viewDidAppear, with the other shared-bar work. Upstream re-added its version inside
+        // `#if !os(tvOS)` in the b7985182 merge; it is deliberately not taken back.
         let nib = UINib(nibName: "SettingsHeaderFooterView", bundle: nil)
         self.prototypeHeaderFooterView = nib.instantiate(withOwner: nil, options: nil)[0] as? SettingsHeaderFooterView
         
@@ -263,7 +275,9 @@ final class SettingsViewController: UITableViewController
         let debugModeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(SettingsViewController.handleDebugModeGesture(_:)))
         debugModeGestureRecognizer.delegate = self
         debugModeGestureRecognizer.direction = .up
+        #if !os(tvOS)
         debugModeGestureRecognizer.numberOfTouchesRequired = 3
+        #endif
         self.tableView.addGestureRecognizer(debugModeGestureRecognizer)
         
         // set the version label to show in settings screen
@@ -279,26 +293,25 @@ final class SettingsViewController: UITableViewController
         
         self.update()
         
-        if #available(iOS 15, *)
+        #if !os(tvOS)
+        if let appearance = self.tabBarController?.tabBar.standardAppearance
         {
-            if let appearance = self.tabBarController?.tabBar.standardAppearance
-            {
-                appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = .altPrimary
-                self.navigationController?.tabBarItem.scrollEdgeAppearance = appearance
-            }
+            appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = .altPrimary
+            self.navigationController?.tabBarItem.scrollEdgeAppearance = appearance
+        }
+        #endif
+        
+        // We can only configure the contentMode for a button's background image from Interface Builder.
+        // This works, but it means buttons don't visually highlight because there's no foreground image.
+        // As a workaround, we manually set the foreground image + contentMode here.
+        for button in [self.mastodonButton!, self.threadsButton!, self.twitterButton!, self.githubButton!]
+        {
+            // Get the assigned image from Interface Builder.
+            let image = button.configuration?.background.image
             
-            // We can only configure the contentMode for a button's background image from Interface Builder.
-            // This works, but it means buttons don't visually highlight because there's no foreground image.
-            // As a workaround, we manually set the foreground image + contentMode here.
-            for button in [self.mastodonButton!, self.threadsButton!, self.twitterButton!, self.githubButton!]
-            {
-                // Get the assigned image from Interface Builder.
-                let image = button.configuration?.background.image
-                
-                button.configuration = nil
-                button.setImage(image, for: .normal)
-                button.imageView?.contentMode = .scaleAspectFit
-            }
+            button.configuration = nil
+            button.setImage(image, for: .normal)
+            button.imageView?.contentMode = .scaleAspectFit
         }
         
         configureReleaseChannelButton()
@@ -367,6 +380,7 @@ final class SettingsViewController: UITableViewController
         if segue.identifier == "anisetteServers" || segue.identifier == "certificateManagement" || segue.identifier == "diagnostics" {
             let controller = segue.destination
             
+        #if !os(tvOS)
             if segue.identifier == "anisetteServers"        || 
                 segue.identifier == "certificateManagement" || 
                 segue.identifier == "diagnostics"
@@ -378,6 +392,7 @@ final class SettingsViewController: UITableViewController
                 controller.navigationItem.standardAppearance = appearance
                 controller.navigationItem.scrollEdgeAppearance = appearance
             }
+        #endif
 
             // disable bottom tab bar since 'back' button is already available
 //            controller.hidesBottomBarWhenPushed = true
@@ -434,7 +449,9 @@ private extension SettingsViewController
         let appVersion = Bundle.Info.activeBundleVersion
         let iosVersion = "iOS \(UIDevice.current.systemVersion) (\(ProcessInfo.processInfo.operatingSystemBuild))"
         let fullText = "\(appVersion)\n\(iosVersion)"
+        #if !os(tvOS)
         UIPasteboard.general.string = fullText.hasPrefix("Version ") ? String(fullText.dropFirst("Version ".count)) : fullText
+        #endif
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
@@ -792,6 +809,7 @@ private extension SettingsViewController
         UserDefaults.standard.responseCachingDisabled = sender.isOn
     }
     
+    #if !os(tvOS)
     func addRefreshAppsShortcut()
     {
         guard let shortcut = INShortcut(intent: INInteraction.refreshAllApps().intent) else { return }
@@ -801,6 +819,7 @@ private extension SettingsViewController
         viewController.modalPresentationStyle = .formSheet
         self.present(viewController, animated: true, completion: nil)
     }
+    #endif
     
     func clearCache()
     {
@@ -879,10 +898,7 @@ private extension SettingsViewController
             else
             {
                 let safariURL = URL(string: "https://twitter.com/" + username)!
-                
-                let safariViewController = SFSafariViewController(url: safariURL)
-                safariViewController.preferredControlTintColor = .altPrimary
-                self.present(safariViewController, animated: true, completion: nil)
+                self.openWebURL(safariURL, preferredTintColor: .altPrimary)
             }
         }
     }
@@ -1058,15 +1074,7 @@ extension SettingsViewController
     {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
-        if #available(iOS 14, *) {}
-        else if let cell = cell as? InsetGroupTableViewCell,
-                indexPath.section == Section.appRefresh.rawValue,
-                indexPath.row == AppRefreshRow.backgroundRefresh.rawValue
-        {
-            // Only one row is visible pre-iOS 14.
-            cell.style = .single
-        }
-        
+
         if AppRefreshRow.AllCases().count == 1
         {
             if let cell = cell as? InsetGroupTableViewCell,
@@ -1183,7 +1191,9 @@ extension SettingsViewController
             case .disableAppLimit: break
             case .addToSiri:
 //                guard #available(iOS 14, *) else { return }   // our min deployment is iOS 15 now :) so commented out
+                #if !os(tvOS)
                 self.addRefreshAppsShortcut()
+                #endif
             }
             
         case .techyThings:
@@ -1194,10 +1204,12 @@ extension SettingsViewController
                 let healthCheckView = HealthCheckView()
                 let vc = UIHostingController(rootView: healthCheckView)
                 
+                #if !os(tvOS)
                 let appearance = UINavigationBarAppearance()
                 appearance.configureWithDefaultBackground()
                 vc.navigationItem.scrollEdgeAppearance = appearance
                 vc.navigationItem.standardAppearance = appearance
+                #endif
                 
                 navigationController?.pushViewController(vc, animated: true)
                 
@@ -1254,21 +1266,18 @@ extension SettingsViewController
                 // Option 1: GitHub
                 alertController.addAction(UIAlertAction(title: "GitHub", style: .default) { _ in
                     if let githubURL = URL(string: "https://github.com/SideStore/SideStore/issues") {
-                        let safariViewController = SFSafariViewController(url: githubURL)
-                        safariViewController.preferredControlTintColor = .altPrimary
-                        self.present(safariViewController, animated: true, completion: nil)
+                        self.openWebURL(githubURL, preferredTintColor: .altPrimary)
                     }
                 })
                 
                 // Option 2: Discord
                 alertController.addAction(UIAlertAction(title: "Discord", style: .default) { _ in
                     if let discordURL = URL(string: "https://discord.gg/sidestore-949183273383395328") {
-                        let safariViewController = SFSafariViewController(url: discordURL)
-                        safariViewController.preferredControlTintColor = .altPrimary
-                        self.present(safariViewController, animated: true, completion: nil)
+                        self.openWebURL(discordURL, preferredTintColor: .altPrimary)
                     }
                 })
                 
+                #if !os(tvOS)
                 // Option 3: Mail
                 alertController.addAction(UIAlertAction(title: "Send Email", style: .default) { _ in
                     if MFMailComposeViewController.canSendMail() {
@@ -1289,6 +1298,7 @@ extension SettingsViewController
                       toastView.show(in: self)
                     }
                 })
+                #endif
                 
                 // Cancel action
                 alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -1305,10 +1315,12 @@ extension SettingsViewController
             case .refreshSideJITServer:
                 let jitConfigView = SideJITServerConfigView()
                 let vc = UIHostingController(rootView: jitConfigView)
+                #if !os(tvOS)
                 let appearance = UINavigationBarAppearance()
                 appearance.configureWithDefaultBackground()
                 vc.navigationItem.scrollEdgeAppearance = appearance
                 vc.navigationItem.standardAppearance = appearance
+                #endif
                 self.navigationController?.pushViewController(vc, animated: true)
                 self.tableView.deselectRow(at: indexPath, animated: true)
                 
@@ -1358,10 +1370,12 @@ extension SettingsViewController
                 let connectionConfigView = ConnectionConfigView()
                 let vc = UIHostingController(rootView: connectionConfigView)
 
+                #if !os(tvOS)
                 let appearance = UINavigationBarAppearance()
                 appearance.configureWithDefaultBackground()   // gives solid background
                 vc.navigationItem.scrollEdgeAppearance = appearance
                 vc.navigationItem.standardAppearance = appearance
+                #endif
 
                 navigationController?.pushViewController(vc, animated: true)
 
@@ -1401,6 +1415,7 @@ extension SettingsViewController
     }
 }
 
+#if !os(tvOS)
 extension SettingsViewController: MFMailComposeViewControllerDelegate
 {
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?)
@@ -1414,6 +1429,7 @@ extension SettingsViewController: MFMailComposeViewControllerDelegate
         controller.dismiss(animated: true, completion: nil)
     }
 }
+#endif
 
 extension SettingsViewController: UIGestureRecognizerDelegate
 {
@@ -1423,6 +1439,7 @@ extension SettingsViewController: UIGestureRecognizerDelegate
     }
 }
 
+#if !os(tvOS)
 extension SettingsViewController: INUIAddVoiceShortcutViewControllerDelegate
 {
     func addVoiceShortcutViewController(_ controller: INUIAddVoiceShortcutViewController, didFinishWith voiceShortcut: INVoiceShortcut?, error: Error?)
@@ -1450,3 +1467,4 @@ extension SettingsViewController: INUIAddVoiceShortcutViewControllerDelegate
         controller.dismiss(animated: true, completion: nil)
     }
 }
+#endif

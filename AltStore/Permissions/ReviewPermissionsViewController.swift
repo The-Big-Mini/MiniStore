@@ -11,7 +11,6 @@ import SwiftUI
 
 @preconcurrency import AltSign
 
-@available(iOS 15, *)
 extension ReviewPermissionsViewController
 {
     private enum Section: Int
@@ -22,7 +21,6 @@ extension ReviewPermissionsViewController
     }
 }
 
-@available(iOS 15, *)
 class ReviewPermissionsViewController: UICollectionViewController
 {
     let app: AppProtocol
@@ -68,6 +66,7 @@ class ReviewPermissionsViewController: UICollectionViewController
     {
         super.viewDidLoad()
         
+        #if !os(tvOS)
         let buttonAppearance = UIBarButtonItemAppearance(style: .plain)
         buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
         
@@ -77,13 +76,14 @@ class ReviewPermissionsViewController: UICollectionViewController
         appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
         appearance.buttonAppearance = buttonAppearance
         self.navigationItem.standardAppearance = appearance
+        #endif
         
         self.title = NSLocalizedString("Review Permissions", comment: "")
         
         let collectionViewLayout = self.makeLayout()
         self.collectionView.collectionViewLayout = collectionViewLayout
         
-        if #available(iOS 16, *)
+        if #available(iOS 16, tvOS 16, *)
         {
             self.collectionView.backgroundView = UIHostingConfiguration {
                 Color(.settingsBackground)
@@ -111,7 +111,6 @@ class ReviewPermissionsViewController: UICollectionViewController
     }
 }
 
-@available(iOS 15, *)
 extension ReviewPermissionsViewController
 {
     func makeLayout() -> UICollectionViewCompositionalLayout
@@ -119,10 +118,14 @@ extension ReviewPermissionsViewController
         let layout = UICollectionViewCompositionalLayout { [weak self] (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
             guard let self, let section = Section(rawValue: sectionIndex) else { return nil }
             
+            #if !os(tvOS)
             var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
             configuration.showsSeparators = true
             configuration.separatorConfiguration.color = UIColor.white.withAlphaComponent(0.2)
             configuration.separatorConfiguration.bottomSeparatorInsets.leading = 20
+            #else
+            var configuration = UICollectionLayoutListConfiguration(appearance: .grouped)
+            #endif
             configuration.backgroundColor = .clear
             
             switch section
@@ -175,7 +178,11 @@ extension ReviewPermissionsViewController
     func prepareCollectionView()
     {
         self.headerRegistration = UICollectionView.SupplementaryRegistration<UICollectionViewListCell>(elementKind: UICollectionView.elementKindSectionHeader) { (headerView, elementKind, indexPath) in
+            #if !os(tvOS)
             var configuration = UIListContentConfiguration.prominentInsetGroupedHeader()
+            #else
+            var configuration = UIListContentConfiguration.groupedHeader()
+            #endif
             configuration.textProperties.color = .white
             configuration.secondaryTextProperties.color = .white.withAlphaComponent(0.8)
             configuration.textToSecondaryTextVerticalPadding = 8
@@ -302,7 +309,11 @@ extension ReviewPermissionsViewController
         
         var backgroundConfiguration = UIBackgroundConfiguration.clear()
         backgroundConfiguration.backgroundColor = .white.withAlphaComponent(0.25)
+        #if !os(tvOS)
         backgroundConfiguration.visualEffect = UIVibrancyEffect(blurEffect: .init(style: .systemMaterial), style: .fill)
+        #else
+        backgroundConfiguration.visualEffect = UIVibrancyEffect(blurEffect: .init(style: .dark))
+        #endif
         cell.backgroundConfiguration = backgroundConfiguration
         
         // Ensure text is legible on gradient background.
@@ -310,7 +321,6 @@ extension ReviewPermissionsViewController
     }
 }
 
-@available(iOS 15, *)
 private extension ReviewPermissionsViewController
 {
     @objc
@@ -321,7 +331,6 @@ private extension ReviewPermissionsViewController
     }
 }
 
-@available(iOS 15, *)
 extension ReviewPermissionsViewController
 {
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView
@@ -339,25 +348,3 @@ extension ReviewPermissionsViewController
     }
 }
 
-@available(iOS 17, *)
-#Preview(traits: .portrait) {
-    let navigationController: UINavigationController = {
-        DatabaseManager.shared.startForPreview()
-        
-        let app = AnyApp(name: "Delta", bundleIdentifier: "com.rileytestut.Delta", url: nil, storeApp: nil)
-        let permissions: [ALTEntitlement] = [
-            .getTaskAllow,
-            .appGroups,
-            .interAppAudio,
-            .keychainAccessGroups,
-            .init("com.apple.developer.extended-virtual-addressing"),
-            .init("com.apple.developer.increased-memory-limit")
-        ]
-        
-        let reviewPermissionsViewController = ReviewPermissionsViewController(app: app, permissions: permissions, mode: .all)
-        
-        return UINavigationController(rootViewController: reviewPermissionsViewController)
-    }()
-    
-    navigationController
-}
