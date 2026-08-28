@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260825.41+d8ca5267",
-              "date": "2026-08-25T18:22:46Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260825.41+d8ca5267\"\n  - revision: \"d8ca5267\"\n  - timestamp: \"Tue Aug 25 18:22:46 2026\"\n\n#### What's Changed:\n- Merge pull request #23 from The-Big-Mini/MiniStoreFork\n- fix(settings): delete the orphaned Prompt AppExtns Customization cell\n- feat(settings): promote User Customizations to a root category, retire Display\n- docs(settings): correct the nav bar comment's claim that the bar reads solid\n\n#### Full Changelog: [2f106c39...d8ca5267](https://github.com/The-Big-Mini/MiniStore/compare/2f106c399b8af603cb4a0296b316e9ebcb92446d...d8ca5267030d4e106c0031807b0ad2fa51de1330)\n",
+              "version": "0.6.4-20260828.45+df978e7b",
+              "date": "2026-08-28T21:39:36Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260828.45+df978e7b\"\n  - revision: \"df978e7b\"\n  - timestamp: \"Fri Aug 28 21:39:36 2026\"\n\n#### What's Changed:\n- Merge pull request #24 from The-Big-Mini/MiniStoreFork\n- fix(spm): repin RemotePairingKit to a revision that still exists\n- Merge upstream/develop (b7985182..ecaa50c4) into MiniStoreFork\n- cleanup: xcode's constant pbxproj woes\n- fix: removed redundant stuff which sideloadApp() was doing despite already present in pipeline (moved all to appmanager).\n- fix: customAppID feature was broken coz installedApp was still using bundleId instead of resignedbundleid/custombundleId\n- tvOS compiles, runs + signs-in + minimuxer works lol (check-in point)\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- cleanup - removed obsolete files\n- cleanup - remove any and all #if available(ios, xx) checks for anything less than 16 coz we are current default min ios 15\n- attempt tvOS compilation\n- cleanup - removed vc previews which we dont use\n- attempt tvOS compilation\n- cleanup: removed pre-ios15 stuff since our miniOSVer is ios 15\n- cleanup - removed unused obsolete webviewcontroller\n- added bg processing entitlement\n- moved things around + use topshelf provider instead of widgets\n- import cleanup\n\n#### Full Changelog: [d8ca5267...df978e7b](https://github.com/The-Big-Mini/MiniStore/compare/d8ca5267030d4e106c0031807b0ad2fa51de1330...df978e7bbea58476c8a931839b27c38b0f6ab639)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25066507,
-              "sha256": "feb16d1cca3c0d0315fe2b4f48ef97ebb57838c2ce04e046926ea2b1373cf76e"
+              "size": 25163717,
+              "sha256": "e60f74ab69b93ecbccabf492b6896df2b40f5842d4462fcf91131a6c72137a37"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260825.41+d8ca5267",
-      "versionDate": "2026-08-25T18:22:46Z",
-      "size": 25066507,
-      "sha256": "feb16d1cca3c0d0315fe2b4f48ef97ebb57838c2ce04e046926ea2b1373cf76e",
+      "version": "0.6.4-20260828.45+df978e7b",
+      "versionDate": "2026-08-28T21:39:36Z",
+      "size": 25163717,
+      "sha256": "e60f74ab69b93ecbccabf492b6896df2b40f5842d4462fcf91131a6c72137a37",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #23 from The-Big-Mini/MiniStoreFork\n- fix(settings): delete the orphaned Prompt AppExtns Customization cell\n- feat(settings): promote User Customizations to a root category, retire Display\n- docs(settings): correct the nav bar comment's claim that the bar reads solid\n\n#### Full Changelog: [2f106c39...d8ca5267](https://github.com/The-Big-Mini/MiniStore/compare/2f106c399b8af603cb4a0296b316e9ebcb92446d...d8ca5267030d4e106c0031807b0ad2fa51de1330)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #24 from The-Big-Mini/MiniStoreFork\n- fix(spm): repin RemotePairingKit to a revision that still exists\n- Merge upstream/develop (b7985182..ecaa50c4) into MiniStoreFork\n- cleanup: xcode's constant pbxproj woes\n- fix: removed redundant stuff which sideloadApp() was doing despite already present in pipeline (moved all to appmanager).\n- fix: customAppID feature was broken coz installedApp was still using bundleId instead of resignedbundleid/custombundleId\n- tvOS compiles, runs + signs-in + minimuxer works lol (check-in point)\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- cleanup - removed obsolete files\n- cleanup - remove any and all #if available(ios, xx) checks for anything less than 16 coz we are current default min ios 15\n- attempt tvOS compilation\n- cleanup - removed vc previews which we dont use\n- attempt tvOS compilation\n- cleanup: removed pre-ios15 stuff since our miniOSVer is ios 15\n- cleanup - removed unused obsolete webviewcontroller\n- added bg processing entitlement\n- moved things around + use topshelf provider instead of widgets\n- import cleanup\n\n#### Full Changelog: [d8ca5267...df978e7b](https://github.com/The-Big-Mini/MiniStore/compare/d8ca5267030d4e106c0031807b0ad2fa51de1330...df978e7bbea58476c8a931839b27c38b0f6ab639)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260828.45+df978e7b",
+      "title": "MiniStore Nightly — 0.6.4-20260828.45+df978e7b",
+      "caption": "Merge pull request #24 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-28T21:39:36Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260825.41+d8ca5267",
       "title": "MiniStore Nightly — 0.6.4-20260825.41+d8ca5267",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260818.22+9f2de165",
       "caption": "Merge pull request #17 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-18T00:16:48Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260817.21+e270234c",
-      "title": "MiniStore Nightly — 0.6.4-20260817.21+e270234c",
-      "caption": "Merge pull request #16 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-17T23:02:43Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
