@@ -11,12 +11,12 @@
 		A84596F62F7DC4C90000B8CD /* SideStore.conf in Resources */ = {isa = PBXBuildFile; fileRef = A84596F52F7DC4C90000B8CD /* SideStore.conf */; };
 		A87939D3303A89CA004D9227 /* Minimuxer in Frameworks */ = {isa = PBXBuildFile; productRef = A87939D2303A89CA004D9227 /* Minimuxer */; };
 		A87939D6303A89EB004D9227 /* AltSign-Static in Frameworks */ = {isa = PBXBuildFile; productRef = A87939D5303A89EB004D9227 /* AltSign-Static */; };
-		A8C37029302DA7F30010213A /* MarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = A8C37028302DA7F30010213A /* MarkdownKit */; };
+		A8C37029302DA7F30010213A /* MarkdownKit in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = A8C37028302DA7F30010213A /* MarkdownKit */; };
 		A8C3702C302DA80D0010213A /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = A8C3702B302DA80D0010213A /* KeychainAccess */; };
 		A8C3702F302DA82A0010213A /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = A8C3702E302DA82A0010213A /* Nuke */; };
 		A8C37035302DA84D0010213A /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = A8C37034302DA84D0010213A /* Starscream */; };
 		A8C37039302DA8D90010213A /* SemanticVersion in Frameworks */ = {isa = PBXBuildFile; productRef = A8C37038302DA8D90010213A /* SemanticVersion */; };
-		BF989177250AABF4002ACF50 /* AltWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BF989167250AABF3002ACF50 /* AltWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BF989177250AABF4002ACF50 /* AltWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BF989167250AABF3002ACF50 /* AltWidgetExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +105,83 @@
 				Info.plist,
 				Resources/ReleaseEntitlements.plist,
 			);
+			platformFiltersByRelativePath = {
+				Authentication/Authentication.storyboard = (
+					ios,
+				);
+				Authentication/tvOS/Authentication.storyboard = (
+					tvos,
+				);
+				Components/AppBannerView.xib = (
+					ios,
+				);
+				Components/tvOS/AppBannerView.xib = (
+					tvos,
+				);
+				Core/Resources/RSTPlaceholderView.xib = (
+					ios,
+				);
+				Core/Resources/tvOS/RSTPlaceholderView.xib = (
+					tvos,
+				);
+				"My Apps/InstalledAppsCollectionHeaderView.xib" = (
+					ios,
+				);
+				"My Apps/UpdateCollectionViewCell.xib" = (
+					ios,
+				);
+				"My Apps/tvOS/InstalledAppsCollectionHeaderView.xib" = (
+					tvos,
+				);
+				"My Apps/tvOS/UpdateCollectionViewCell.xib" = (
+					tvos,
+				);
+				News/NewsCollectionViewCell.xib = (
+					ios,
+				);
+				News/tvOS/NewsCollectionViewCell.xib = (
+					tvos,
+				);
+				Settings/AboutPatreonHeaderView.xib = (
+					ios,
+				);
+				Settings/Settings.storyboard = (
+					ios,
+				);
+				Settings/SettingsHeaderFooterView.xib = (
+					ios,
+				);
+				Settings/tvOS/AboutPatreonHeaderView.xib = (
+					tvos,
+				);
+				Settings/tvOS/Settings.storyboard = (
+					tvos,
+				);
+				Settings/tvOS/SettingsHeaderFooterView.xib = (
+					tvos,
+				);
+				Sources/Components/SourceHeaderView.xib = (
+					ios,
+				);
+				Sources/Components/tvOS/SourceHeaderView.xib = (
+					tvos,
+				);
+				Sources/Sources.storyboard = (
+					ios,
+				);
+				Sources/tvOS/Sources.storyboard = (
+					tvos,
+				);
+				iOS/LaunchScreen.storyboard = (
+					ios,
+				);
+				iOS/Main.storyboard = (
+					ios,
+				);
+				tvOS/Main.storyboard = (
+					tvos,
+				);
+			};
 			target = BFD247692284B9A500981D42 /* SideStore */;
 		};
 		A8EEC8CD2F4B146B00F2436D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
@@ -131,6 +208,9 @@
 			membershipExceptions = (
 				Utils/datastructures/SingletonGenericMap.swift,
 				Utils/pagination/PaginationDataHolder.swift,
+				Widget/WidgetData/WidgetDataManager.swift,
+				Widget/WidgetData/WidgetLogManager.swift,
+				Widget/WidgetData/WidgetModels.swift,
 			);
 			target = BF989166250AABF3002ACF50 /* AltWidgetExtension */;
 		};
@@ -431,6 +511,7 @@
 		};
 		BF989176250AABF4002ACF50 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = BF989166250AABF3002ACF50 /* AltWidgetExtension */;
 			targetProxy = BF989175250AABF4002ACF50 /* PBXContainerItemProxy */;
 		};
@@ -460,9 +541,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "SideBackup/SideBackup-Bridging-Header.h";
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Debug;
 		};
@@ -489,9 +573,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "SideBackup/SideBackup-Bridging-Header.h";
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
 		};
@@ -749,12 +836,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = "debug-only";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Debug;
 		};
@@ -796,13 +885,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = "debug-only";
 				SWIFT_OPTIMIZATION_LEVEL = "-Osize";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
 		};

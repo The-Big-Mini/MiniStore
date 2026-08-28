@@ -394,7 +394,9 @@ struct UserCustomizationsView: View {
         }
         .miniStoreBackground()
         .navigationTitle("User Customizations")
+        #if !os(tvOS)
         .navigationBarTitleDisplayMode(.large)
+        #endif
         .alert("Restart Required", isPresented: $showEMPRestartConfirmation) {
             SwiftUI.Button("Restart Now", role: .destructive) {
                 enableEMPforWireguard = pendingEMPOption
@@ -454,25 +456,17 @@ struct UserCustomizationsView: View {
     }
 
     private func exportWireGuardConfig() {
-        guard let top = topViewController() else { return }
+        guard let top = UIApplication.shared.topViewController() else { return }
         guard let url = Bundle.main.url(forResource: "SideStore", withExtension: "conf") else {
             let toastView = ToastView(text: NSLocalizedString("SideStore.conf missing!", comment: ""), detailText: "Unable to locate SideStore.conf in bundle resources.")
             toastView.show(in: top)
             return
         }
+        #if !os(tvOS)
         let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         top.present(activityVC, animated: true)
-    }
-
-    private func topViewController() -> UIViewController? {
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = scene.windows.first(where: { $0.isKeyWindow }),
-              var top = window.rootViewController else {
-            return nil
-        }
-        while let presented = top.presentedViewController {
-            top = presented
-        }
-        return top
+        #else
+        TVWebFileTransferManager.shared.startExport(fileURL: url, title: "Export SideStore.conf", presentingVC: top)
+        #endif
     }
 }

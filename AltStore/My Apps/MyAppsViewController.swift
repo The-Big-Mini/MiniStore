@@ -33,7 +33,7 @@ extension MyAppsViewController
 
 // @livecontainer
 @objc(MyAppsViewController)
-class MyAppsViewController: UICollectionViewController, PeekPopPreviewing
+class MyAppsViewController: UICollectionViewController
 {
     private let coordinator = NSFileCoordinator()
     private let operationQueue = OperationQueue()
@@ -100,9 +100,11 @@ class MyAppsViewController: UICollectionViewController, PeekPopPreviewing
         self.collectionView.dataSource = self.dataSource
         self.collectionView.prefetchDataSource = self.dataSource
         self.dataSource.contentView = self.collectionView
+        #if !os(tvOS)
         self.collectionView.dragDelegate = self
         self.collectionView.dropDelegate = self
         self.collectionView.dragInteractionEnabled = false
+        #endif
                 
         self.prototypeUpdateCell = UpdateCollectionViewCell.instantiate(with: UpdateCollectionViewCell.nib)
         self.prototypeUpdateCell.contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -112,11 +114,17 @@ class MyAppsViewController: UICollectionViewController, PeekPopPreviewing
         self.collectionView.register(InstalledAppsCollectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "ActiveAppsHeader")
         self.collectionView.register(InstalledAppsCollectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "InactiveAppsHeader")
         
+        #if !os(tvOS)
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(MyAppsViewController.checkForUpdates(_:)), for: .primaryActionTriggered)
         self.collectionView.refreshControl = refreshControl
+        #endif
         
+        #if !os(tvOS)
         self.sideloadingProgressView = UIProgressView(progressViewStyle: .bar)
+        #else
+        self.sideloadingProgressView = UIProgressView(progressViewStyle: .default)
+        #endif
         self.sideloadingProgressView.translatesAutoresizingMaskIntoConstraints = false
         self.sideloadingProgressView.progressTintColor = .altPrimary
         self.sideloadingProgressView.progress = 0
@@ -129,7 +137,9 @@ class MyAppsViewController: UICollectionViewController, PeekPopPreviewing
                                          self.sideloadingProgressView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor)])
         }
         
-        (self as PeekPopPreviewing).registerForPreviewing(with: self, sourceView: self.collectionView)
+        #if !os(tvOS)
+        self.registerForPreviewing(with: self, sourceView: self.collectionView)
+        #endif
         
         NotificationCenter.default.addObserver(self, selector: #selector(MyAppsViewController.didChangeAppIcon(_:)), name: UIApplication.didChangeAppIconNotification, object: nil)
         
@@ -892,12 +902,14 @@ private extension MyAppsViewController
                 }
             }
             
+            #if !os(tvOS)
             let interaction = INInteraction.refreshAllApps()
             do {
                 try await interaction.donate()
             } catch {
                 debugLog("Donate intent failed \(interaction.intent). \(error)")
             }
+            #endif
         }
     }
     
@@ -944,136 +956,61 @@ private extension MyAppsViewController
     @IBAction func sideloadApp(_ sender: UIBarButtonItem)
     {
         Task { @MainActor in
+            #if !os(tvOS)
             let supportedTypes = UTType.types(tag: "ipa", tagClass: .filenameExtension, conformingTo: nil)
             
             let documentPickerViewController = UIDocumentPickerViewController(forOpeningContentTypes: supportedTypes, asCopy: true)
             documentPickerViewController.delegate = self
             self.present(documentPickerViewController, animated: true, completion: nil)
+            #else
+            TVWebFileTransferManager.shared.startImport(
+                acceptedExtensions: ["ipa"],
+                title: "Sideload IPA",
+                presentingVC: self
+            ) { [weak self] fileURL in
+                guard let fileURL = fileURL else { return }
+                self?.sideloadApp(at: fileURL) { result in
+                    debugLog("Sideloaded app at \(fileURL) with result: \(result)")
+                }
+            }
+            #endif
         }
     }
     
     func sideloadApp(at url: URL, completion: @escaping (Result<Void, Error>) -> Void)
     {
-        let progress = Progress.discreteProgress(totalUnitCount: 100)
-        
+        self.pendingImportURL = nil
         self.navigationItem.leftBarButtonItem?.isIndicatingActivity = true
         
-        let temporaryDirectory = FileManager.default.uniqueTemporaryURL()
-        let unzippedAppDirectory = temporaryDirectory.appendingPathComponent("App")
-        
-        let downloadProgress = Progress.discreteProgress(totalUnitCount: 100)
-        let unzipProgress = Progress.discreteProgress(totalUnitCount: 1)
-        let installProgress = Progress.discreteProgress(totalUnitCount: 100)
-        
-        if url.isFileURL
-        {
-            progress.totalUnitCount -= 20
-        }
-        else
-        {
-            progress.addChild(downloadProgress, withPendingUnitCount: 20)
-        }
-        progress.addChild(unzipProgress, withPendingUnitCount: 10)
-        progress.addChild(installProgress, withPendingUnitCount: 70)
-        
-        self.sideloadingProgress = progress
-        self.sideloadingProgressView.progress = 0
-        self.sideloadingProgressView.isHidden = false
-        self.sideloadingProgressView.observedProgress = self.sideloadingProgress
-        
-        Task.detached { [weak self] in
-            guard let self else { return }
-            
-            var localFileURL = url
-            
-            do
-            {
-                // 1. Download if remote
-                if !url.isFileURL
-                {
-                    localFileURL = try await withCheckedThrowingContinuation { continuation in
-                        let downloadTask = URLSession.shared.downloadTask(with: url) { (fileURL, response, error) in
-                            do
-                            {
-                                let (fileURL, _) = try Result((fileURL, response), error).get()
-                                try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true, attributes: nil)
-                                let destinationURL = temporaryDirectory.appendingPathComponent("App.ipa")
-                                try FileManager.default.moveItem(at: fileURL, to: destinationURL)
-                                continuation.resume(returning: destinationURL)
-                            }
-                            catch
-                            {
-                                continuation.resume(throwing: error)
-                            }
-                        }
-                        downloadProgress.addChild(downloadTask.progress, withPendingUnitCount: 100)
-                        downloadTask.resume()
-                    }
-                }
+        let group = AppManager.shared.installIPA(at: url, presentingViewController: self) { [weak self] result in
+            Task { @MainActor in
+                self?.navigationItem.leftBarButtonItem?.isIndicatingActivity = false
+                self?.sideloadingProgressView.observedProgress = nil
+                self?.sideloadingProgressView.setHidden(true, animated: true)
                 
-                // 2. Unzip
-                defer {
-                    if !url.isFileURL {
-                        try? FileManager.default.removeItem(at: localFileURL)
-                    }
-                }
-                
-                try FileManager.default.createDirectory(at: unzippedAppDirectory, withIntermediateDirectories: true, attributes: nil)
-                let unzippedApplicationURL = try FileManager.default.unzipAppBundle(at: localFileURL, toDirectory: unzippedAppDirectory)
-                
-                guard let appBundle = ALTApplication(fileURL: unzippedApplicationURL) else { throw OperationError.invalidApp }
-                unzipProgress.completedUnitCount = 1
-                
-                // 3. Install app
-                let installedApp = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<InstalledApp, Error>) in
-                    DispatchQueue.main.async {
-                        let group = AppManager.shared.install(appBundle, presentingViewController: self) { (result) in
-                            switch result
-                            {
-                            case .success(let installedApp): continuation.resume(returning: installedApp)
-                            case .failure(let error): continuation.resume(throwing: error)
-                            }
-                        }
-                        installProgress.addChild(group.progress, withPendingUnitCount: 100)
-                    }
-                }
-                
-                // 4. Success UI callback
-                try? FileManager.default.removeItem(at: temporaryDirectory)
-                
-                await MainActor.run {
-                    self.navigationItem.leftBarButtonItem?.isIndicatingActivity = false
-                    self.sideloadingProgressView.observedProgress = nil
-                    self.sideloadingProgressView.setHidden(true, animated: true)
-                    
+                switch result {
+                case .success(let installedApp):
                     completion(.success(()))
-                    
                     installedApp.managedObjectContext?.perform {
                         debugLog("Successfully installed app: \(installedApp.bundleIdentifier)")
                     }
-                }
-            }
-            catch
-            {
-                try? FileManager.default.removeItem(at: temporaryDirectory)
-                
-                await MainActor.run {
-                    self.navigationItem.leftBarButtonItem?.isIndicatingActivity = false
-                    self.sideloadingProgressView.observedProgress = nil
-                    self.sideloadingProgressView.setHidden(true, animated: true)
-                    
-                    if error is CancellationError
-                    {
+                case .failure(let error):
+                    if error is CancellationError {
                         completion(.failure(OperationError.cancelled))
-                    }
-                    else
-                    {
-                        ToastView(error: error, opensLog: true).show(in: self)
+                    } else {
+                        if let self {
+                            ToastView(error: error, opensLog: true).show(in: self)
+                        }
                         completion(.failure(error))
                     }
                 }
             }
         }
+        
+        self.sideloadingProgress = group.progress
+        self.sideloadingProgressView.progress = 0
+        self.sideloadingProgressView.isHidden = false
+        self.sideloadingProgressView.observedProgress = group.progress
     }
     
     @IBAction func activateApp(_ sender: UIButton)
@@ -1271,7 +1208,7 @@ private extension MyAppsViewController
                 }
             }
                     
-            if !UserDefaults.standard.isAppLimitDisabled && UserDefaults.standard.activeAppsLimit != nil, #available(iOS 13, *)
+            if !UserDefaults.standard.isAppLimitDisabled && UserDefaults.standard.activeAppsLimit != nil
             {
                 guard let appBundle = ALTApplication(fileURL: installedApp.fileURL) else { return finish(.failure(OperationError.invalidApp)) }
                 
@@ -1566,12 +1503,16 @@ private extension MyAppsViewController
     {
         guard let backupURL = FileManager.default.backupDirectoryURL(for: installedApp) else { return }
         
+        #if !os(tvOS)
         let documentPicker = UIDocumentPickerViewController(forExporting: [backupURL], asCopy: true)
         
         // Don't set delegate to avoid conflicting with import callbacks.
         // documentPicker.delegate = self
         
         self.present(documentPicker, animated: true, completion: nil)
+        #else
+        TVWebFileTransferManager.shared.startExport(fileURL: backupURL, title: "Export App Backup", presentingVC: self)
+        #endif
     }
     
     func deleteBackup(for installedApp: InstalledApp)
@@ -1607,12 +1548,27 @@ private extension MyAppsViewController
     
     func chooseIcon(for installedApp: InstalledApp)
     {
+        #if !os(tvOS)
         self._imagePickerInstalledApp = installedApp
         
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.allowsEditing = true
         self.present(imagePicker, animated: true, completion: nil)
+        #else
+        TVWebFileTransferManager.shared.startImport(
+            acceptedExtensions: ["png", "jpg", "jpeg"],
+            title: "Upload Custom App Icon",
+            presentingVC: self
+        ) { [weak self] fileURL in
+            guard let self = self, let fileURL = fileURL else { return }
+            if let data = try? Data(contentsOf: fileURL), let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self.changeIcon(for: installedApp, to: image)
+                }
+            }
+        }
+        #endif
     }
     
     func changeIcon(for installedApp: InstalledApp, to image: UIImage?)
@@ -1688,52 +1644,47 @@ private extension MyAppsViewController
 
     private func presentImportDialog(for url: URL)
     {
-        let cleanup = {
-            guard url.isFileURL else { return }
-            do
-            {
-                try FileManager.default.removeItem(at: url)
-            }
-            catch
-            {
-                debugLog("Unable to remove imported .ipa. \(error)")
-            }
-        }
-        
         InstallAppDialog.present(
             ipaURL: url,
             from: self,
             onConfirm: { [weak self] in
-                self?.sideloadApp(at: url) { _ in
-                    cleanup()
-                }
+                self?.sideloadApp(at: url) { _ in }
             },
-            onCancel: {
-                cleanup()
-            }
+            onCancel: {}
         )
     }
     
+    #if !os(tvOS)
     @objc func checkForUpdates(_ sender: UIRefreshControl)
+    {
+        self.performCheckForUpdates {
+            sender.endRefreshing()
+        }
+    }
+    #else
+    @objc func checkForUpdates()
+    {
+        self.performCheckForUpdates(completion: nil)
+    }
+    #endif
+    
+    private func performCheckForUpdates(completion: (() -> Void)? = nil)
     {
         guard !self.isCheckingForUpdates else { return }
         self.isCheckingForUpdates = true
         
-        Task {
+        Task.detached {
             do
             {
                 // async-let so the for-loop below runs first, ensuring we catch didFetchSourceNotification.
                 async let result = try await AppManager.shared.fetchSources()
                                 
-                if #available(iOS 15, *)
+                // .map { $0.name } to avoid "non-sendable type 'Notification?' cannot cross actor boundary" warning.
+                for await _ in NotificationCenter.default.notifications(named: AppManager.didFetchSourceNotification).map({ $0.name })
                 {
-                    // .map { $0.name } to avoid "non-sendable type 'Notification?' cannot cross actor boundary" warning.
-                    for await _ in NotificationCenter.default.notifications(named: AppManager.didFetchSourceNotification).map({ $0.name })
-                    {
-                        // Wait until _after_ didFetchSourceNotification
-                        // to prevent incorrect update() animations.
-                        break
-                    }
+                    // Wait until _after_ didFetchSourceNotification
+                    // to prevent incorrect update() animations.
+                    break
                 }
                 
                 do
@@ -1781,18 +1732,22 @@ private extension MyAppsViewController
             catch let error as NSError
             {
                 debugLog("\(error)")
-                let toastView = ToastView(error: error.withLocalizedTitle(NSLocalizedString("Unable to Check for Updates", comment: "")))
-                toastView.addTarget(nil, action: #selector(TabBarController.presentSources), for: .touchUpInside)
-                toastView.show(in: self)
+                await MainActor.run {
+                    let toastView = ToastView(error: error.withLocalizedTitle(NSLocalizedString("Unable to Check for Updates", comment: "")))
+                    toastView.addTarget(nil, action: #selector(TabBarController.presentSources), for: .touchUpInside)
+                    toastView.show(in: self)
+                }
             }
             
-            self.isCheckingForUpdates = false
-            
-            // Call update() _after_ setting isCheckingForUpdates to false so it will actually update collection view,
-            // but _before_ calling sender.endRefreshing() to avoid weird animation.
-            self.update()
-            
-            sender.endRefreshing()
+            await MainActor.run {
+                self.isCheckingForUpdates = false
+                
+                // Call update() _after_ setting isCheckingForUpdates to false so it will actually update collection view,
+                // but _before_ calling sender.endRefreshing() to avoid weird animation.
+                self.update()
+                
+                completion?()
+            }
         }
     }
     
@@ -1808,28 +1763,14 @@ private extension MyAppsViewController
         {
             let indexPath = IndexPath(item: indexPath.item, section: Section.activeApps.rawValue)
             
-            if #available(iOS 15, *)
-            {
-                self.collectionView.reconfigureItems(at: [indexPath])
-            }
-            else
-            {
-                self.collectionView.reloadItems(at: [indexPath])
-            }
+            self.collectionView.reconfigureItems(at: [indexPath])
         }
         
         if let indexPath = self.inactiveAppsDataSource.fetchedResultsController.indexPath(forObject: altStoreApp)
         {
             let indexPath = IndexPath(item: indexPath.item, section: Section.inactiveApps.rawValue)
             
-            if #available(iOS 15, *)
-            {
-                self.collectionView.reconfigureItems(at: [indexPath])
-            }
-            else
-            {
-                self.collectionView.reloadItems(at: [indexPath])
-            }
+            self.collectionView.reconfigureItems(at: [indexPath])
         }
     }
 }
@@ -2246,6 +2187,7 @@ extension MyAppsViewController
         return menu
     }
     
+    #if !os(tvOS)
     override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?
     {
         guard !self.isRefreshingAllApps else { return nil }
@@ -2282,6 +2224,7 @@ extension MyAppsViewController
     {
         return self.collectionView(collectionView, previewForHighlightingContextMenuWithConfiguration: configuration)
     }
+    #endif
 }
 
 extension MyAppsViewController: UICollectionViewDelegateFlowLayout
@@ -2382,6 +2325,7 @@ extension MyAppsViewController: UICollectionViewDelegateFlowLayout
     }
 }
 
+#if !os(tvOS)
 extension MyAppsViewController: UICollectionViewDragDelegate
 {
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem]
@@ -2563,6 +2507,7 @@ extension MyAppsViewController: UICollectionViewDropDelegate
         }
     }
 }
+#endif
 
 extension MyAppsViewController: NSFetchedResultsControllerDelegate
 {
@@ -2681,6 +2626,7 @@ extension MyAppsViewController: NSFetchedResultsControllerDelegate
     }
 }
 
+#if !os(tvOS)
 extension MyAppsViewController: UIDocumentPickerDelegate
 {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL])
@@ -2692,6 +2638,7 @@ extension MyAppsViewController: UIDocumentPickerDelegate
         }
     }
 }
+#endif
 
 extension MyAppsViewController: UIViewControllerPreviewingDelegate
 {
@@ -2729,6 +2676,7 @@ extension MyAppsViewController: UIViewControllerPreviewingDelegate
     }
 }
 
+#if !os(tvOS)
 extension MyAppsViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate
 {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any])
@@ -2748,6 +2696,7 @@ extension MyAppsViewController: UIImagePickerControllerDelegate, UINavigationCon
         self._imagePickerInstalledApp = nil
     }
 }
+#endif
 
 extension MyAppsViewController {
     private func presentSetCertificateAlert(for installedApp: InstalledApp) {

@@ -7,7 +7,6 @@
 //
 
 @preconcurrency import UIKit
-import SafariServices
 import Combine
 import CoreData
 
@@ -40,7 +39,7 @@ private final class AppBannerFooterView: UICollectionReusableView
     }
 }
 
-class NewsViewController: UICollectionViewController, PeekPopPreviewing
+class NewsViewController: UICollectionViewController
 {
     // Nil == Show news from all sources.
     var source: Source?
@@ -102,11 +101,13 @@ class NewsViewController: UICollectionViewController, PeekPopPreviewing
         self.collectionView.register(NewsCollectionViewCell.nib, forCellWithReuseIdentifier: RSTCellContentGenericCellIdentifier)
         self.collectionView.register(AppBannerFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: "AppBanner")
         
-        (self as PeekPopPreviewing).registerForPreviewing(with: self, sourceView: self.collectionView)
+        #if !os(tvOS)
+        self.registerForPreviewing(with: self, sourceView: self.collectionView)
         
         let refreshControl = UIRefreshControl(frame: .zero)
         refreshControl.addTarget(self, action: #selector(NewsViewController.updateSources), for: .primaryActionTriggered)
         self.collectionView.refreshControl = refreshControl
+        #endif
         
         self.retryButton = UIButton(type: .system)
         self.retryButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
@@ -119,6 +120,7 @@ class NewsViewController: UICollectionViewController, PeekPopPreviewing
             let tintColor = source.effectiveTintColor ?? .altPrimary
             self.view.tintColor = tintColor
             
+            #if !os(tvOS)
             let appearance = NavigationBarAppearance()
             appearance.configureWithTintColor(tintColor)
             appearance.configureWithDefaultBackground()
@@ -128,6 +130,7 @@ class NewsViewController: UICollectionViewController, PeekPopPreviewing
             
             self.navigationItem.standardAppearance = appearance
             self.navigationItem.scrollEdgeAppearance = edgeAppearance
+            #endif
         }
         
         self.preparePipeline()
@@ -238,7 +241,9 @@ private extension NewsViewController
     @objc func updateSources()
     {
         AppManager.shared.updateAllSources() { result in
+            #if !os(tvOS)
             self.collectionView.refreshControl?.endRefreshing()
+            #endif
             
             guard case .failure(let error) = result else { return }
             
@@ -398,9 +403,7 @@ extension NewsViewController
         
         if let externalURL = newsItem.externalURL
         {
-            let safariViewController = SFSafariViewController(url: externalURL)
-            safariViewController.preferredControlTintColor = newsItem.tintColor
-            self.present(safariViewController, animated: true, completion: nil)
+            self.openWebURL(externalURL, preferredTintColor: newsItem.tintColor)
         }
         else if let storeApp = newsItem.storeApp
         {
@@ -488,6 +491,7 @@ extension NewsViewController: UICollectionViewDelegateFlowLayout
     }
 }
 
+#if !os(tvOS)
 extension NewsViewController: UIViewControllerPreviewingDelegate
 {
     @available(iOS, deprecated: 13.0)
@@ -503,9 +507,7 @@ extension NewsViewController: UIViewControllerPreviewingDelegate
             
             if let externalURL = newsItem.externalURL
             {
-                let safariViewController = SFSafariViewController(url: externalURL)
-                safariViewController.preferredControlTintColor = newsItem.tintColor
-                return safariViewController
+                return self.makeWebViewController(for: externalURL, preferredTintColor: newsItem.tintColor)
             }
             else if let storeApp = newsItem.storeApp
             {
@@ -540,13 +542,14 @@ extension NewsViewController: UIViewControllerPreviewingDelegate
     @available(iOS, deprecated: 13.0)
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController)
     {
-        if let safariViewController = viewControllerToCommit as? SFSafariViewController
-        {
-            self.present(safariViewController, animated: true, completion: nil)
-        }
-        else
+        if viewControllerToCommit is AppViewController
         {
             self.navigationController?.pushViewController(viewControllerToCommit, animated: true)
         }
+        else
+        {
+            self.present(viewControllerToCommit, animated: true, completion: nil)
+        }
     }
 }
+#endif

@@ -6,10 +6,10 @@
 //  Copyright © 2020 Riley Testut. All rights reserved.
 //
 
+#if !os(tvOS)
 @preconcurrency import UIKit
 import Foundation
 
-@available(iOS 14, *)
 final class IntentHandler: NSObject, RefreshAllIntentHandling
 {
     private let queue = DispatchQueue(label: "io.sidestore.IntentHandler")
@@ -162,3 +162,4 @@ private extension IntentHandler
         self.operations[intent] = operation
     }
 }
+#endif

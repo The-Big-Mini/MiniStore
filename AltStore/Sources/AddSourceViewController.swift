@@ -140,7 +140,9 @@ private extension AddSourceViewController
                 
             case .preview:
                 var configuration = UICollectionLayoutListConfiguration(appearance: .grouped)
+                #if !os(tvOS)
                 configuration.showsSeparators = false
+                #endif
                 configuration.backgroundColor = .clear
                 
                 if !self.viewModel.sourceURLs.isEmpty && self.viewModel.isShowingPreviewStatus
@@ -168,7 +170,9 @@ private extension AddSourceViewController
                 
             case .recommended:
                 var configuration = UICollectionLayoutListConfiguration(appearance: .grouped)
+                #if !os(tvOS)
                 configuration.showsSeparators = false
+                #endif
                 configuration.backgroundColor = .clear
                 
                 switch self.fetchRecommendedSourcesResult
@@ -977,12 +981,3 @@ extension AddSourceViewController: UITextFieldDelegate
     }
 }
 
-@available(iOS 17.0, *)
-#Preview(traits: .portrait) {
-    DatabaseManager.shared.startForPreview()
-    
-    let storyboard = UIStoryboard(name: "Sources", bundle: .main)
-    
-    let addSourceNavigationController = storyboard.instantiateViewController(withIdentifier: "addSourceNavigationController")
-    return addSourceNavigationController
-}

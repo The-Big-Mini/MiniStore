@@ -44,8 +44,10 @@ final class SourcesViewController: UICollectionViewController
         super.viewDidLoad()
         
         // Ensure large titles
+        #if !os(tvOS)
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .automatic
+        #endif
 
         // Set title
         navigationItem.title = "Sources"
@@ -138,9 +140,12 @@ private extension SourcesViewController
     func makeLayout() -> UICollectionViewCompositionalLayout
     {
         var configuration = UICollectionLayoutListConfiguration(appearance: .grouped)
+        #if !os(tvOS)
         configuration.showsSeparators = false
+        #endif
         configuration.backgroundColor = .clear
         
+        #if !os(tvOS)
         configuration.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
             guard let self else { return UISwipeActionsConfiguration(actions: []) }
             
@@ -178,6 +183,7 @@ private extension SourcesViewController
             
             return config
         }
+        #endif
         
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         return layout
@@ -275,16 +281,8 @@ private extension SourcesViewController
             cell.bannerView.subtitleLabel.text = text
             cell.bannerView.subtitleLabel.numberOfLines = 1
             
-            let numberOfAppsText: String
-            if #available(iOS 15, *)
-            {
-                let attributedOutput = AttributedString(localized: "^[\(numberOfApps) app](inflect: true)")
-                numberOfAppsText = String(attributedOutput.characters)
-            }
-            else
-            {
-                numberOfAppsText = ""
-            }
+            let attributedOutput = AttributedString(localized: "^[\(numberOfApps) app](inflect: true)")
+            let numberOfAppsText = String(attributedOutput.characters)
             
             let accessibilityLabel = source.name + "\n" + text + ".\n" + numberOfAppsText
             cell.bannerView.accessibilityLabel = accessibilityLabel
@@ -511,54 +509,3 @@ extension SourcesViewController: NSFetchedResultsControllerDelegate
     }
 }
 
-@available(iOS 17, *)
-#Preview(traits: .portrait) {
-    DatabaseManager.shared.startForPreview()
-    
-    let storyboard = UIStoryboard(name: "Sources", bundle: nil)
-    let sourcesViewController = storyboard.instantiateInitialViewController()!
-    
-    let context = DatabaseManager.shared.persistentContainer.newBackgroundContext()
-    context.performAndWait {
-        _ = Source.make(name: "OatmealDome's AltStore Source",
-                        groupID: "me.oatmealdome.altstore",
-                        sourceURL: URL(string: "https://altstore.oatmealdome.me")!,
-                        context: context)
-        
-        _ = Source.make(name: "UTM Repository",
-                        groupID: "com.utmapp.repos.UTM",
-                        sourceURL: URL(string: "https://alt.getutm.app")!,
-                        context: context)
-        
-        _ = Source.make(name: "Flyinghead",
-                        groupID: "com.flyinghead.source",
-                        sourceURL: URL(string: "https://flyinghead.github.io/flycast-builds/altstore.json")!,
-                        context: context)
-        
-        _ = Source.make(name: "Provenance",
-                        groupID: "org.provenance-emu.AltStore",
-                        sourceURL: URL(string: "https://provenance-emu.com/apps.json")!,
-                        context: context)
-        
-        _ = Source.make(name: "PojavLauncher Repository",
-                        groupID: "dev.crystall1ne.repos.PojavLauncher",
-                        sourceURL: URL(string: "http://alt.crystall1ne.dev")!,
-                        context: context)
-        
-        try! context.save()
-    }
-    
-    AppManager.shared.fetchSources { result in
-        do
-        {
-            let (_, context) = try result.get()
-            try context.save()
-        }
-        catch
-        {
-            debugLog("Preview failed to fetch sources: \(error)")
-        }
-    }
-    
-    return sourcesViewController
-}
