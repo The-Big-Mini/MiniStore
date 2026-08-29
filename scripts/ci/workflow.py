@@ -156,10 +156,27 @@ def echo_build_errors():
         return
 
     lines = log.read_text(encoding="utf-8", errors="replace").splitlines()
-    errors = [l for l in lines if re.search(r"\b(error|fatal error):", l)]
+
+    # Matching single lines is not enough: an `error:` line is often only the headline, and the
+    # reason arrives on the indented lines beneath it. SPM prints
+    #     xcodebuild: error: Could not resolve package dependencies:
+    #       failed downloading '...' which is required by binary target 'OpenSSL': ...
+    # and only the first of those two contains "error:", so a dependency-resolution failure
+    # reached the step log with its cause stripped off — twice, on PR #24 and #25. Keep the
+    # indented continuation lines that follow a match.
+    errors = []
+    in_block = False
+    for line in lines:
+        if re.search(r"\b(error|fatal error):", line):
+            errors.append(line)
+            in_block = True
+        elif in_block and line.strip() and line[:1] in (" ", "\t"):
+            errors.append(line)
+        else:
+            in_block = False
 
     print("\n===== build failed: diagnostics from build.log =====", flush=True, file=sys.stderr)
-    for line in errors[:50] or lines[-80:]:
+    for line in errors[:80] or lines[-80:]:
         print(line, flush=True, file=sys.stderr)
     print("===== end diagnostics =====\n", flush=True, file=sys.stderr)
 
