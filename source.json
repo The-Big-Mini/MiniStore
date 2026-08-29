@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260828.45+df978e7b",
-              "date": "2026-08-28T21:39:36Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260828.45+df978e7b\"\n  - revision: \"df978e7b\"\n  - timestamp: \"Fri Aug 28 21:39:36 2026\"\n\n#### What's Changed:\n- Merge pull request #24 from The-Big-Mini/MiniStoreFork\n- fix(spm): repin RemotePairingKit to a revision that still exists\n- Merge upstream/develop (b7985182..ecaa50c4) into MiniStoreFork\n- cleanup: xcode's constant pbxproj woes\n- fix: removed redundant stuff which sideloadApp() was doing despite already present in pipeline (moved all to appmanager).\n- fix: customAppID feature was broken coz installedApp was still using bundleId instead of resignedbundleid/custombundleId\n- tvOS compiles, runs + signs-in + minimuxer works lol (check-in point)\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- cleanup - removed obsolete files\n- cleanup - remove any and all #if available(ios, xx) checks for anything less than 16 coz we are current default min ios 15\n- attempt tvOS compilation\n- cleanup - removed vc previews which we dont use\n- attempt tvOS compilation\n- cleanup: removed pre-ios15 stuff since our miniOSVer is ios 15\n- cleanup - removed unused obsolete webviewcontroller\n- added bg processing entitlement\n- moved things around + use topshelf provider instead of widgets\n- import cleanup\n\n#### Full Changelog: [d8ca5267...df978e7b](https://github.com/The-Big-Mini/MiniStore/compare/d8ca5267030d4e106c0031807b0ad2fa51de1330...df978e7bbea58476c8a931839b27c38b0f6ab639)\n",
+              "version": "0.6.4-20260829.47+6281aa2d",
+              "date": "2026-08-29T19:23:30Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260829.47+6281aa2d\"\n  - revision: \"6281aa2d\"\n  - timestamp: \"Sat Aug 29 19:23:30 2026\"\n\n#### What's Changed:\n- Merge pull request #25 from The-Big-Mini/MiniStoreFork\n- fix(ci): pre-resolve packages so the archive doesn't eat SwiftPM's artifact race\n- fix(ci): drop the cached SPM artifacts dir before building\n- fix(ci): keep the reason attached to a swallowed build error\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix: auth srp client implementation had gaps in GSACryptoKit preventing sign-in with incorrect password\n- fixes for appIds customization overwriting the existing entity instead of creating new for different appid + added appending teamID to be optional/selectable\n- refine archive/zip fingerprinting for ipa sharing if nothing changed in the input interms of bundle contents\n- updated submodules to latest + api updates to make them match\n- remove unused security imports\n- move cache ownership to CacheAppOperation\n- cleanup: fix the log messages format\n\n#### Full Changelog: [df978e7b...6281aa2d](https://github.com/The-Big-Mini/MiniStore/compare/df978e7bbea58476c8a931839b27c38b0f6ab639...6281aa2d7733fb99476ee9875a5a0db742b8636f)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25163717,
-              "sha256": "e60f74ab69b93ecbccabf492b6896df2b40f5842d4462fcf91131a6c72137a37"
+              "size": 26235358,
+              "sha256": "d6cf186483ae59147579b64fe2f41c96a7e335dbfb2aaa652a5310a3b3b11e21"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260828.45+df978e7b",
-      "versionDate": "2026-08-28T21:39:36Z",
-      "size": 25163717,
-      "sha256": "e60f74ab69b93ecbccabf492b6896df2b40f5842d4462fcf91131a6c72137a37",
+      "version": "0.6.4-20260829.47+6281aa2d",
+      "versionDate": "2026-08-29T19:23:30Z",
+      "size": 26235358,
+      "sha256": "d6cf186483ae59147579b64fe2f41c96a7e335dbfb2aaa652a5310a3b3b11e21",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #24 from The-Big-Mini/MiniStoreFork\n- fix(spm): repin RemotePairingKit to a revision that still exists\n- Merge upstream/develop (b7985182..ecaa50c4) into MiniStoreFork\n- cleanup: xcode's constant pbxproj woes\n- fix: removed redundant stuff which sideloadApp() was doing despite already present in pipeline (moved all to appmanager).\n- fix: customAppID feature was broken coz installedApp was still using bundleId instead of resignedbundleid/custombundleId\n- tvOS compiles, runs + signs-in + minimuxer works lol (check-in point)\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- attempt tvOS compilation\n- cleanup - removed obsolete files\n- cleanup - remove any and all #if available(ios, xx) checks for anything less than 16 coz we are current default min ios 15\n- attempt tvOS compilation\n- cleanup - removed vc previews which we dont use\n- attempt tvOS compilation\n- cleanup: removed pre-ios15 stuff since our miniOSVer is ios 15\n- cleanup - removed unused obsolete webviewcontroller\n- added bg processing entitlement\n- moved things around + use topshelf provider instead of widgets\n- import cleanup\n\n#### Full Changelog: [d8ca5267...df978e7b](https://github.com/The-Big-Mini/MiniStore/compare/d8ca5267030d4e106c0031807b0ad2fa51de1330...df978e7bbea58476c8a931839b27c38b0f6ab639)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #25 from The-Big-Mini/MiniStoreFork\n- fix(ci): pre-resolve packages so the archive doesn't eat SwiftPM's artifact race\n- fix(ci): drop the cached SPM artifacts dir before building\n- fix(ci): keep the reason attached to a swallowed build error\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix: auth srp client implementation had gaps in GSACryptoKit preventing sign-in with incorrect password\n- fixes for appIds customization overwriting the existing entity instead of creating new for different appid + added appending teamID to be optional/selectable\n- refine archive/zip fingerprinting for ipa sharing if nothing changed in the input interms of bundle contents\n- updated submodules to latest + api updates to make them match\n- remove unused security imports\n- move cache ownership to CacheAppOperation\n- cleanup: fix the log messages format\n\n#### Full Changelog: [df978e7b...6281aa2d](https://github.com/The-Big-Mini/MiniStore/compare/df978e7bbea58476c8a931839b27c38b0f6ab639...6281aa2d7733fb99476ee9875a5a0db742b8636f)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260829.47+6281aa2d",
+      "title": "MiniStore Nightly — 0.6.4-20260829.47+6281aa2d",
+      "caption": "Merge pull request #25 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-29T19:23:30Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260828.45+df978e7b",
       "title": "MiniStore Nightly — 0.6.4-20260828.45+df978e7b",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260818.26+dba49bac",
       "caption": "Merge pull request #19 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-18T04:47:34Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260818.22+9f2de165",
-      "title": "MiniStore Nightly — 0.6.4-20260818.22+9f2de165",
-      "caption": "Merge pull request #17 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-18T00:16:48Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
