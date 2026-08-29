@@ -156,16 +156,55 @@ def echo_build_errors():
         return
 
     lines = log.read_text(encoding="utf-8", errors="replace").splitlines()
-    errors = [l for l in lines if re.search(r"\b(error|fatal error):", l)]
+
+    # Matching single lines is not enough: an `error:` line is often only the headline, and the
+    # reason arrives on the indented lines beneath it. SPM prints
+    #     xcodebuild: error: Could not resolve package dependencies:
+    #       failed downloading '...' which is required by binary target 'OpenSSL': ...
+    # and only the first of those two contains "error:", so a dependency-resolution failure
+    # reached the step log with its cause stripped off — twice, on PR #24 and #25. Keep the
+    # indented continuation lines that follow a match.
+    errors = []
+    in_block = False
+    for line in lines:
+        if re.search(r"\b(error|fatal error):", line):
+            errors.append(line)
+            in_block = True
+        elif in_block and line.strip() and line[:1] in (" ", "\t"):
+            errors.append(line)
+        else:
+            in_block = False
 
     print("\n===== build failed: diagnostics from build.log =====", flush=True, file=sys.stderr)
-    for line in errors[:50] or lines[-80:]:
+    for line in errors[:80] or lines[-80:]:
         print(line, flush=True, file=sys.stderr)
     print("===== end diagnostics =====\n", flush=True, file=sys.stderr)
 
 
 def build():
     run("mkdir -p build/logs")
+    # SPM refuses to re-download a binary artifact whose directory already exists, and CI restores
+    # ~/Library/Caches/org.swift.swiftpm from a prefix-matched cache. Once a run leaves that
+    # directory half-populated — which a *failed* run does, because Save Cache has no success()
+    # guard — every later run fails resolution with
+    #   failed downloading '...OpenSSL.xcframework.zip' ... already exists in file system
+    # and no amount of retrying clears it. Dropping just `artifacts/` costs one xcframework
+    # download per build and leaves the expensive part of the cache, `repositories/`, intact.
+    run("rm -rf ~/Library/Caches/org.swift.swiftpm/artifacts", check=False)
+    # ...and then prime it, because a *cold* artifacts cache is its own failure. SwiftPM downloads
+    # the same binary artifact concurrently for several consumers, they collide, and the resolve
+    # dies with the same "already exists" message even though the download itself completed. The
+    # second resolve finds the finished artifact and succeeds. So the first one is expected to
+    # fail and its exit status is deliberately ignored; the build's own resolve is the real one.
+    # Measured on a cold cache: resolve #1 exits 74 with two collisions, resolve #2 exits 0 with
+    # none. Without this the archive below is the attempt that eats the collision.
+    resolve = "xcodebuild -resolvePackageDependencies -project AltStore.xcodeproj -scheme SideStore"
+    for attempt in range(1, 4):
+        print(f"$ {resolve}   (attempt {attempt}/3)", flush=True, file=sys.stderr)
+        if subprocess.run(resolve, shell=True, cwd=ROOT,
+                          stdout=sys.stderr, stderr=sys.stderr).returncode == 0:
+            break
+        print("!! resolve failed; retrying", flush=True, file=sys.stderr)
     try:
         run(
             "set -o pipefail && "
