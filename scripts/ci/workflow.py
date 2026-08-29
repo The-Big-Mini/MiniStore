@@ -191,6 +191,20 @@ def build():
     # and no amount of retrying clears it. Dropping just `artifacts/` costs one xcframework
     # download per build and leaves the expensive part of the cache, `repositories/`, intact.
     run("rm -rf ~/Library/Caches/org.swift.swiftpm/artifacts", check=False)
+    # ...and then prime it, because a *cold* artifacts cache is its own failure. SwiftPM downloads
+    # the same binary artifact concurrently for several consumers, they collide, and the resolve
+    # dies with the same "already exists" message even though the download itself completed. The
+    # second resolve finds the finished artifact and succeeds. So the first one is expected to
+    # fail and its exit status is deliberately ignored; the build's own resolve is the real one.
+    # Measured on a cold cache: resolve #1 exits 74 with two collisions, resolve #2 exits 0 with
+    # none. Without this the archive below is the attempt that eats the collision.
+    resolve = "xcodebuild -resolvePackageDependencies -project AltStore.xcodeproj -scheme SideStore"
+    for attempt in range(1, 4):
+        print(f"$ {resolve}   (attempt {attempt}/3)", flush=True, file=sys.stderr)
+        if subprocess.run(resolve, shell=True, cwd=ROOT,
+                          stdout=sys.stderr, stderr=sys.stderr).returncode == 0:
+            break
+        print("!! resolve failed; retrying", flush=True, file=sys.stderr)
     try:
         run(
             "set -o pipefail && "
