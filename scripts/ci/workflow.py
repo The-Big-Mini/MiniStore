@@ -183,6 +183,14 @@ def echo_build_errors():
 
 def build():
     run("mkdir -p build/logs")
+    # SPM refuses to re-download a binary artifact whose directory already exists, and CI restores
+    # ~/Library/Caches/org.swift.swiftpm from a prefix-matched cache. Once a run leaves that
+    # directory half-populated — which a *failed* run does, because Save Cache has no success()
+    # guard — every later run fails resolution with
+    #   failed downloading '...OpenSSL.xcframework.zip' ... already exists in file system
+    # and no amount of retrying clears it. Dropping just `artifacts/` costs one xcframework
+    # download per build and leaves the expensive part of the cache, `repositories/`, intact.
+    run("rm -rf ~/Library/Caches/org.swift.swiftpm/artifacts", check=False)
     try:
         run(
             "set -o pipefail && "
