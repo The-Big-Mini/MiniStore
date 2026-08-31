@@ -7,8 +7,14 @@
 //
 
 import Foundation
+import SideSign
 
 public enum AppConstants {
+    // features required for functioning
+    public static let mandatoryFeatures: Set<ALTFeature> = [
+        .appGroups
+    ]
+
     enum Proxy {
         static let address = "127.0.0.1"
         static let port = "51820"
@@ -49,6 +55,15 @@ public enum AppConstants {
         public static let defaultPort: UInt16 = 8080
     }
     public typealias PairingWebServer = WebTransferServer
+
+    public enum Anisette {
+        public static let hiddenBaseDirectoryName = ".anisette"
+        public static let appSupportSubdirectory = "SideStore"
+        public static let defaultDeviceSerialNumber = "0"
+        public static let defaultODAMetadataURL = "https://zzz.haus/oda.json"
+        public static let defaultClientInfo = "<MacBookPro18,3> <macOS;26.6;25F84> <com.apple.AuthKit/1 (com.apple.dt.Xcode/26.0)>"
+        public static let defaultUserAgent = "AuthKit/1 (Macintosh; OS X 26.6) (com.apple.dt.Xcode/26.0)"
+    }
 
     public static let pairingFileName = "ALTPairingFile.mobiledevicepairing"
     public static let accountConfigurationFileName = "Account.sideconf"
