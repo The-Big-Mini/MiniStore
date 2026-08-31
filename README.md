@@ -118,6 +118,8 @@ by Riley Testut. Credit for the foundation belongs to both projects.
 
 Yes. Guilty.
 
+<img src="screenshots/YouGotMe.jpg" alt="Walter White, hands raised: you got me" width="320">
+
 MiniStore is developed with [Claude Code](https://claude.com/claude-code), running Opus 5
 as the primary model. It writes the code, it writes the commit messages, and it wrote this
 section. Which is a strange thing to be told by a README.
