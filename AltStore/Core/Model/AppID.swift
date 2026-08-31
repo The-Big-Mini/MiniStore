@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-@preconcurrency import AltSign
+import SideSign
 
 @objc(AppID)
 public class AppID: BaseEntity
@@ -18,7 +18,7 @@ public class AppID: BaseEntity
     @NSManaged public var name: String
     @NSManaged public var identifier: String
     @NSManaged public var bundleIdentifier: String
-    @NSManaged public var features: [ALTFeature: Any]
+    @NSManaged public var features: [ALTFeature: String]
     @NSManaged public var expirationDate: Date?
     
     /* Relationships */
