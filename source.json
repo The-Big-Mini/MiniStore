@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260829.47+6281aa2d",
-              "date": "2026-08-29T19:23:30Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260829.47+6281aa2d\"\n  - revision: \"6281aa2d\"\n  - timestamp: \"Sat Aug 29 19:23:30 2026\"\n\n#### What's Changed:\n- Merge pull request #25 from The-Big-Mini/MiniStoreFork\n- fix(ci): pre-resolve packages so the archive doesn't eat SwiftPM's artifact race\n- fix(ci): drop the cached SPM artifacts dir before building\n- fix(ci): keep the reason attached to a swallowed build error\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix: auth srp client implementation had gaps in GSACryptoKit preventing sign-in with incorrect password\n- fixes for appIds customization overwriting the existing entity instead of creating new for different appid + added appending teamID to be optional/selectable\n- refine archive/zip fingerprinting for ipa sharing if nothing changed in the input interms of bundle contents\n- updated submodules to latest + api updates to make them match\n- remove unused security imports\n- move cache ownership to CacheAppOperation\n- cleanup: fix the log messages format\n\n#### Full Changelog: [df978e7b...6281aa2d](https://github.com/The-Big-Mini/MiniStore/compare/df978e7bbea58476c8a931839b27c38b0f6ab639...6281aa2d7733fb99476ee9875a5a0db742b8636f)\n",
+              "version": "0.6.4-20260831.50+39891d18",
+              "date": "2026-08-31T22:58:31Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260831.50+39891d18\"\n  - revision: \"39891d18\"\n  - timestamp: \"Mon Aug 31 22:58:31 2026\"\n\n#### What's Changed:\n- Merge pull request #26 from The-Big-Mini/MiniStoreFork\n- feat(readme): add the store-page screenshots and the AI slop meme\n- Merge upstream/develop (4a33c37b..3dc127ee) into MiniStoreFork\n- fix updateAppIDs in fetch profiles to operate on applicable features only\n- ensure errors from app layer do not use upstream error as their own\n- fix: was unconditionally processing appgroup\n- updated to latest sidesign\n- updated submodule to latest\n- updated submodule to latest\n- streamline anisette operations by directly delegating to sidesign\n- updated submodule to latest\n- fix: added capability to show errors during 2fa sequence and before prompting another retry\n- 2FA rework - added fully support for all types of 2FA handling and error responses + added guards to handlers so that when UI context is necessary but is not present let it error out so callers can handle properly\n- more compilation fixes + cleanup\n- updated to latest sidesign + cleanup of things\n- fix: ensure email field doesn't auto correct and tab puts curor onto password or next field\n- switch import statements from altsign to sidesign\n- updated submodules to latest\n- switch from altsign to sidesign\n\n#### Full Changelog: [6281aa2d...39891d18](https://github.com/The-Big-Mini/MiniStore/compare/6281aa2d7733fb99476ee9875a5a0db742b8636f...39891d185afca8f62f15e4c928bb31b147d05d04)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 26235358,
-              "sha256": "d6cf186483ae59147579b64fe2f41c96a7e335dbfb2aaa652a5310a3b3b11e21"
+              "size": 25396998,
+              "sha256": "f449896b3675fdc498d0b568d33ff3067f8ae813159617c4ff58dad22b28c279"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260829.47+6281aa2d",
-      "versionDate": "2026-08-29T19:23:30Z",
-      "size": 26235358,
-      "sha256": "d6cf186483ae59147579b64fe2f41c96a7e335dbfb2aaa652a5310a3b3b11e21",
+      "version": "0.6.4-20260831.50+39891d18",
+      "versionDate": "2026-08-31T22:58:31Z",
+      "size": 25396998,
+      "sha256": "f449896b3675fdc498d0b568d33ff3067f8ae813159617c4ff58dad22b28c279",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #25 from The-Big-Mini/MiniStoreFork\n- fix(ci): pre-resolve packages so the archive doesn't eat SwiftPM's artifact race\n- fix(ci): drop the cached SPM artifacts dir before building\n- fix(ci): keep the reason attached to a swallowed build error\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix: auth srp client implementation had gaps in GSACryptoKit preventing sign-in with incorrect password\n- fixes for appIds customization overwriting the existing entity instead of creating new for different appid + added appending teamID to be optional/selectable\n- refine archive/zip fingerprinting for ipa sharing if nothing changed in the input interms of bundle contents\n- updated submodules to latest + api updates to make them match\n- remove unused security imports\n- move cache ownership to CacheAppOperation\n- cleanup: fix the log messages format\n\n#### Full Changelog: [df978e7b...6281aa2d](https://github.com/The-Big-Mini/MiniStore/compare/df978e7bbea58476c8a931839b27c38b0f6ab639...6281aa2d7733fb99476ee9875a5a0db742b8636f)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #26 from The-Big-Mini/MiniStoreFork\n- feat(readme): add the store-page screenshots and the AI slop meme\n- Merge upstream/develop (4a33c37b..3dc127ee) into MiniStoreFork\n- fix updateAppIDs in fetch profiles to operate on applicable features only\n- ensure errors from app layer do not use upstream error as their own\n- fix: was unconditionally processing appgroup\n- updated to latest sidesign\n- updated submodule to latest\n- updated submodule to latest\n- streamline anisette operations by directly delegating to sidesign\n- updated submodule to latest\n- fix: added capability to show errors during 2fa sequence and before prompting another retry\n- 2FA rework - added fully support for all types of 2FA handling and error responses + added guards to handlers so that when UI context is necessary but is not present let it error out so callers can handle properly\n- more compilation fixes + cleanup\n- updated to latest sidesign + cleanup of things\n- fix: ensure email field doesn't auto correct and tab puts curor onto password or next field\n- switch import statements from altsign to sidesign\n- updated submodules to latest\n- switch from altsign to sidesign\n\n#### Full Changelog: [6281aa2d...39891d18](https://github.com/The-Big-Mini/MiniStore/compare/6281aa2d7733fb99476ee9875a5a0db742b8636f...39891d185afca8f62f15e4c928bb31b147d05d04)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260831.50+39891d18",
+      "title": "MiniStore Nightly — 0.6.4-20260831.50+39891d18",
+      "caption": "Merge pull request #26 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-08-31T22:58:31Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260829.47+6281aa2d",
       "title": "MiniStore Nightly — 0.6.4-20260829.47+6281aa2d",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260818.27+e6f1b9f4",
       "caption": "Merge pull request #20 from The-Big-Mini/MiniStoreFork",
       "date": "2026-08-18T06:24:19Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260818.26+dba49bac",
-      "title": "MiniStore Nightly — 0.6.4-20260818.26+dba49bac",
-      "caption": "Merge pull request #19 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-18T04:47:34Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
