@@ -40,7 +40,7 @@ final class IntentHandler: NSObject, RefreshAllIntentHandling
         // 10 seconds or longer results in timeout regardless.
         self.queue.asyncAfter(deadline: .now() + 8.0) {
             Task {
-                if await getMinimuxerStatus() == .ready {
+                if await isMinimuxerReady().isSuccess {
                     self.finish(intent, response: RefreshAllIntentResponse(code: .success, userActivity: nil))
                 } else {
                     self.finish(intent, response: RefreshAllIntentResponse(code: .failure, userActivity: nil))
@@ -91,7 +91,7 @@ final class IntentHandler: NSObject, RefreshAllIntentHandling
                     // so we'll now present a normal notification when finished.
                     operation.presentsFinishedNotification = true
                     Task {
-                        if await getMinimuxerStatus() == .ready {
+                        if await isMinimuxerReady().isSuccess {
                             self.finish(intent, response: RefreshAllIntentResponse(code: .success, userActivity: nil))
                         } else {
                             self.finish(intent, response: RefreshAllIntentResponse(code: .failure, userActivity: nil))
@@ -145,7 +145,7 @@ private extension IntentHandler
                 self.finish(intent, response: RefreshAllIntentResponse(code: .success, userActivity: nil))
                 UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
             }
-            catch ~RefreshErrorCode.noInstalledApps
+            catch OperationError.noInstalledApps
             {
                 self.finish(intent, response: RefreshAllIntentResponse(code: .success, userActivity: nil))
                 UIApplication.shared.perform(#selector(NSXPCConnection.suspend))

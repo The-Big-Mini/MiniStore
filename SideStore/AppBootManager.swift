@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import UIKit
+import Minimuxer
 
 public final class AppBootManager {
     public static let shared = AppBootManager()
@@ -46,12 +48,44 @@ public final class AppBootManager {
             debugLog("[AppBootManager] startMinimuxer(): Minimuxer fetchUDID() based connection test SUCCEEDED. UDID: \(deviceUDID ?? "nil")")
             self.needsPairingPrompt = false
         } catch {
-            if error.isMinimuxerPairingFile {
+            if case MinimuxerError.invalidPairing = error {
                 debugLog("[AppBootManager] startMinimuxer(): Minimuxer fetchUDID() based connection test FAILED. \(error)")
                 self.needsPairingPrompt = true
                 throw error
             } else {
                 debugLog("[AppBootManager] startMinimuxer(): Minimuxer fetchUDID() based connection test FAILED but PAIRING FILE IS VALID. \(error)")
+            }
+        }
+    }
+    
+    @MainActor
+    public func promptForPairing(on vc: UIViewController) async {
+        var isRetry = false
+        while true {
+            guard let selectedURL = await withCheckedContinuation({ (continuation: CheckedContinuation<URL?, Never>) in
+                PairingFileManager.shared.presentPairingFileAlert(on: vc, isRetry: isRetry) { selectedURL in
+                    debugLog("[AppBootManager] promptForPairing: alert completed with selectedURL: \(selectedURL?.path ?? "nil")")
+                    continuation.resume(returning: selectedURL)
+                }
+            }) else {
+                debugLog("[AppBootManager] promptForPairing: user skipped or cancelled pairing prompt")
+                break
+            }
+            
+            debugLog("[AppBootManager] promptForPairing: fetching pairing file at selectedURL: \(selectedURL.path)")
+            guard let pairingString = PairingFileManager.shared.fetchPairingFile() else {
+                debugLog("[AppBootManager] promptForPairing: failed to read saved pairing file from disk")
+                isRetry = true
+                continue
+            }
+            
+            do {
+                try await startMinimuxer(pairingFile: pairingString)
+                self.needsPairingPrompt = false
+                break
+            } catch {
+                debugLog("[AppBootManager] startMinimuxer failed with pairing file: \(error)")
+                isRetry = true
             }
         }
     }
