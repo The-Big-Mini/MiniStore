@@ -145,11 +145,12 @@ class MyAppsViewController: UICollectionViewController
         
         if minimuxerStatusCheckTask == nil {
             minimuxerStatusCheckTask = Task {
-                await updateStatusDot(with: getMinimuxerStatus())
+                let status = await isMinimuxerReady()
+                await updateStatusDot(isReady: status.isSuccess)
                 // Listen to subsequent updates reactively
                 for await result in minimuxerStatusPublisher.values {
                     guard !Task.isCancelled else { break }
-                    updateStatusDot(with: MinimuxerStatus.from(result))
+                    updateStatusDot(isReady: result.isSuccess)
                 }
             }
         }
@@ -202,7 +203,7 @@ class MyAppsViewController: UICollectionViewController
         return nil
     }
 
-    private func updateStatusDot(with status: MinimuxerStatus)
+    private func updateStatusDot(isReady: Bool)
     {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -213,9 +214,10 @@ class MyAppsViewController: UICollectionViewController
                 return
             }
             
-            let updateColorClosure: (MinimuxerStatus) -> Void = { [weak self] status in
+            let targetColor: UIColor = isReady ? .systemGreen : .systemRed
+            
+            let updateColorClosure: () -> Void = { [weak self] in
                 guard let self = self, let existingDot = self.statusDotView else { return }
-                let targetColor: UIColor = (status == .ready) ? .systemGreen : .systemRed
                 
                 if existingDot.backgroundColor != targetColor {
                     UIView.animate(withDuration: 0.25, delay: 0.0, options: [.beginFromCurrentState, .curveEaseInOut]) {
@@ -231,7 +233,7 @@ class MyAppsViewController: UICollectionViewController
             
             // If the dot is already created and attached to largeTitleView, just update color O(1)
             if let existingDot = self.statusDotView, existingDot.superview == largeTitleView {
-                updateColorClosure(status)
+                updateColorClosure()
                 return
             }
             
@@ -257,8 +259,7 @@ class MyAppsViewController: UICollectionViewController
                 dot.heightAnchor.constraint(equalToConstant: 7)
             ])
             
-            let animateEntranceClosure: (MinimuxerStatus) -> Void = { status in
-                let targetColor: UIColor = (status == .ready) ? .systemGreen : .systemRed
+            let animateEntranceClosure: () -> Void = {
                 dot.backgroundColor = targetColor
                 UIView.animate(withDuration: 0.35, delay: 0.1, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.8, options: [], animations: {
                     dot.transform = .identity
@@ -266,7 +267,7 @@ class MyAppsViewController: UICollectionViewController
                 }, completion: nil)
             }
             
-            animateEntranceClosure(status)
+            animateEntranceClosure()
             return
         }
     }
@@ -871,12 +872,12 @@ private extension MyAppsViewController
                    let storeApp = altstoreApp.storeApp, storeApp.isPledgeRequired && !storeApp.isPledged
                 {
                     // Assume the reason there are no apps is because we are no longer pledged to AltStore beta.
-                    error = OperationError(.pledgeInactive(appName: altstoreApp.name))
+                    error = OperationError.pledgeInactive(appName: altstoreApp.name)
                 }
                 else
                 {
                     // Otherwise, fall back to generic noInstalledApps.
-                    error = RefreshError(.noInstalledApps)
+                    error = OperationError.noInstalledApps
                 }
                 
                 let toastView = ToastView(error: error)
