@@ -27,36 +27,21 @@ final class SendAppOperation: BasePipelineOperation<InstallAppOperationContext, 
             throw OperationError.invalidParameters("SendAppOperation.main: self.resignedAppBundle is nil")
         }
 
-        let app = AnyApp(name: resignedAppBundle.name, bundleIdentifier: self.context.targetBundleIdentifier, url: resignedAppBundle.fileURL, storeApp: nil)
-        let fileURL = InstalledApp.refreshedIPAURL(for: app)
-        verboseLog("[SendAppOperation] AFC App `fileURL`: \(fileURL.absoluteString)")
+        let bundleIdentifier = self.context.targetBundleIdentifier
+        let appURL = resignedAppBundle.fileURL
+        verboseLog("[SendAppOperation] AFC App Bundle `fileURL`: \(appURL.absoluteString)")
 
-        // Cellular shortcut should only be executed below iOS 16.4 AND when explicitly enabled in settings
-        if #available(iOS 16.4, *) {
-            context.shouldTurnOffData = false
-        } else {
-            context.shouldTurnOffData = UserDefaults.standard.isCellularRefreshEnabled
-        }
-        
-        if self.context.shouldTurnOffData {
-            // Wait for Shortcut to Finish Before Proceeding
-            let shortcutURLoff = URL(string: "shortcuts://run-shortcut?name=TurnOffData")!
-            await UIApplication.shared.open(shortcutURLoff)
-            self.debugLog("[SendAppOperation] Shortcut finished execution. Proceeding with file transfer.")
-        }
-        
-        try await self.processFile(at: fileURL, for: app.bundleIdentifier)
-        return resignedAppBundle
-    }
-
-    private func processFile(at fileURL: URL, for bundleIdentifier: String) async throws {
         do {
-            let bytes = try Data(contentsOf: fileURL, options: .alwaysMapped)
-            try await yeetAppAFC(bundleIdentifier, bytes)
+            await CellularRefreshManager.shared.turnOffDataIfNeeded()
+            
+            try await sendAppBundleAfc(bundleIdentifier, at: appURL)
             self.setProgress(100)
         } catch {
-            debugLog("[SendAppOperation] Failed to read or send IPA at \(fileURL): \(error)")
+            await CellularRefreshManager.shared.turnOnDataIfNeeded()
+
+            debugLog("[SendAppOperation] Failed to send app bundle at \(appURL): \(error)")
             throw OperationError.appNotFound(name: bundleIdentifier)
         }
+        return resignedAppBundle
     }
 }
