@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260904.55+3fc1e3d2",
-              "date": "2026-09-04T05:36:32Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260904.55+3fc1e3d2\"\n  - revision: \"3fc1e3d2\"\n  - timestamp: \"Fri Sep  4 05:36:32 2026\"\n\n#### What's Changed:\n- Merge pull request #27 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- added support for viewing mach-O + embedded.mobileprovision info dumps\n- updated dependencies to latest\n- added mach-O parser display in bundle browser of app-info view\n- updated dev portal screen title\n- fix the revoke alert button color\n- add more words so that the revoke alert shows buttons stacked instead of cramped on same row\n- make revoke alert skip for paid accts since they can create new certs and not always need to revoke at least 1 existing as free accts\n- make revoke alert scrollable\n- added version number priting in console log header\n- fix: fetch profiles was not properly sanitizing name (apollo reborn uses widget name with parenthesis for word `(legacy)` causing server rejection) + was swallowing errors from sidesign's direct server call errors\n- fix: removed ddi mount from minimuxer start and restrict it to only debugApp() api\n- cleanup all other left over error types\n- rework operations logging\n- cleanup unused errors\n- cleanup: removed unused errors in minimuxer and replaced with original wherever possible\n- cleanup the minimuxer wrapper's unused error extensions\n- cleanup: ditch wrapper extension for minimuxerError since minimuxer layer error handling is more robust and we dont wanna mask it with app level extension wrapper\n- fix the minimuxer tcp connection probing + pairing file handling sequence\n- fix: appboot sequence for startminimuxer after loading pairing file was incorrect\n- added diag logging for the testDeviceConnection\n- updated submodule to latest - fixes the codesign issues within sidesign/codesignkit\n- logging improvements and updated submodules to latest\n- updated to latest\n- cleanup timestamp method to remove unused formatter input\n- added fast formatter + remove massive binary bloat which was due to inlining log calls\n- added fast formatter + remove massive binary bloat which was due to inlining log calls\n- fix toast on portal services + fixes for appgrp/devices detail view not showing data\n- implement portal services access\n- moved some things around for readability\n- fetch profiles is a single operation\n\n#### Full Changelog: [39891d18...3fc1e3d2](https://github.com/The-Big-Mini/MiniStore/compare/39891d185afca8f62f15e4c928bb31b147d05d04...3fc1e3d262c763b0b4afd92c2699bdacc9cfc039)\n",
+              "version": "0.6.4-20260905.56+54471d43",
+              "date": "2026-09-05T02:44:01Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260905.56+54471d43\"\n  - revision: \"54471d43\"\n  - timestamp: \"Sat Sep  5 02:44:01 2026\"\n\n#### What's Changed:\n- Merge pull request #28 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- cleanup the api\n- fix shortcut during register devices didnt have enough time\n- fix: delay was in wrong sequence\n- ensure main thread\n- cleanup - removed the _ prefix in variable naming\n- fixes for cell refresh - fetchUDID etc should be properly setting the state using shortcut\n- fix cellular refresh in refreshAppOperation\n- skip strict checking for wifi when in cellular refresh mode\n- disable notif coz we dont need it anymore since our exit to suspend strategy and self install is robust\n- fixed the self-reinstall suspend to home lifecycle by using a bgTask and letting installd to do the job so that only part pending is kill and is now deterministic\n- some more cleanup\n- some cleanup\n- mvoe cellular refresh shortcut management into own component\n- switched to app bundle for installation - removed unnecessary repackaging step into ipa\n- cleanup + update to latest\n\n#### Full Changelog: [3fc1e3d2...54471d43](https://github.com/The-Big-Mini/MiniStore/compare/3fc1e3d262c763b0b4afd92c2699bdacc9cfc039...54471d436075c51c1a2078c12a8d2fe05ff0c90d)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25658970,
-              "sha256": "c1e8627de1a9efef55a3e342dc59240040729de3828807240ebce507dfb02749"
+              "size": 25671126,
+              "sha256": "ca49be14514b3090474f128336b4de55b32bc464c41231c56075e0c79df5bc9e"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260904.55+3fc1e3d2",
-      "versionDate": "2026-09-04T05:36:32Z",
-      "size": 25658970,
-      "sha256": "c1e8627de1a9efef55a3e342dc59240040729de3828807240ebce507dfb02749",
+      "version": "0.6.4-20260905.56+54471d43",
+      "versionDate": "2026-09-05T02:44:01Z",
+      "size": 25671126,
+      "sha256": "ca49be14514b3090474f128336b4de55b32bc464c41231c56075e0c79df5bc9e",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #27 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- added support for viewing mach-O + embedded.mobileprovision info dumps\n- updated dependencies to latest\n- added mach-O parser display in bundle browser of app-info view\n- updated dev portal screen title\n- fix the revoke alert button color\n- add more words so that the revoke alert shows buttons stacked instead of cramped on same row\n- make revoke alert skip for paid accts since they can create new certs and not always need to revoke at least 1 existing as free accts\n- make revoke alert scrollable\n- added version number priting in console log header\n- fix: fetch profiles was not properly sanitizing name (apollo reborn uses widget name with parenthesis for word `(legacy)` causing server rejection) + was swallowing errors from sidesign's direct server call errors\n- fix: removed ddi mount from minimuxer start and restrict it to only debugApp() api\n- cleanup all other left over error types\n- rework operations logging\n- cleanup unused errors\n- cleanup: removed unused errors in minimuxer and replaced with original wherever possible\n- cleanup the minimuxer wrapper's unused error extensions\n- cleanup: ditch wrapper extension for minimuxerError since minimuxer layer error handling is more robust and we dont wanna mask it with app level extension wrapper\n- fix the minimuxer tcp connection probing + pairing file handling sequence\n- fix: appboot sequence for startminimuxer after loading pairing file was incorrect\n- added diag logging for the testDeviceConnection\n- updated submodule to latest - fixes the codesign issues within sidesign/codesignkit\n- logging improvements and updated submodules to latest\n- updated to latest\n- cleanup timestamp method to remove unused formatter input\n- added fast formatter + remove massive binary bloat which was due to inlining log calls\n- added fast formatter + remove massive binary bloat which was due to inlining log calls\n- fix toast on portal services + fixes for appgrp/devices detail view not showing data\n- implement portal services access\n- moved some things around for readability\n- fetch profiles is a single operation\n\n#### Full Changelog: [39891d18...3fc1e3d2](https://github.com/The-Big-Mini/MiniStore/compare/39891d185afca8f62f15e4c928bb31b147d05d04...3fc1e3d262c763b0b4afd92c2699bdacc9cfc039)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #28 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- cleanup the api\n- fix shortcut during register devices didnt have enough time\n- fix: delay was in wrong sequence\n- ensure main thread\n- cleanup - removed the _ prefix in variable naming\n- fixes for cell refresh - fetchUDID etc should be properly setting the state using shortcut\n- fix cellular refresh in refreshAppOperation\n- skip strict checking for wifi when in cellular refresh mode\n- disable notif coz we dont need it anymore since our exit to suspend strategy and self install is robust\n- fixed the self-reinstall suspend to home lifecycle by using a bgTask and letting installd to do the job so that only part pending is kill and is now deterministic\n- some more cleanup\n- some cleanup\n- mvoe cellular refresh shortcut management into own component\n- switched to app bundle for installation - removed unnecessary repackaging step into ipa\n- cleanup + update to latest\n\n#### Full Changelog: [3fc1e3d2...54471d43](https://github.com/The-Big-Mini/MiniStore/compare/3fc1e3d262c763b0b4afd92c2699bdacc9cfc039...54471d436075c51c1a2078c12a8d2fe05ff0c90d)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260905.56+54471d43",
+      "title": "MiniStore Nightly — 0.6.4-20260905.56+54471d43",
+      "caption": "Merge pull request #28 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-09-05T02:44:01Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260904.55+3fc1e3d2",
       "title": "MiniStore Nightly — 0.6.4-20260904.55+3fc1e3d2",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260818.29+4530c44d",
       "caption": "You got me...",
       "date": "2026-08-18T17:58:34Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260818.28+84c18aa2",
-      "title": "MiniStore Nightly — 0.6.4-20260818.28+84c18aa2",
-      "caption": "Merge pull request #21 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-18T17:05:55Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
