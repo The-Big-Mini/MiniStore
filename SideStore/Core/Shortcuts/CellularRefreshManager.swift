@@ -1,0 +1,160 @@
+//
+//  CellularRefreshManager.swift
+//  SideStore
+//
+//  Created by Magesh K on 4/9/26.
+//  Copyright © 2026 SideStore. All rights reserved.
+//
+
+import Foundation
+import UIKit
+import Network
+
+public final class CellularRefreshManager: @unchecked Sendable {
+    public static let shared = CellularRefreshManager()
+
+    private let lock = NSLock()
+    private var cachedDidTurnOffData = false
+    public var didTurnOffData: Bool {
+        get { lock.withLock { cachedDidTurnOffData } }
+        set { lock.withLock { cachedDidTurnOffData = newValue } }
+    }
+
+    private var cachedIsCellularActive = false
+    public var isCellularActive: Bool {
+        lock.withLock { cachedIsCellularActive }
+    }
+
+    private var cellularMonitor: NWPathMonitor?
+    private let monitorQueue = DispatchQueue(label: "com.sidestore.cellular.monitor", qos: .utility)
+    private var isMonitoring = false
+
+    private init() {}
+
+    public var isSupported: Bool {
+        #if os(tvOS)
+        return false
+        #else
+        return true
+        #endif
+    }
+
+    public var isEnabled: Bool {
+        return UserDefaults.standard.isCellularRefreshEnabled
+    }
+
+    public func setEnabled(_ enabled: Bool) {
+        UserDefaults.standard.isCellularRefreshEnabled = enabled
+        startMonitorIfRequired()
+        if enabled {
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+    }
+
+    public func startMonitorIfRequired() {
+        #if !os(tvOS)
+        lock.withLock {
+            guard isEnabled else {
+                if isMonitoring {
+                    cellularMonitor?.cancel()
+                    cellularMonitor = nil
+                    isMonitoring = false
+                    cachedIsCellularActive = false
+                    debugLog("[CellularRefreshManager] Cellular refresh disabled, stopped monitor.")
+                }
+                return
+            }
+
+            guard !isMonitoring else { return }
+
+            let monitor = NWPathMonitor(requiredInterfaceType: .cellular)
+            cachedIsCellularActive = (monitor.currentPath.status == .satisfied)
+            monitor.pathUpdateHandler = { [weak self] path in
+                guard let self else { return }
+                let isSatisfied = (path.status == .satisfied)
+                self.lock.withLock {
+                    self.cachedIsCellularActive = isSatisfied
+                }
+                debugLog("[CellularRefreshManager] Cellular path updated: isSatisfied=\(isSatisfied), didTurnOffData=\(self.didTurnOffData)")
+            }
+            monitor.start(queue: monitorQueue)
+            self.cellularMonitor = monitor
+            self.isMonitoring = true
+            debugLog("[CellularRefreshManager] Started cellular path monitor.")
+        }
+        #endif
+    }
+
+    @MainActor
+    private func openShortcut(url: URL) async -> Bool {
+        debugLog("[CellularRefreshManager] Opening shortcut URL: \(url.absoluteString)")
+        let success = await UIApplication.shared.open(url)
+        debugLog("[CellularRefreshManager] Shortcut URL open completed with success: \(success)")
+        return success
+    }
+
+    @discardableResult
+    private func turnOffData() async -> Bool {
+        debugLog("[CellularRefreshManager] Executing TurnOffData shortcut...")
+        let success = await openShortcut(url: AppConstants.Shortcuts.turnOffDataURL)
+        debugLog("[CellularRefreshManager] TurnOffData shortcut finished execution.")
+        return success
+    }
+
+    @discardableResult
+    private func turnOnData() async -> Bool {
+        debugLog("[CellularRefreshManager] Executing turnOnData shortcut...")
+        let success = await openShortcut(url: AppConstants.Shortcuts.turnOnDataURL)
+        debugLog("[CellularRefreshManager] turnOnData shortcut finished execution.")
+        return success
+    }
+
+    private func sleep(baseDelay: TimeInterval, addOnDelay: TimeInterval = 0) async {
+        let totalDelay = baseDelay + addOnDelay
+        guard totalDelay > 0 else { return }
+        try? await Task.sleep(nanoseconds: UInt64(totalDelay * 1_000_000_000))
+    }
+
+    // public apis
+    @discardableResult
+    public func turnOffDataIfNeeded(addOnDelay: TimeInterval = 0) async -> Bool {
+        guard isSupported && isEnabled else { return false }
+        guard !didTurnOffData else { return false }
+
+        startMonitorIfRequired()
+
+        // Check nw monitor tracked state: only turn off if cellular is active
+        guard isCellularActive else {
+            debugLog("[CellularRefreshManager] Cellular data is already off or inactive, skipping turnOff.")
+            return false
+        }
+
+        let success = await turnOffData()
+        if success {
+            didTurnOffData = true
+            await sleep(baseDelay: 1.0, addOnDelay: addOnDelay)
+        }
+        return success
+    }
+
+    @discardableResult
+    public func turnOnDataIfNeeded(addOnDelay: TimeInterval = 0) async -> Bool {
+        guard didTurnOffData else { return false }
+
+        startMonitorIfRequired()
+
+        // Check if target state was already achieved externally
+        if isCellularActive {
+            debugLog("[CellularRefreshManager] Cellular data is already active externally, skipping turnOn.")
+            didTurnOffData = false
+            return true
+        }
+
+        let success = await turnOnData()
+        if success {
+            didTurnOffData = false
+        }
+        await sleep(baseDelay: 0.5, addOnDelay: addOnDelay)
+        return success
+    }
+}
