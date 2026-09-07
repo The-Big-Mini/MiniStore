@@ -202,7 +202,7 @@ final class DownloadAppOperation: BasePipelineOperation<InstallAppOperationConte
         guard let appBundle = ALTApplication(fileURL: appBundleURL) else { throw OperationError.invalidApp }
 
         // perform cleanup of the temp files
-        if(FileManager.default.fileExists(atPath: fileURL.path)){
+        if !sourceURL.isFileURL && FileManager.default.fileExists(atPath: fileURL.path) {
             verboseLog("[DownloadAppOperation] Removing downloaded temp file at: \(fileURL.path)")
             do {
                 try FileManager.default.removeItem(at: fileURL)

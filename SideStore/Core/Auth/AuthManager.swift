@@ -60,9 +60,23 @@ public final class AuthManager: @unchecked Sendable {
     public func signOut(keepCertificate: Bool = false, keepAnisetteData: Bool = true) {
         self.session = nil
         self.team = nil
-        CertificateManager.shared.clearActiveCertificate()
+        if !keepCertificate {
+            debugLog("[AuthManager] Clearing signing certificate in cert manager and keychain.")
+            CertificateManager.shared.clearActiveCertificate()
+            debugLog("[AuthManager] Cleared signing certificate in cert manager and keychain.")
+
+        } else {
+            debugLog("[AuthManager] Preserved signing certificate in cert manager and keychain.")
+        }
+        debugLog("[AuthManager] Clearing account and team info in database.")
         DatabaseManager.shared.deactivateActiveAccountAndTeam()
-        Keychain.shared.reset(keepCertificate: keepCertificate, keepAnisetteData: keepAnisetteData)
+        debugLog("[AuthManager] Cleared account and team info in database.")
+
+        debugLog("[AuthManager] Clearing sign-in info from keychain.")
+        Keychain.shared.clearSignInInfo(keepAnisetteData: keepAnisetteData)
+        debugLog("[AuthManager] Cleared sign-in info from keychain.")
+
+        AnisetteDataManager.shared.clearCache()
     }
     
     @discardableResult
@@ -100,8 +114,21 @@ public final class AuthManager: @unchecked Sendable {
         return try await self.portalService.fetchAccount(session: session)
     }
     
-    public func authenticate(appleID: String, password: String, anisetteData: ALTAnisetteData, xcodeVersion: String, verificationHandler: DeveloperPortal.VerificationHandler?) async throws -> (ALTAccount, ALTAppleAPISession) {
-        return try await self.portalService.authenticate(appleID: appleID, password: password, anisetteData: anisetteData, xcodeVersion: xcodeVersion, verificationHandler: verificationHandler)
+    public func authenticate(appleID: String, 
+                             password: String, 
+                             anisetteData: ALTAnisetteData, 
+                             xcodeVersion: String, 
+                             accountRepairHandler: DeveloperPortal.AccountRepairHandler = DeveloperPortal.defaultAccountRepairHandler,
+                             verificationHandler: DeveloperPortal.VerificationHandler?) async throws -> (ALTAccount, ALTAppleAPISession) 
+    {
+        return try await self.portalService.authenticate(
+            appleID: appleID, 
+            password: password, 
+            anisetteData: anisetteData, 
+            xcodeVersion: xcodeVersion, 
+            accountRepairHandler: accountRepairHandler, 
+            verificationHandler: verificationHandler
+        )
     }
     
     public func authenticateWithToken(adsid: String, xcodeToken: String, anisetteData: ALTAnisetteData, xcodeVersion: String) async throws -> (ALTAccount, ALTAppleAPISession) {
