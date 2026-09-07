@@ -40,6 +40,31 @@ public struct AnisetteConfig: Codable, Equatable {
 public actor AnisetteConfigManager {
     public static let shared = AnisetteConfigManager()
     
+    public nonisolated var anisetteIdentifier: String? {
+        get { Keychain.shared.identifier }
+        set { Keychain.shared.identifier = newValue }
+    }
+    
+    public nonisolated var anisetteAdiBlob: String? {
+        get { Keychain.shared.adiPb }
+        set { Keychain.shared.adiPb = newValue }
+    }
+    
+    public func resolveDeviceIdentifier() -> UUID {
+        if let storedId = anisetteIdentifier, !storedId.isEmpty {
+            if let parsed = UUID(uuidString: storedId) {
+                return parsed
+            }
+            if let data = Data(base64Encoded: storedId), data.count == 16 {
+                let uuid = data.withUnsafeBytes { UUID(uuid: $0.load(as: uuid_t.self)) }
+                return uuid
+            }
+        }
+        let generated = UUID()
+        anisetteIdentifier = generated.uuidString
+        return generated
+    }
+    
     private var configFileURL: URL {
         let libraryDirectory = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first!
         return libraryDirectory.appendingPathComponent("anisette-config.json")

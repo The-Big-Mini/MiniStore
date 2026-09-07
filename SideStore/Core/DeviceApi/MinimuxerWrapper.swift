@@ -12,6 +12,7 @@ import Combine
 
 public var selectedGatewayBackendCache: GatewayBackend = .idevice
 public var remotePairingPortCache: UInt16 = MinimuxerConstants.remotePairingPort
+public var deviceProbeTimeoutCache: Int = MinimuxerConstants.defaultTCPProbeTimeoutMs
 
 public func syncMinimuxerBackendFromUserDefaults() {
     let raw = UserDefaults.standard.minimuxerGatewayBackend
@@ -23,10 +24,21 @@ public func syncMinimuxerBackendFromUserDefaults() {
     } else {
         remotePairingPortCache = MinimuxerConstants.remotePairingPort
     }
+
+    let overrideTimeout = UserDefaults.standard.deviceProbeTimeoutOverride
+    if overrideTimeout > 0 {
+        deviceProbeTimeoutCache = overrideTimeout
+    } else {
+        deviceProbeTimeoutCache = MinimuxerConstants.defaultTCPProbeTimeoutMs
+    }
 }
 
 var minimuxer: any MinimuxerFacade {
-    Minimuxer.shared(backend: selectedGatewayBackendCache, remotePairingPort: remotePairingPortCache)
+    Minimuxer.shared(
+        backend: selectedGatewayBackendCache,
+        remotePairingPort: remotePairingPortCache,
+        deviceProbeTimeout: deviceProbeTimeoutCache
+    )
 }
 
 private func resolveDiscoveredRemotePairingPort() async -> UInt16? {
@@ -77,7 +89,7 @@ private func withRemotePairingRetry<T>(_ operation: () async throws -> T) async 
     do {
         return try await operation()
     } catch {
-        guard minimuxer.gateway.isRPPairing else { throw error }
+        guard minimuxer.gateway.pairingFileType == .rppairing else { throw error }
 
         if let newPort = await resolveDiscoveredRemotePairingPortThrottled(), newPort != remotePairingPortCache {
             debugLog("[SideStore] Operation failed, updating RemotePairing port from \(remotePairingPortCache) -> \(newPort) and retrying...")
@@ -333,6 +345,24 @@ func minimuxerSetLogging(_ enabled: Bool) {
     #endif
 }
 
+public func minimuxerGetDeviceProbeTimeout() -> Int {
+    #if targetEnvironment(simulator)
+    return deviceProbeTimeoutCache
+    #else
+    return minimuxer.core.deviceProbeTimeout
+    #endif
+}
+
+public func minimuxerSetDeviceProbeTimeout(_ timeoutMs: Int) {
+    defer { debugLog("[SideStore] minimuxerSetDeviceProbeTimeout(\(timeoutMs)) completed") }
+    debugLog("[SideStore] minimuxerSetDeviceProbeTimeout(\(timeoutMs)) invoked")
+    deviceProbeTimeoutCache = timeoutMs
+    UserDefaults.standard.deviceProbeTimeoutOverride = (timeoutMs == MinimuxerConstants.defaultTCPProbeTimeoutMs) ? 0 : timeoutMs
+    #if !targetEnvironment(simulator)
+    minimuxer.core.setDeviceProbeTimeout(timeoutMs)
+    #endif
+}
+
 extension Result {
     var isSuccess: Bool {
         if case .success = self { return true }
@@ -352,13 +382,11 @@ func minimuxerRestart() async throws {
 public struct MinimuxerPairedDevice: Codable, Sendable {
     public let name: String
     public let model: String
-    public let udid: String
     public let pairingFilePath: String
     
-    public init(name: String, model: String, udid: String, pairingFilePath: String) {
+    public init(name: String, model: String, pairingFilePath: String) {
         self.name = name
         self.model = model
-        self.udid = udid
         self.pairingFilePath = pairingFilePath
     }
 }
@@ -426,7 +454,6 @@ public final class WirelessPairWrapper {
                 completion(.success(MinimuxerPairedDevice(
                     name: device.name,
                     model: device.model,
-                    udid: device.udid,
                     pairingFilePath: device.pairingFilePath
                 )))
             case .failure(let error):
@@ -461,7 +488,6 @@ public final class WirelessPairWrapper {
                 completion(.success(MinimuxerPairedDevice(
                     name: device.name,
                     model: device.model,
-                    udid: device.udid,
                     pairingFilePath: device.pairingFilePath
                 )))
             case .failure(let error):

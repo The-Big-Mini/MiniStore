@@ -145,10 +145,15 @@ final class ResignAppOperation: BasePipelineOperation<InstallAppOperationContext
             throw OperationError.missingInfoPlist
         }
         
-        if let forcedBundleIdentifier = appexBundleIds[identifier] {
-            infoDictionary[kCFBundleIdentifierKey as String] = forcedBundleIdentifier
-        } else {
-            infoDictionary[kCFBundleIdentifierKey as String] = profile.bundleIdentifier
+        let newBundleID = appexBundleIds[identifier] ?? profile.bundleIdentifier
+        infoDictionary[kCFBundleIdentifierKey as String] = newBundleID
+
+        // Fix-up BGTaskScheduler identifiers so they stay under the new bundle ID.
+        // Otherwise bg register() and submit() both succeed and the handler is never
+        // called, with no error surfaced to the app.
+        if identifier != newBundleID, let taskIDs = infoDictionary["BGTaskSchedulerPermittedIdentifiers"] as? [String] {
+            let taskIDs = self.rewrittenTaskSchedulerIdentifiers(taskIDs, from: identifier, to: newBundleID)
+            infoDictionary["BGTaskSchedulerPermittedIdentifiers"] = taskIDs
         }
 
         infoDictionary[Bundle.Info.altBundleID] = identifier
@@ -222,5 +227,24 @@ final class ResignAppOperation: BasePipelineOperation<InstallAppOperationContext
         
         // Save updated Manifest.plist to disk.
         try manifestPlist.write(to: manifestPlistURL)
+    }
+
+    private func rewrittenTaskSchedulerIdentifiers(_ taskIDs: [String], from originalBundleID: String, to newBundleID: String) -> [String] {
+        var seen = Set<String>()
+        var rewrittenTaskIDs = [String]()
+        for taskID in taskIDs {
+            let rewritten: String
+            if taskID == newBundleID || taskID.hasPrefix(newBundleID + ".") {
+                rewritten = taskID
+            } else if taskID == originalBundleID || taskID.hasPrefix(originalBundleID + ".") {
+                rewritten = newBundleID + taskID.dropFirst(originalBundleID.count)
+            } else {
+                rewritten = taskID
+            }
+            if seen.insert(rewritten).inserted {
+                rewrittenTaskIDs.append(rewritten)
+            }
+        }
+        return rewrittenTaskIDs
     }
 }
