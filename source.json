@@ -10,12 +10,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.6.4-20260905.56+54471d43",
-              "date": "2026-09-05T02:44:01Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260905.56+54471d43\"\n  - revision: \"54471d43\"\n  - timestamp: \"Sat Sep  5 02:44:01 2026\"\n\n#### What's Changed:\n- Merge pull request #28 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- cleanup the api\n- fix shortcut during register devices didnt have enough time\n- fix: delay was in wrong sequence\n- ensure main thread\n- cleanup - removed the _ prefix in variable naming\n- fixes for cell refresh - fetchUDID etc should be properly setting the state using shortcut\n- fix cellular refresh in refreshAppOperation\n- skip strict checking for wifi when in cellular refresh mode\n- disable notif coz we dont need it anymore since our exit to suspend strategy and self install is robust\n- fixed the self-reinstall suspend to home lifecycle by using a bgTask and letting installd to do the job so that only part pending is kill and is now deterministic\n- some more cleanup\n- some cleanup\n- mvoe cellular refresh shortcut management into own component\n- switched to app bundle for installation - removed unnecessary repackaging step into ipa\n- cleanup + update to latest\n\n#### Full Changelog: [3fc1e3d2...54471d43](https://github.com/The-Big-Mini/MiniStore/compare/3fc1e3d262c763b0b4afd92c2699bdacc9cfc039...54471d436075c51c1a2078c12a8d2fe05ff0c90d)\n",
+              "version": "0.6.4-20260907.60+60b05f23",
+              "date": "2026-09-07T18:47:41Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.6.4-20260907.60+60b05f23\"\n  - revision: \"60b05f23\"\n  - timestamp: \"Mon Sep  7 18:47:41 2026\"\n\n#### What's Changed:\n- Merge pull request #29 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- refactors for sidesign and anisetteKit changes (caching anisette is now taken care by sidesign)\n- fix: resign was deadlocked due to coalescer wrapper, moved it inside do catch to always run finalizers\n- make port number not have delimiters\n- fix: bg task ids in the info.plist wasn't properly was missing fix-up to account for the resigned ids\n- fix auth messaging when doing 2FA\n- fix sms 2fa challenge in auth\n- we don't have available modes so show preferred mode as default and show others too\n- fixes for the tunnel config auto discovery for device endpoint (more focused on interested ips + parallel probing for device service port)\n- make user friendly by making \"repair\" and \"2fa\" handlers throwable\n- fix \"repair\" type response for non-2fa accts\n- fix: \"repair\" type response during GSA wasn't being handled properly and sent to callers\n- fix signout flow and refine keychain management with proper ownership in authmanager, certmanager\n- fix: do not trigger clearActiveCertificate which internally clears keychain certs too during signout if not desired\n- simplify nw path monitoring my reusing minimuxer's nw api pathPublisher\n- make tcp probe timeout configurable in developer options\n- updated minimuxer to latest (tcpprobe is now configurable) + api changes in gateway\n- updated to upstream for lc+ss entitlements processing fixes in SideSign AppBundleSigner.prepare()\n\n#### Full Changelog: [54471d43...60b05f23](https://github.com/The-Big-Mini/MiniStore/compare/54471d436075c51c1a2078c12a8d2fe05ff0c90d...60b05f236fd471e39e120b8992cb7391be110b0a)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 25671126,
-              "sha256": "ca49be14514b3090474f128336b4de55b32bc464c41231c56075e0c79df5bc9e"
+              "size": 25685872,
+              "sha256": "b379cb8dd640b0a16e7fa88752ddd02ca12cd59943aaa616157fdfc11edea2c1"
             }
           ]
         }
@@ -32,16 +32,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.6.4-20260905.56+54471d43",
-      "versionDate": "2026-09-05T02:44:01Z",
-      "size": 25671126,
-      "sha256": "ca49be14514b3090474f128336b4de55b32bc464c41231c56075e0c79df5bc9e",
+      "version": "0.6.4-20260907.60+60b05f23",
+      "versionDate": "2026-09-07T18:47:41Z",
+      "size": 25685872,
+      "sha256": "b379cb8dd640b0a16e7fa88752ddd02ca12cd59943aaa616157fdfc11edea2c1",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #28 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- cleanup the api\n- fix shortcut during register devices didnt have enough time\n- fix: delay was in wrong sequence\n- ensure main thread\n- cleanup - removed the _ prefix in variable naming\n- fixes for cell refresh - fetchUDID etc should be properly setting the state using shortcut\n- fix cellular refresh in refreshAppOperation\n- skip strict checking for wifi when in cellular refresh mode\n- disable notif coz we dont need it anymore since our exit to suspend strategy and self install is robust\n- fixed the self-reinstall suspend to home lifecycle by using a bgTask and letting installd to do the job so that only part pending is kill and is now deterministic\n- some more cleanup\n- some cleanup\n- mvoe cellular refresh shortcut management into own component\n- switched to app bundle for installation - removed unnecessary repackaging step into ipa\n- cleanup + update to latest\n\n#### Full Changelog: [3fc1e3d2...54471d43](https://github.com/The-Big-Mini/MiniStore/compare/3fc1e3d262c763b0b4afd92c2699bdacc9cfc039...54471d436075c51c1a2078c12a8d2fe05ff0c90d)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #29 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- refactors for sidesign and anisetteKit changes (caching anisette is now taken care by sidesign)\n- fix: resign was deadlocked due to coalescer wrapper, moved it inside do catch to always run finalizers\n- make port number not have delimiters\n- fix: bg task ids in the info.plist wasn't properly was missing fix-up to account for the resigned ids\n- fix auth messaging when doing 2FA\n- fix sms 2fa challenge in auth\n- we don't have available modes so show preferred mode as default and show others too\n- fixes for the tunnel config auto discovery for device endpoint (more focused on interested ips + parallel probing for device service port)\n- make user friendly by making \"repair\" and \"2fa\" handlers throwable\n- fix \"repair\" type response for non-2fa accts\n- fix: \"repair\" type response during GSA wasn't being handled properly and sent to callers\n- fix signout flow and refine keychain management with proper ownership in authmanager, certmanager\n- fix: do not trigger clearActiveCertificate which internally clears keychain certs too during signout if not desired\n- simplify nw path monitoring my reusing minimuxer's nw api pathPublisher\n- make tcp probe timeout configurable in developer options\n- updated minimuxer to latest (tcpprobe is now configurable) + api changes in gateway\n- updated to upstream for lc+ss entitlements processing fixes in SideSign AppBundleSigner.prepare()\n\n#### Full Changelog: [54471d43...60b05f23](https://github.com/The-Big-Mini/MiniStore/compare/54471d436075c51c1a2078c12a8d2fe05ff0c90d...60b05f236fd471e39e120b8992cb7391be110b0a)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.6.4-20260907.60+60b05f23",
+      "title": "MiniStore Nightly — 0.6.4-20260907.60+60b05f23",
+      "caption": "Merge pull request #29 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-09-07T18:47:41Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.6.4-20260905.56+54471d43",
       "title": "MiniStore Nightly — 0.6.4-20260905.56+54471d43",
@@ -111,14 +119,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260820.32+5119a0e7",
       "caption": "Merge branch 'SideStore:develop' into develop",
       "date": "2026-08-20T05:06:32Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260818.29+4530c44d",
-      "title": "MiniStore Nightly — 0.6.4-20260818.29+4530c44d",
-      "caption": "You got me...",
-      "date": "2026-08-18T17:58:34Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
