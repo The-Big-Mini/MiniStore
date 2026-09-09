@@ -18,7 +18,12 @@ enum ProvisioningErrorDecision {
     case cancel
 }
 
-protocol AuthenticationHandler: AnyObject {
+enum RevokeDecision {
+    case keepExisting
+    case revokeSelected([ALTX509Certificate])
+}
+
+protocol SignInHandler: AnyObject {
     func credentials() async throws -> (String, String)
     func verificationCode(for request: TwoFactorRequest) async throws -> TwoFactorResponse
     func accountRepair(url: URL, message: String) async -> AccountRepairDecision
@@ -29,7 +34,7 @@ protocol AuthenticationHandler: AnyObject {
     func resolvePostAuth() async
     
     func resolveRevocation(certificates: [ALTX509Certificate], teamType: ALTTeamType) async throws -> RevokeDecision
-    func resolveResign(mismatchReason: CodeSignValidationReason, context: AuthenticatedOperationContext) async throws -> Bool
+    func resolveResign(mismatchReason: CodeSignValidationReason, context: StandaloneOperationContext) async throws -> Bool
     
     func complete() async
 }

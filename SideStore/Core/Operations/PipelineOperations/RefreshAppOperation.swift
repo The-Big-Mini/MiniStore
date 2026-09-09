@@ -40,9 +40,7 @@ final class RefreshAppOperation: BasePipelineOperation<InstallAppOperationContex
         }
         
         self.setProgress(80)
-        guard let dbContext = self.context.dbBackgroundContext else {
-            throw OperationError.invalidParameters("RefreshAppOperation: context.dbBackgroundContext is nil")
-        }
+        let dbContext = self.context.dbBackgroundContext
         
         let installedApp = try await dbContext.perform {
             try self.updateInstalledApp(for: appBundle, profiles: profiles, in: dbContext)

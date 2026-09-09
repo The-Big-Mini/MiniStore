@@ -29,9 +29,7 @@ final class DeactivateAppOperation: BasePipelineOperation<PipelineOperationConte
         try await super.executePreconditionCheck(parentProgress: parentProgress)
         self.setProgress(10)
         
-        guard let backgroundContext = self.context.dbBackgroundContext else {
-            throw OperationError.invalidParameters("DeactivateAppOperation: context.dbBackgroundContext is nil")
-        }
+        let backgroundContext = self.context.dbBackgroundContext
         
         guard let app = self.app else {
             throw OperationError.invalidParameters("DeactivateAppOperation: target app is nil")

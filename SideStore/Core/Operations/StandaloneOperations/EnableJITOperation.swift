@@ -45,11 +45,11 @@ final class EnableJITOperation: BaseStandaloneOperation<StandaloneOperationConte
     private func enableJIT(for installedApp: InstalledApp) async throws
     {
         let userdefaults = UserDefaults.standard
-        let dbContext = self.context.dbBackgroundContext ?? installedApp.managedObjectContext
+        let dbContext = self.context.dbBackgroundContext
 
-        let (targetBundleId, appName) = await dbContext?.perform {
+        let (targetBundleId, appName) = await dbContext.perform {
             (installedApp.resignedBundleIdentifier, installedApp.name)
-        } ?? (installedApp.resignedBundleIdentifier, installedApp.name)
+        }
 
         if #available(iOS 17, *), userdefaults.isSideJITServerEnabled {
             let sideJITURLString = await SideJITManager.shared.resolveServerURL()

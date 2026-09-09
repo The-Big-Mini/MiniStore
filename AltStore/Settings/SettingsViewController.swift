@@ -138,6 +138,22 @@ extension SettingsViewController
         // No `userCustomizations` row: PR #23 promoted User Customizations to a root
         // Category. Upstream still lists it here; re-adding it on a merge would put a
         // second entry point in Advanced and shift every row index past it.
+
+        // Upstream's dynamic list — `cellForRowAt` and `heightForRowAt` remap through
+        // `rawValue`, so the case order must still match the storyboard's nine cells.
+        static var allCases: [AdvancedSettingsRow] {
+            var rows: [AdvancedSettingsRow] = [.sendFeedback, .refreshAttempts, .refreshSideJITServer, .resetPairingFile]
+            if !UserDefaults.standard.useOnDeviceAnisette {
+                rows.append(.anisetteServers)
+            }
+            rows.append(contentsOf: [
+                .connectionConfig,
+                .developerServices,
+                .certificateManagement,
+                .backupAndRestore
+            ])
+            return rows
+        }
     }
 
     private enum BetaTestingRow: Int, CaseIterable {
@@ -484,7 +500,7 @@ private extension SettingsViewController
         let currentActiveTeam = DatabaseManager.shared.activeTeam()
         verboseLog("[SettingsVC] update() called. activeTeam: \(currentActiveTeam?.identifier ?? "nil"), account: \(currentActiveTeam?.account.appleID ?? "nil")")
         
-        if let team = currentActiveTeam
+        if let team = currentActiveTeam, AuthManager.shared.isAuthenticated
         {
             self.accountNameLabel.text = team.name
             self.accountEmailLabel.text = team.account.appleID
@@ -672,7 +688,7 @@ private extension SettingsViewController
     func signIn()
     {
         debugLog("[SettingsVC] signIn() invoked by user action")
-        AppManager.shared.authenticate(presentingViewController: self) { [weak self] (result) in
+        AppManager.shared.signIn(presentingViewController: self) { [weak self] (result) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 switch result
@@ -1057,7 +1073,14 @@ extension SettingsViewController
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
-        return super.tableView(tableView, heightForRowAt: indexPath)
+        let effectiveIndexPath: IndexPath
+        if Section.allCases[indexPath.section] == .advancedSettings {
+            let row = AdvancedSettingsRow.allCases[indexPath.row]
+            effectiveIndexPath = IndexPath(row: row.rawValue, section: indexPath.section)
+        } else {
+            effectiveIndexPath = indexPath
+        }
+        return super.tableView(tableView, heightForRowAt: effectiveIndexPath)
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
@@ -1077,7 +1100,14 @@ extension SettingsViewController
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        let effectiveIndexPath: IndexPath
+        if Section.allCases[indexPath.section] == .advancedSettings {
+            let row = AdvancedSettingsRow.allCases[indexPath.row]
+            effectiveIndexPath = IndexPath(row: row.rawValue, section: indexPath.section)
+        } else {
+            effectiveIndexPath = indexPath
+        }
+        let cell = super.tableView(tableView, cellForRowAt: effectiveIndexPath)
         
 
         if AppRefreshRow.AllCases().count == 1

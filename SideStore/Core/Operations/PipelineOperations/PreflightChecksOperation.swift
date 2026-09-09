@@ -10,11 +10,11 @@
 import Foundation
 import SideSign
 
-final class PreflightChecksOperation: BasePipelineOperation<AuthenticatedOperationContext, Bool>, @unchecked Sendable {
+final class PreflightChecksOperation: BasePipelineOperation<StandaloneOperationContext, Bool>, @unchecked Sendable {
     let operations: [AppOperation]
     let handler: PreflightChecksHandler?
 
-    init(operations: [AppOperation], handler: PreflightChecksHandler?, context: AuthenticatedOperationContext) throws {
+    init(operations: [AppOperation], handler: PreflightChecksHandler?, context: StandaloneOperationContext) throws {
         self.operations = operations
         self.handler = handler
         try super.init(context: context)
@@ -30,7 +30,7 @@ final class PreflightChecksOperation: BasePipelineOperation<AuthenticatedOperati
         try await super.executePreconditionCheck(parentProgress: parentProgress)
         self.setProgress(10)
 
-        let currentTeam = self.context.team ?? AuthManager.shared.team
+        let currentTeam = AuthManager.shared.team
         let currentTeamID = currentTeam?.identifier
 
         let startProgress = self.progress.completedUnitCount

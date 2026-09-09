@@ -9,12 +9,13 @@
 @preconcurrency import UIKit
 import Foundation
 import SideSign
+import CoreData
 
 public final class AuthManager: @unchecked Sendable {
     public static let shared = AuthManager()
     
-    private var portalService: DeveloperPortalAuthService {
-        DeveloperPortalService.shared as! DeveloperPortalAuthService
+    private var portalProxy: DeveloperPortalProxyWithAuth {
+        DeveloperPortalProxy.shared as! DeveloperPortalProxyWithAuth
     }
     
     private init() {}
@@ -80,59 +81,102 @@ public final class AuthManager: @unchecked Sendable {
     }
     
     @discardableResult
-    func authenticate(
-        presentingViewController: UIViewController? = nil,
-        context: AuthenticatedOperationContext? = nil,
-        skipDeviceRegistration: Bool = false,
-        skipCertificateProvisioning: Bool = false
-    ) async throws -> AuthenticationResult {
-        let effectiveContext: AuthenticatedOperationContext
-        if let context = context {
-            effectiveContext = context
-        } else {
-            let dbBackgroundContext = DatabaseManager.shared.persistentContainer.newBackgroundContext()
-            let authFlowHandler = AuthFlowHandler(presentingViewController: presentingViewController)
-            effectiveContext = AuthenticatedOperationContext(
-                authenticationHandler: authFlowHandler,
-                anisetteServerHandler: authFlowHandler,
-                dbBackgroundContext: dbBackgroundContext
+    public func getAuthenticatedSession() async throws -> ALTAppleAPISession {
+        return try await TaskChainCoalescer.shared.coalesce(key: "apple_auth_session") {
+            guard let adsid = self.adsid,                           // directory services id
+                  let xcodeToken = self.xcodeToken else             // xcode token
+            {
+                debugLog("[AuthManager] No stored tokens found.")
+                throw OperationError.notAuthenticated
+            }
+            let anisetteData = try await AnisetteProvider.fetch()   // one time pass
+            let xcodeVersion = await AnisetteConfigManager.shared.resolvedXcodeVersion()
+            
+            let session = ALTAppleAPISession(
+                dsid: adsid,
+                authToken: xcodeToken,
+                anisetteData: anisetteData,
+                xcodeVersion: xcodeVersion
             )
+            self.session = session
+            return session
+        }
+    }
+
+    public func getAuthenticatedTeam() async throws -> ALTTeam {
+        if let team = self.team {
+            return team
         }
         
-        let authOperation = try AuthenticationOperation(
-            context: effectiveContext,
+        let team = try await self.resolveActiveTeam()
+        self.team = team
+        return team
+    }
+
+    private func resolveActiveTeam() async throws -> ALTTeam {
+        try await DatabaseManager.shared.persistentContainer.performBackgroundTask { context in
+            guard let dbTeam = DatabaseManager.shared.activeTeam(in: context) else {
+                throw OperationError.notAuthenticated
+            }
+            return ALTTeam(identifier: dbTeam.identifier, name: dbTeam.name, type: dbTeam.type)
+        }
+    }
+    
+    @discardableResult
+    func signIn(
+        presentingViewController: UIViewController? = nil,
+        skipDeviceRegistration: Bool = false,
+        skipCertificateProvisioning: Bool = false
+    ) async throws -> SignInResult {
+        let dbBackgroundContext = DatabaseManager.shared.persistentContainer.newBackgroundContext()
+        let signInFlowHandler = SignInFlowHandler(presentingViewController: presentingViewController)
+        let context = StandaloneOperationContext(
+            steps: .signIn,
+            dbBackgroundContext: dbBackgroundContext
+        )
+        
+        let signInOperation = try SignInOperation(
+            context: context,
+            signInHandler: signInFlowHandler,
+            anisetteServerHandler: signInFlowHandler,
             skipDeviceRegistration: skipDeviceRegistration,
             skipCertificateProvisioning: skipCertificateProvisioning
         )
-        return try await authOperation.execute()
+        return try await signInOperation.execute()
     }
     
     
     // Developer Portal Operations
-    @discardableResult
-    public func fetchAccount(session: ALTAppleAPISession) async throws -> ALTAccount {
-        return try await self.portalService.fetchAccount(session: session)
-    }
-    
-    public func authenticate(appleID: String, 
-                             password: String, 
-                             anisetteData: ALTAnisetteData, 
-                             xcodeVersion: String, 
-                             accountRepairHandler: DeveloperPortal.AccountRepairHandler = DeveloperPortal.defaultAccountRepairHandler,
-                             verificationHandler: DeveloperPortal.VerificationHandler?) async throws -> (ALTAccount, ALTAppleAPISession) 
+    public func signIn(appleID: String, 
+                       password: String, 
+                       anisetteData: ALTAnisetteData, 
+                       xcodeVersion: String, 
+                       machinePassword: String? = nil,
+                       accountRepairHandler: DeveloperPortal.AccountRepairHandler = DeveloperPortal.defaultAccountRepairHandler,
+                       verificationHandler: DeveloperPortal.VerificationHandler?) async throws -> (ALTAccount, ALTAppleAPISession) 
     {
-        return try await self.portalService.authenticate(
+        return try await self.portalProxy.signIn(
             appleID: appleID, 
             password: password, 
             anisetteData: anisetteData, 
             xcodeVersion: xcodeVersion, 
+            machinePassword: machinePassword,
             accountRepairHandler: accountRepairHandler, 
             verificationHandler: verificationHandler
         )
     }
     
-    public func authenticateWithToken(adsid: String, xcodeToken: String, anisetteData: ALTAnisetteData, xcodeVersion: String) async throws -> (ALTAccount, ALTAppleAPISession) {
-        return try await self.portalService.authenticateWithToken(adsid: adsid, xcodeToken: xcodeToken, anisetteData: anisetteData, xcodeVersion: xcodeVersion)
+    public func authenticateWithToken(adsid: String,
+                                      xcodeToken: String,
+                                      anisetteData: ALTAnisetteData,
+                                      xcodeVersion: String) async throws -> (ALTAccount, ALTAppleAPISession)
+    {
+        return try await self.portalProxy.authenticateWithToken(
+            adsid: adsid,
+            xcodeToken: xcodeToken,
+            anisetteData: anisetteData,
+            xcodeVersion: xcodeVersion
+        )
     }
 }
 

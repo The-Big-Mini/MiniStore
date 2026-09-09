@@ -47,6 +47,41 @@ struct CertificatesListView: View {
                                 onDelete:    { onDelete(cert) }
                             )
                         }
+                        #if !os(tvOS)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            if viewModel.remoteSerials.contains(cert.serialNumber) {
+                                SwiftUI.Button(role: .destructive) {
+                                    onRevoke(cert)
+                                } label: {
+                                    Label("Revoke", systemImage: "xmark.circle")
+                                }
+                            }
+                            if viewModel.isCertificateLocallyCached(cert) {
+                                SwiftUI.Button(role: .destructive) {
+                                    onDelete(cert)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            if cert.serialNumber == viewModel.activeSerialNumber {
+                                SwiftUI.Button {
+                                    viewModel.deactivateActiveCertificate()
+                                } label: {
+                                    Label("Deactivate", systemImage: "xmark.seal")
+                                }
+                                .tint(.gray)
+                            } else {
+                                SwiftUI.Button {
+                                    viewModel.makeCertificateActive(cert)
+                                } label: {
+                                    Label("Activate", systemImage: "checkmark.seal")
+                                }
+                                .tint(.green)
+                            }
+                        }
+                        #endif
                     }
                 } header: {
                     CertGroupHeaderView(group: group, viewModel: viewModel)
