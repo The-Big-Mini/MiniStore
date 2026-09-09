@@ -16,9 +16,13 @@ private extension Color {
 struct UserCustomizationsView: View {
     @State private var selectedBackend: GatewayBackend = selectedGatewayBackendCache
     @State private var useOnDeviceAnisette: Bool = UserDefaults.standard.useOnDeviceAnisette
+    @State private var showAnisetteRestartConfirmation: Bool = false
     @State private var customizeAppId: Bool = UserDefaults.standard.customizeAppId
     @State private var customizeAppExtensions: Bool = UserDefaults.standard.customizeAppExtensions
     @State private var autoFixAppGroupIDs: Bool = UserDefaults.standard.autoFixAppGroupIDs
+    @State private var preferResignedIPA: Bool = UserDefaults.standard.preferResignedIPA
+    @State private var pendingPreferIPAOngoing: Bool = false
+    @State private var showPreferIPAToggleAlert: Bool = false
     @State private var isExportResignedAppEnabled: Bool = UserDefaults.standard.isExportResignedAppEnabled
     @State private var enableEMPforWireguard: Bool = UserDefaults.standard.enableEMPforWireguard
     @State private var pendingEMPOption: Bool = false
@@ -135,7 +139,7 @@ struct UserCustomizationsView: View {
                                 get: { useOnDeviceAnisette },
                                 set: { newValue in
                                     useOnDeviceAnisette = newValue
-                                    UserDefaults.standard.useOnDeviceAnisette = newValue
+                                    showAnisetteRestartConfirmation = true
                                 }
                             )
                         )
@@ -193,7 +197,21 @@ struct UserCustomizationsView: View {
                         
                         divider
                         
-                        toggleRow(title: "Export Resigned Apps", isOn: Binding(
+                        toggleRow(
+                            title: "Prefer Resigned IPA",
+                            subtitle: "Prefer IPA (speed) vs App (storage) efficiency",
+                            isOn: Binding(
+                                get: { preferResignedIPA },
+                                set: { newValue in
+                                    pendingPreferIPAOngoing = newValue
+                                    showPreferIPAToggleAlert = true
+                                }
+                            )
+                        )
+                        
+                        divider
+                        
+                        toggleRow(title: "Export Resigned IPAs", isOn: Binding(
                             get: { isExportResignedAppEnabled },
                             set: { newValue in
                                 isExportResignedAppEnabled = newValue
@@ -397,6 +415,18 @@ struct UserCustomizationsView: View {
         #if !os(tvOS)
         .navigationBarTitleDisplayMode(.large)
         #endif
+        .alert("Restart Required", isPresented: $showAnisetteRestartConfirmation) {
+            SwiftUI.Button("Restart Now", role: .destructive) {
+                AuthManager.shared.signOut(keepCertificate: true, keepAnisetteData: false)
+                UserDefaults.standard.useOnDeviceAnisette = useOnDeviceAnisette
+                exit(0)
+            }
+            SwiftUI.Button("Cancel", role: .cancel) {
+                useOnDeviceAnisette = UserDefaults.standard.useOnDeviceAnisette
+            }
+        } message: {
+            Text("Changing Anisette config will invalidate your current provisioned Anisette data and you will be signed out.\n\nThis action will require a restart, do you want to proceed?")
+        }
         .alert("Restart Required", isPresented: $showEMPRestartConfirmation) {
             SwiftUI.Button("Restart Now", role: .destructive) {
                 enableEMPforWireguard = pendingEMPOption
@@ -413,6 +443,7 @@ struct UserCustomizationsView: View {
                     selectedBackend = newBackend
                     selectedGatewayBackendCache = newBackend
                     UserDefaults.standard.minimuxerGatewayBackend = newBackend.rawValue
+                    UserDefaults.standard.synchronize()
                     exit(0)
                 }
             }
@@ -421,6 +452,21 @@ struct UserCustomizationsView: View {
             }
         } message: {
             Text("Changing the Minimuxer backend requires restarting SideStore. If canceled, changes will not be saved.")
+        }
+        .alert(pendingPreferIPAOngoing ? "Prefer Resigned IPA" : "Prefer App Bundle", isPresented: $showPreferIPAToggleAlert) {
+            SwiftUI.Button("Switch") {
+                preferResignedIPA = pendingPreferIPAOngoing
+                UserDefaults.standard.preferResignedIPA = pendingPreferIPAOngoing
+            }
+            SwiftUI.Button("Cancel", role: .cancel) {
+                pendingPreferIPAOngoing = preferResignedIPA
+            }
+        } message: {
+            if pendingPreferIPAOngoing {
+                Text("Switching to Resigned IPA prioritizes install speed (~40% faster) by packaging an uncompressed IPA for fast transfer, but temporarily uses additional disk space during packaging.")
+            } else {
+                Text("Switching to App Bundle prioritizes storage efficiency by transferring the app bundle directly without packaging a temporary IPA, but transfer speeds will be noticeably slower.")
+            }
         }
     }
 

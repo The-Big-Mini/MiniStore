@@ -86,6 +86,24 @@ struct DeveloperServicesView: View {
                         .padding(.vertical, 4)
                     }
 
+                    NavigationLink(destination: CertificatesPortalListView(viewModel: viewModel, presentingViewController: presentingViewController)) {
+                        HStack(spacing: 14) {
+                            Image(systemName: "rosette")
+                                .font(.system(size: 20))
+                                .foregroundColor(.red)
+                                .frame(width: 28)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Certificates")
+                                    .font(.body)
+                                Text("\(viewModel.certificates.count) registered on portal")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+
                     NavigationLink(destination: AppGroupsListView(viewModel: viewModel, presentingViewController: presentingViewController)) {
                         HStack(spacing: 14) {
                             Image(systemName: "person.2")
@@ -142,11 +160,13 @@ struct DeveloperServicesView: View {
         .navigationTitle("Developer Portal")
         .onAppear {
             if viewModel.appIDs.isEmpty && viewModel.profiles.isEmpty {
-                viewModel.loadAll(presentingViewController: presentingViewController)
+                Task {
+                    await viewModel.loadAll(presentingViewController: presentingViewController)
+                }
             }
         }
         .refreshable {
-            viewModel.loadAll(presentingViewController: presentingViewController, isPullToRefresh: true)
+            await viewModel.loadAll(presentingViewController: presentingViewController, isPullToRefresh: true)
         }
         .alert(isPresented: $viewModel.showErrorAlert) {
             Alert(

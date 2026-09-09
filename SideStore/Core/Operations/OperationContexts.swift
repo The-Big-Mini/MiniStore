@@ -36,18 +36,20 @@ protocol WeightedOperationContext: AnyObject {
 class OperationContext: WeightedOperationContext
 {
     var error: Error?
-    var dbBackgroundContext: NSManagedObjectContext?
+    var dbBackgroundContext: NSManagedObjectContext
+    var operationStartTime: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
 
     private var stepItems: [OperationStepItem]
     private var currentIndex = 0
     private var remainingReuses: [Int: Int] = [:]
     private var stepProgressSlots: [Int: Progress] = [:]
 
-    fileprivate init(stepItems: [OperationStepItem] = [], error: Error? = nil, dbBackgroundContext: NSManagedObjectContext? = nil)
+    fileprivate init(stepItems: [OperationStepItem] = [], error: Error? = nil, dbBackgroundContext: NSManagedObjectContext)
     {
         self.stepItems = stepItems
         self.error = error
         self.dbBackgroundContext = dbBackgroundContext
+        self.operationStartTime = CFAbsoluteTimeGetCurrent()
     }
 
     fileprivate init(context: OperationContext)
@@ -58,6 +60,7 @@ class OperationContext: WeightedOperationContext
         self.dbBackgroundContext = context.dbBackgroundContext
         self.remainingReuses = context.remainingReuses
         self.stepProgressSlots = context.stepProgressSlots
+        self.operationStartTime = context.operationStartTime
     }
 
     func weightForFirstOccurrence(of step: some OperationStep) -> Int64? {
@@ -154,7 +157,7 @@ class StandaloneOperationContext: OperationContext
 {
     let steps: [StandaloneExecutionStep]
 
-    init(steps: [StandaloneExecutionStep], error: Error? = nil, dbBackgroundContext: NSManagedObjectContext? = nil)
+    init(steps: [StandaloneExecutionStep], error: Error? = nil, dbBackgroundContext: NSManagedObjectContext)
     {
         self.steps = steps
         super.init(stepItems: steps.map { 
@@ -177,38 +180,6 @@ class StandaloneOperationContext: OperationContext
     }
 }
 
-final class AuthenticatedOperationContext: StandaloneOperationContext
-{
-    var session: ALTAppleAPISession?
-    var team: ALTTeam?
-    var signingCertificate: ALTCertificate?
-    var portalCertificates: [ALTX509Certificate]?
-
-    let authenticationHandler: AuthenticationHandler
-    let anisetteServerHandler: AnisetteServerHandler
-
-    init(
-        authenticationHandler: AuthenticationHandler,
-        anisetteServerHandler: AnisetteServerHandler,
-        error: Error? = nil,
-        dbBackgroundContext: NSManagedObjectContext? = nil
-    ) {
-        self.authenticationHandler = authenticationHandler
-        self.anisetteServerHandler = anisetteServerHandler
-        super.init(steps: .authenticate, error: error, dbBackgroundContext: dbBackgroundContext)
-    }
-
-    init(context: AuthenticatedOperationContext) {
-        self.authenticationHandler = context.authenticationHandler
-        self.anisetteServerHandler = context.anisetteServerHandler
-        super.init(context: context)
-        self.session = context.session
-        self.team = context.team
-        self.signingCertificate = context.signingCertificate
-        self.portalCertificates = context.portalCertificates
-    }
-}
-
 class PipelineOperationContext: OperationContext
 {
     let pipelineSteps: [PipelineExecutionStep]
@@ -218,7 +189,7 @@ class PipelineOperationContext: OperationContext
         pipelineSteps: [PipelineExecutionStep],
         handler: PipelineExecutionHandler,
         error: Error? = nil,
-        dbBackgroundContext: NSManagedObjectContext? = nil
+        dbBackgroundContext: NSManagedObjectContext
     ) {
         self.pipelineSteps = pipelineSteps
         self.handler = handler
@@ -268,7 +239,7 @@ final class SharedPipelineContext: @unchecked Sendable
     }
 }
 
-class AppOperationContext: PipelineOperationContext
+class InstallAppOperationContext: PipelineOperationContext
 {
     let bundleIdentifier: String
     var customBundleIdentifier: String?
@@ -279,50 +250,21 @@ class AppOperationContext: PipelineOperationContext
     var useMainProfile = false
     var isFinished = false
 
-    let authenticatedContext: AuthenticatedOperationContext
-    var sharedContext: SharedPipelineContext?
+    var overrideSigningCertificate: ALTCertificate?
+    let activeSigningCertificate: ALTCertificate?
 
-    var overrideCertificate: ALTCertificate?
+    var targetSigningCertificate: ALTCertificate? {
+        overrideSigningCertificate ?? activeSigningCertificate
+    }
+
     var targetCertStatus: CertificateStatus?
     var appendTeamID: Bool = true
 
+    let standaloneContext: StandaloneOperationContext
+    var sharedContext: SharedPipelineContext?
+
     var targetBundleIdentifier: String { customBundleIdentifier ?? bundleIdentifier }
 
-
-    override var error: Error? {
-        get { localError ?? authenticatedContext.error }
-        set { localError = newValue
-            if authenticatedContext.error == nil
-            {
-                // Assign newValue to authenticatedContext.error if the latter is nil.
-                // This fixes some operations continuing even after an error has occured.
-                authenticatedContext.error = newValue
-            }
-        }
-    }
-    private var localError: Error?
-
-    init(
-        pipelineSteps: [PipelineExecutionStep],
-        bundleIdentifier: String,
-        authenticatedContext: AuthenticatedOperationContext,
-        sharedContext: SharedPipelineContext? = nil,
-        handler: PipelineExecutionHandler
-    ) {
-        self.bundleIdentifier = bundleIdentifier
-        self.authenticatedContext = authenticatedContext
-        self.sharedContext = sharedContext
-        super.init(
-            pipelineSteps: pipelineSteps,
-            handler: handler,
-            error: nil,
-            dbBackgroundContext: authenticatedContext.dbBackgroundContext
-        )
-    }
-}
-
-class InstallAppOperationContext: AppOperationContext
-{
     lazy var temporaryDirectory: URL = {
         let temporaryDirectory = FileManager.default.uniqueTemporaryURL()
         do {
@@ -361,22 +303,42 @@ class InstallAppOperationContext: AppOperationContext
     // Non-nil when installing from a source.
     @AsyncManaged
     var appVersion: AppVersion?
-    
+
+    override var error: Error? {
+        get { localError ?? standaloneContext.error }
+        set { localError = newValue
+            if standaloneContext.error == nil
+            {
+                // Assign newValue to standaloneContext.error if the latter is nil.
+                // This fixes some operations continuing even after an error has occured.
+                standaloneContext.error = newValue
+            }
+        }
+    }
+    private var localError: Error?
+
     init(
         pipelineSteps: [PipelineExecutionStep],
         bundleIdentifier: String,
-        authenticatedContext: AuthenticatedOperationContext,
+        standaloneContext: StandaloneOperationContext,
         sharedContext: SharedPipelineContext? = nil,
         handler: PipelineExecutionHandler,
-        additionalEntitlements: [ALTEntitlement: any Sendable] = [:]
-    ){
+        additionalEntitlements: [ALTEntitlement: any Sendable] = [:],
+        activeSigningCertificate: ALTCertificate? = nil,
+        overrideSigningCertificate: ALTCertificate? = nil
+    ) {
+        self.bundleIdentifier = bundleIdentifier
+        self.standaloneContext = standaloneContext
+        self.sharedContext = sharedContext
+        self.additionalEntitlements = additionalEntitlements
+        self.activeSigningCertificate = activeSigningCertificate
+        self.overrideSigningCertificate = overrideSigningCertificate
         super.init(
             pipelineSteps: pipelineSteps,
-            bundleIdentifier: bundleIdentifier,
-            authenticatedContext: authenticatedContext,
-            sharedContext: sharedContext,
-            handler: handler
+            handler: handler,
+            error: nil,
+            dbBackgroundContext: standaloneContext.dbBackgroundContext
         )
+        self.operationStartTime = standaloneContext.operationStartTime
     }
-
 }

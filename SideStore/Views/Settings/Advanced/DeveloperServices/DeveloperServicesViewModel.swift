@@ -12,9 +12,10 @@ import SideSign
 @MainActor
 class DeveloperServicesViewModel: ObservableObject {
     @Published var appIDs: [ALTAppID] = []
-    @Published var profiles: [ALTProvisioningProfile] = []
+    @Published var profiles: [ALTListedProvisioningProfile] = []
     @Published var appGroups: [ALTAppGroup] = []
     @Published var devices: [ALTDevice] = []
+    @Published var certificates: [ALTX509Certificate] = []
 
     @Published var isLoading = false
     @Published var isActionLoading = false
@@ -26,12 +27,13 @@ class DeveloperServicesViewModel: ObservableObject {
     @Published var toastMessage: String = ""
     @Published var showToast = false
 
-    var session: ALTAppleAPISession?
-    var team: ALTTeam?
+    var team: ALTTeam? {
+        AuthManager.shared.team
+    }
 
     var isPaidAccount: Bool {
-        guard let team = self.team else { return false }
-        return team.type != .free && team.type != .unknown
+        guard let team = AuthManager.shared.team else { return false }
+        return team.isPaid
     }
 
     func showToastMessage(_ message: String) {
@@ -39,53 +41,75 @@ class DeveloperServicesViewModel: ObservableObject {
         self.showToast = true
     }
 
-    private func ensureAuthentication(presentingViewController: UIViewController? = nil) async throws -> (ALTTeam, ALTAppleAPISession) {
-        if let team = self.team, let session = self.session {
-            return (team, session)
-        }
-        guard AuthManager.shared.isAuthenticated else {
-            throw OperationError.notAuthenticated
-        }
-        let authResult = try await AuthManager.shared.authenticate(
-            presentingViewController: presentingViewController,
-            skipDeviceRegistration: true,
-            skipCertificateProvisioning: true
-        )
-        self.team = authResult.team
-        self.session = authResult.session
-        return (authResult.team, authResult.session)
-    }
-
-    func loadAll(presentingViewController: UIViewController? = nil, isPullToRefresh: Bool = false) {
+    func loadAll(presentingViewController: UIViewController? = nil, isPullToRefresh: Bool = false) async {
         self.isLoading = true
         self.errorMessage = nil
+        defer { self.isLoading = false }
 
-        Task {
-            defer { self.isLoading = false }
-            do {
-                let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-                async let fetchedAppIDs = DeveloperPortalService.shared.fetchAppIDs(team: team, session: session)
-                async let fetchedProfiles = DeveloperPortalService.shared.fetchProvisioningProfiles(team: team, session: session)
-                async let fetchedGroups = DeveloperPortalService.shared.fetchAppGroups(team: team, session: session)
-                async let fetchedDevices = DeveloperPortalService.shared.fetchDevices(for: team, types: .all, session: session)
+        do {
+            if isPullToRefresh {
+                AuthManager.shared.session = nil
+            }
+            async let fetchedAppIDs = DeveloperPortalProxy.shared.fetchAppIDs()
+            async let fetchedProfiles = DeveloperPortalProxy.shared.fetchProvisioningProfiles()
+            async let fetchedGroups = DeveloperPortalProxy.shared.fetchAppGroups()
+            async let fetchedDevices = DeveloperPortalProxy.shared.fetchDevices(types: .all)
+            async let fetchedCerts = DeveloperPortalProxy.shared.fetchCertificates()
 
-                let (appIDs, profiles, groups, devices) = try await (fetchedAppIDs, fetchedProfiles, fetchedGroups, fetchedDevices)
-                self.appIDs = appIDs.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-                self.profiles = profiles.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-                self.appGroups = groups.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-                self.devices = devices.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-            } catch {
-                if !(error is CancellationError) {
-                    self.errorMessage = error.localizedDescription
-                }
+            let (appIDs, profiles, groups, devices, certs) = try await (fetchedAppIDs, fetchedProfiles, fetchedGroups, fetchedDevices, fetchedCerts)
+            self.appIDs = appIDs.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            self.profiles = profiles.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            self.appGroups = groups.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            self.devices = devices.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            self.certificates = certs.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        } catch {
+            debugLog("[DeveloperServices] loadAll failed: \(error)")
+            if !(error is CancellationError) {
+                self.errorMessage = error.localizedDescription
             }
         }
     }
 
-    func fetchAppIDs(presentingViewController: UIViewController? = nil) async {
+    func fetchCertificates(presentingViewController: UIViewController? = nil, isPullToRefresh: Bool = false) async {
+        self.isLoading = true
+        defer { self.isLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let ids = try await DeveloperPortalService.shared.fetchAppIDs(team: team, session: session)
+            if isPullToRefresh {
+                AuthManager.shared.session = nil
+            }
+            let certs = try await DeveloperPortalProxy.shared.fetchCertificates()
+            self.certificates = certs.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        } catch {
+            debugLog("[DeveloperServices] fetchCertificates failed: \(error)")
+            if !(error is CancellationError) {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func revokeCertificate(_ certificate: ALTX509Certificate, presentingViewController: UIViewController? = nil) async -> Bool {
+        self.isActionLoading = true
+        defer { self.isActionLoading = false }
+        do {
+            _ = try await DeveloperPortalProxy.shared.revokeCertificate(certificate)
+            self.certificates.removeAll { $0.serialNumber == certificate.serialNumber }
+            self.showToastMessage("Revoked certificate '\(certificate.name)'")
+            return true
+        } catch {
+            debugLog("[DeveloperServices] revokeCertificate failed: \(error)")
+            self.errorMessage = error.localizedDescription
+            return false
+        }
+    }
+
+    func fetchAppIDs(presentingViewController: UIViewController? = nil, isPullToRefresh: Bool = false) async {
+        self.isLoading = true
+        defer { self.isLoading = false }
+        do {
+            if isPullToRefresh {
+                AuthManager.shared.session = nil
+            }
+            let ids = try await DeveloperPortalProxy.shared.fetchAppIDs()
             self.appIDs = ids.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         } catch {
             if !(error is CancellationError) {
@@ -98,8 +122,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let newAppID = try await DeveloperPortalService.shared.addAppID(name: name, bundleIdentifier: bundleIdentifier, team: team, session: session)
+            let newAppID = try await DeveloperPortalProxy.shared.addAppID(name: name, bundleIdentifier: bundleIdentifier)
             self.appIDs.append(newAppID)
             self.appIDs.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
             self.showToastMessage("Registered App ID '\(newAppID.name)'")
@@ -114,8 +137,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            _ = try await DeveloperPortalService.shared.deleteAppID(appID, team: team, session: session)
+            _ = try await DeveloperPortalProxy.shared.deleteAppID(appID)
             self.appIDs.removeAll { $0.identifier == appID.identifier }
             self.showToastMessage("Deleted App ID '\(appID.name)'")
             return true
@@ -129,8 +151,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let updated = try await DeveloperPortalService.shared.assignAppID(appID, to: selectedGroups, team: team, session: session)
+            let updated = try await DeveloperPortalProxy.shared.assignAppID(appID, to: selectedGroups)
             if let idx = self.appIDs.firstIndex(where: { $0.identifier == appID.identifier }) {
                 self.appIDs[idx] = updated
             }
@@ -142,12 +163,17 @@ class DeveloperServicesViewModel: ObservableObject {
         }
     }
 
-    func fetchProfiles(presentingViewController: UIViewController? = nil) async {
+    func fetchProfiles(presentingViewController: UIViewController? = nil, isPullToRefresh: Bool = false) async {
+        self.isLoading = true
+        defer { self.isLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let profs = try await DeveloperPortalService.shared.fetchProvisioningProfiles(team: team, session: session)
+            if isPullToRefresh {
+                AuthManager.shared.session = nil
+            }
+            let profs = try await DeveloperPortalProxy.shared.fetchProvisioningProfiles()
             self.profiles = profs.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         } catch {
+            debugLog("[DeveloperServices] fetchProfiles failed: \(error)")
             if !(error is CancellationError) {
                 self.errorMessage = error.localizedDescription
             }
@@ -158,32 +184,84 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let profile = try await DeveloperPortalService.shared.downloadProvisioningProfile(for: appID, deviceType: .iphone, team: team, session: session)
-            if let idx = self.profiles.firstIndex(where: { $0.uuid == profile.uuid || $0.bundleIdentifier == profile.bundleIdentifier }) {
-                self.profiles[idx] = profile
-            } else {
-                self.profiles.append(profile)
-            }
-            self.profiles.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-            self.showToastMessage("Downloaded profile for '\(appID.name)'")
+            _ = try await DeveloperPortalProxy.shared.downloadProvisioningProfile(for: appID, deviceType: .iphone)
+            await self.fetchProfiles(presentingViewController: presentingViewController)
+            self.showToastMessage("Profile synced for '\(appID.name)'")
             return true
         } catch {
+            debugLog("[DeveloperServices] downloadProfile failed: \(error)")
             self.errorMessage = error.localizedDescription
             return false
         }
     }
 
-    func deleteProfile(_ profile: ALTProvisioningProfile, presentingViewController: UIViewController? = nil) async -> Bool {
+    func createManualProfile(name: String, appID: ALTAppID, certificateIDs: [String], deviceIDs: [String], presentingViewController: UIViewController? = nil) async -> Bool {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            _ = try await DeveloperPortalService.shared.deleteProvisioningProfile(profile, team: team, session: session)
+            _ = try await DeveloperPortalProxy.shared.createProvisioningProfile(name: name, appID: appID, certificateIDs: certificateIDs, deviceIDs: deviceIDs)
+            await self.fetchProfiles(presentingViewController: presentingViewController)
+            self.showToastMessage("Created profile '\(name)'")
+            return true
+        } catch {
+            debugLog("[DeveloperServices] createManualProfile failed: \(error)")
+            self.errorMessage = error.localizedDescription
+            return false
+        }
+    }
+
+    func updateProfile(_ profile: ALTListedProvisioningProfile, name: String, appIDId: String, certificateIDs: [String], deviceIDs: [String], presentingViewController: UIViewController? = nil) async -> Bool {
+        guard let profileID = profile.identifier else {
+            self.errorMessage = "Profile identifier missing"
+            return false
+        }
+        self.isActionLoading = true
+        defer { self.isActionLoading = false }
+        do {
+            _ = try await DeveloperPortalProxy.shared.updateProvisioningProfile(
+                profileID: profileID,
+                name: name,
+                appIDId: appIDId,
+                certificateIDs: certificateIDs,
+                deviceIDs: deviceIDs
+            )
+            await self.fetchProfiles(presentingViewController: presentingViewController)
+            self.showToastMessage("Updated profile '\(name)'")
+            return true
+        } catch {
+            debugLog("[DeveloperServices] updateProfile failed: \(error)")
+            self.errorMessage = error.localizedDescription
+            return false
+        }
+    }
+
+    func downloadProfile(profile: ALTListedProvisioningProfile) async -> ALTProvisioningProfile? {
+        guard let profileID = profile.identifier else {
+            self.errorMessage = "Profile identifier missing"
+            return nil
+        }
+        self.isActionLoading = true
+        defer { self.isActionLoading = false }
+        do {
+            let downloaded = try await DeveloperPortalProxy.shared.downloadProvisioningProfile(profileID: profileID)
+            return downloaded
+        } catch {
+            debugLog("[DeveloperServices] downloadProfile(profile:) failed: \(error)")
+            self.errorMessage = error.localizedDescription
+            return nil
+        }
+    }
+
+    func deleteProfile(_ profile: ALTListedProvisioningProfile, presentingViewController: UIViewController? = nil) async -> Bool {
+        self.isActionLoading = true
+        defer { self.isActionLoading = false }
+        do {
+            _ = try await DeveloperPortalProxy.shared.deleteProvisioningProfile(profile)
             self.profiles.removeAll { $0.uuid == profile.uuid }
             self.showToastMessage("Deleted profile '\(profile.name)'")
             return true
         } catch {
+            debugLog("[DeveloperServices] deleteProfile failed: \(error)")
             self.errorMessage = error.localizedDescription
             return false
         }
@@ -193,14 +271,14 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
             var deleted = 0
             var failed = 0
             for profile in self.profiles {
                 do {
-                    _ = try await DeveloperPortalService.shared.deleteProvisioningProfile(profile, team: team, session: session)
+                    _ = try await DeveloperPortalProxy.shared.deleteProvisioningProfile(profile)
                     deleted += 1
                 } catch {
+                    debugLog("[DeveloperServices] deleteProfile '\(profile.name)' failed: \(error)")
                     failed += 1
                 }
             }
@@ -208,15 +286,20 @@ class DeveloperServicesViewModel: ObservableObject {
             self.showToastMessage("Purged \(deleted) profile(s)\(failed > 0 ? " (\(failed) failed)" : "")")
             return (deleted, failed)
         } catch {
+            debugLog("[DeveloperServices] deleteAllProfiles failed: \(error)")
             self.errorMessage = error.localizedDescription
             return (0, 0)
         }
     }
 
-    func fetchAppGroups(presentingViewController: UIViewController? = nil) async {
+    func fetchAppGroups(presentingViewController: UIViewController? = nil, isPullToRefresh: Bool = false) async {
+        self.isLoading = true
+        defer { self.isLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let groups = try await DeveloperPortalService.shared.fetchAppGroups(team: team, session: session)
+            if isPullToRefresh {
+                AuthManager.shared.session = nil
+            }
+            let groups = try await DeveloperPortalProxy.shared.fetchAppGroups()
             self.appGroups = groups.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         } catch {
             if !(error is CancellationError) {
@@ -229,8 +312,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let newGroup = try await DeveloperPortalService.shared.addAppGroup(name: name, groupIdentifier: groupIdentifier, team: team, session: session)
+            let newGroup = try await DeveloperPortalProxy.shared.addAppGroup(name: name, groupIdentifier: groupIdentifier)
             self.appGroups.append(newGroup)
             self.appGroups.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
             self.showToastMessage("Created App Group '\(newGroup.name)'")
@@ -245,8 +327,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            _ = try await DeveloperPortalService.shared.deleteAppGroup(group, team: team, session: session)
+            _ = try await DeveloperPortalProxy.shared.deleteAppGroup(group)
             self.appGroups.removeAll { $0.identifier == group.identifier || $0.groupID == group.groupID }
             self.showToastMessage("Deleted App Group '\(group.name)'")
             return true
@@ -260,10 +341,9 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
             var target = group
             target.name = newName
-            let updated = try await DeveloperPortalService.shared.updateAppGroup(target, team: team, session: session)
+            let updated = try await DeveloperPortalProxy.shared.updateAppGroup(target)
             if let idx = self.appGroups.firstIndex(where: { $0.identifier == group.identifier || $0.groupID == group.groupID }) {
                 self.appGroups[idx] = updated
             }
@@ -276,10 +356,14 @@ class DeveloperServicesViewModel: ObservableObject {
         }
     }
 
-    func fetchDevices(presentingViewController: UIViewController? = nil) async {
+    func fetchDevices(presentingViewController: UIViewController? = nil, isPullToRefresh: Bool = false) async {
+        self.isLoading = true
+        defer { self.isLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let devs = try await DeveloperPortalService.shared.fetchDevices(for: team, types: .all, session: session)
+            if isPullToRefresh {
+                AuthManager.shared.session = nil
+            }
+            let devs = try await DeveloperPortalProxy.shared.fetchDevices(types: .all)
             self.devices = devs.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         } catch {
             if !(error is CancellationError) {
@@ -292,8 +376,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let newDev = try await DeveloperPortalService.shared.registerDevice(name: name, identifier: identifier, type: type, team: team, session: session)
+            let newDev = try await DeveloperPortalProxy.shared.registerDevice(name: name, identifier: identifier, type: type)
             self.devices.append(newDev)
             self.devices.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
             self.showToastMessage("Registered Device '\(newDev.name)'")
@@ -308,10 +391,9 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
             var target = device
             target.name = newName
-            let updated = try await DeveloperPortalService.shared.updateDevice(target, team: team, session: session)
+            let updated = try await DeveloperPortalProxy.shared.updateDevice(target)
             if let idx = self.devices.firstIndex(where: { $0.identifier == device.identifier }) {
                 self.devices[idx] = updated
             }
@@ -328,8 +410,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            let disabled = try await DeveloperPortalService.shared.disableDevice(device, team: team, session: session)
+            let disabled = try await DeveloperPortalProxy.shared.disableDevice(device)
             if let idx = self.devices.firstIndex(where: { $0.identifier == device.identifier }) {
                 self.devices[idx] = disabled
             }
@@ -341,12 +422,12 @@ class DeveloperServicesViewModel: ObservableObject {
         }
     }
 
+    @discardableResult
     func deleteDevice(_ device: ALTDevice, presentingViewController: UIViewController? = nil) async -> Bool {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            let (team, session) = try await self.ensureAuthentication(presentingViewController: presentingViewController)
-            _ = try await DeveloperPortalService.shared.deleteDevice(device, team: team, session: session)
+            _ = try await DeveloperPortalProxy.shared.deleteDevice(device)
             self.devices.removeAll { $0.identifier == device.identifier }
             self.showToastMessage("Deleted Device '\(device.name)'")
             return true

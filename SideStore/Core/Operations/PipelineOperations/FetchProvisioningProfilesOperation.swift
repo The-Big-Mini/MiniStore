@@ -25,10 +25,9 @@ class FetchProvisioningProfilesOperation: BasePipelineOperation<InstallAppOperat
             throw error
         }
         
-        guard let team = self.context.authenticatedContext.team,
-              let session = self.context.authenticatedContext.session else {
-            self.debugLog("[FetchProvisioningProfiles] Missing parameters: team=\(String(describing: self.context.authenticatedContext.team)), session=\(String(describing: self.context.authenticatedContext.session))")
-            throw OperationError.invalidParameters("FetchProvisioningProfilesOperation.main: self.context.authenticatedContext.team or self.context.authenticatedContext.session is nil")
+        guard let team = AuthManager.shared.team else {
+            self.debugLog("[FetchProvisioningProfiles] Team not found in AuthManager.")
+            throw OperationError.notAuthenticated
         }
         
         guard let targetAppBundle = self.context.targetAppBundle else {
@@ -42,7 +41,7 @@ class FetchProvisioningProfilesOperation: BasePipelineOperation<InstallAppOperat
         self.setProgress(10)
 
         self.debugLog("[FetchProvisioningProfiles] Preparing main provisioning profile for \(targetAppBundle.bundleIdentifier)...")
-        let profile = try await self.provisionAndFetchProfile(for: targetAppBundle, parentAppBundle: nil, team: team, session: session)
+        let profile = try await self.provisionAndFetchProfile(for: targetAppBundle, parentAppBundle: nil, team: team)
         self.debugLog("[FetchProvisioningProfiles] Main profile prepared successfully for \(effectiveBundleId), expiration: \(String(describing: profile.expirationDate))")
         
         var profiles = [effectiveBundleId: profile]
@@ -59,7 +58,7 @@ class FetchProvisioningProfilesOperation: BasePipelineOperation<InstallAppOperat
             for appExtension in targetAppBundle.appExtensions {
                 group.addTask {
                     self.verboseLog("[FetchProvisioningProfiles] Preparing extension profile for \(appExtension.bundleIdentifier)...")
-                    let extProfile = try await self.provisionAndFetchProfile(for: appExtension, parentAppBundle: targetAppBundle, team: team, session: session)
+                    let extProfile = try await self.provisionAndFetchProfile(for: appExtension, parentAppBundle: targetAppBundle, team: team)
                     // Use customized bundle ID if applicable
                     let updatedExtensionBundleId = appExtension.bundleIdentifier.replacingOccurrences(of: targetAppBundle.bundleIdentifier, with: effectiveBundleId)
                     self.verboseLog("[FetchProvisioningProfiles] Extension profile prepared for \(updatedExtensionBundleId)")
@@ -130,8 +129,7 @@ class FetchProvisioningProfilesOperation: BasePipelineOperation<InstallAppOperat
     
     private func provisionAndFetchProfile(for targetAppBundle: ALTApplication,
                                           parentAppBundle: ALTApplication?,
-                                          team: ALTTeam,
-                                          session: ALTAppleAPISession) async throws -> ALTProvisioningProfile {
+                                          team: ALTTeam) async throws -> ALTProvisioningProfile {
         let preferredBundleID = await self.getPreferredBundleID(for: targetAppBundle, team: team)
         
         let bundleID: String
@@ -164,18 +162,18 @@ class FetchProvisioningProfilesOperation: BasePipelineOperation<InstallAppOperat
         }
         
         self.debugLog("[FetchProvisioningProfiles] Registering App ID with name '\(preferredName)' and bundleID '\(bundleID)'...")
-        let appID = try await self.registerAppID(for: targetAppBundle, name: preferredName, bundleIdentifier: bundleID, team: team, session: session)
+        let appID = try await self.registerAppID(for: targetAppBundle, name: preferredName, bundleIdentifier: bundleID, team: team)
         self.debugLog("[FetchProvisioningProfiles] App ID registered successfully: \(appID.bundleIdentifier) (\(appID.identifier))")
         
         self.debugLog("[FetchProvisioningProfiles] Updating features for App ID \(appID.bundleIdentifier)...")
-        let updatedAppID = try await self.updateFeatures(for: appID, targetAppBundle: targetAppBundle, team: team, session: session)
+        let updatedAppID = try await self.updateFeatures(for: appID, targetAppBundle: targetAppBundle, team: team)
         
         self.debugLog("[FetchProvisioningProfiles] Updating app groups for App ID \(updatedAppID.bundleIdentifier)...")
-        let groupAppID = try await self.updateAppGroups(for: updatedAppID, targetAppBundle: targetAppBundle, team: team, session: session)
+        let groupAppID = try await self.updateAppGroups(for: updatedAppID, targetAppBundle: targetAppBundle, team: team)
         
         verboseLog(targetAppBundle.dumpMachOInfo())
         self.debugLog("[FetchProvisioningProfiles] Fetching provisioning profile from Apple for App ID \(groupAppID.bundleIdentifier)...")
-        let profile = try await ALTAppleAPI.shared.fetchProvisioningProfile(for: groupAppID, deviceType: .iphone, team: team, session: session)
+        let profile = try await DeveloperPortalProxy.shared.downloadProvisioningProfile(for: groupAppID, deviceType: .iphone, team: team)
         self.debugLog("[FetchProvisioningProfiles] Provisioning profile fetched for \(groupAppID.bundleIdentifier) (Name: \(profile.name), Expiration: \(String(describing: profile.expirationDate)))")
         return profile
     }
@@ -187,8 +185,7 @@ private extension FetchProvisioningProfilesOperation{
     func registerAppID(for targetAppBundle: ALTApplication,
                                name: String,
                                bundleIdentifier: String,
-                               team: ALTTeam,
-                               session: ALTAppleAPISession) async throws -> ALTAppID {
+                               team: ALTTeam) async throws -> ALTAppID {
         let appIDs: [ALTAppID]
         if let cachedAppIDs = self.context.sharedContext?.appIDs {
             self.debugLog("[FetchProvisioningProfiles] Using cached App IDs from shared context.")
@@ -196,7 +193,7 @@ private extension FetchProvisioningProfilesOperation{
         } else {
             self.debugLog("[FetchProvisioningProfiles] Fetching existing App IDs from Apple for team \(team.identifier)...")
             let fetchedAppIDs = try await TaskChainCoalescer.shared.coalesce(key: "fetch_app_ids_\(team.identifier)") {
-                try await ALTAppleAPI.shared.fetchAppIDs(for: team, session: session)
+                try await DeveloperPortalProxy.shared.fetchAppIDs(for: team)
             }
             self.context.sharedContext?.appIDs = fetchedAppIDs
             appIDs = fetchedAppIDs
@@ -216,15 +213,15 @@ private extension FetchProvisioningProfilesOperation{
             let sanitized = name.filter { $0.isLetter || $0.isNumber || $0.isWhitespace }
             let appIDName = sanitized.isEmpty ? bundleIdentifier : sanitized
             
-            self.debugLog("[FetchProvisioningProfiles] Calling ALTAppleAPI.shared.addAppID with name '\(appIDName)' and identifier '\(bundleIdentifier)'...")
-            let appID = try await ALTAppleAPI.shared.addAppID(withName: appIDName, bundleIdentifier: bundleIdentifier, team: team, session: session)
+            self.debugLog("[FetchProvisioningProfiles] Calling DeveloperPortalProxy.shared.addAppID with name '\(appIDName)' and identifier '\(bundleIdentifier)'...")
+            let appID = try await DeveloperPortalProxy.shared.addAppID(name: appIDName, bundleIdentifier: bundleIdentifier, team: team)
             self.context.sharedContext?.appendAppID(appID)
             self.debugLog("[FetchProvisioningProfiles] Successfully registered new App ID '\(appID.bundleIdentifier)' on Apple portal.")
             return appID
         }
     }
     
-    func updateFeatures(for appID: ALTAppID, targetAppBundle: ALTApplication, team: ALTTeam, session: ALTAppleAPISession) async throws -> ALTAppID {
+    func updateFeatures(for appID: ALTAppID, targetAppBundle: ALTApplication, team: ALTTeam) async throws -> ALTAppID {
         var entitlements = targetAppBundle.entitlements
         for (key, value) in context.additionalEntitlements {
             entitlements[key] = value
@@ -282,7 +279,7 @@ private extension FetchProvisioningProfilesOperation{
         appID.features = targetFeatures
         
         do {
-            let updated = try await ALTAppleAPI.shared.updateAppID(appID, team: team, session: session)
+            let updated = try await DeveloperPortalProxy.shared.updateAppID(appID, team: team)
             self.verboseLog("[FetchProvisioningProfiles] Updated features for App ID \(updated.bundleIdentifier).")
             return updated
         } catch {
@@ -291,7 +288,7 @@ private extension FetchProvisioningProfilesOperation{
         }
     }
     
-    func updateAppGroups(for appID: ALTAppID, targetAppBundle: ALTApplication, team: ALTTeam, session: ALTAppleAPISession) async throws -> ALTAppID {
+    func updateAppGroups(for appID: ALTAppID, targetAppBundle: ALTApplication, team: ALTTeam) async throws -> ALTAppID {
         var entitlements = targetAppBundle.entitlements
         for (key, value) in self.context.additionalEntitlements {
             entitlements[key] = value
@@ -352,7 +349,7 @@ private extension FetchProvisioningProfilesOperation{
                 fetchedGroups = cachedGroups
             } else {
                 self.debugLog("[FetchProvisioningProfiles] Fetching existing App Groups from Apple for team \(team.identifier)...")
-                let groups = try await ALTAppleAPI.shared.fetchAppGroups(for: team, session: session)
+                let groups = try await DeveloperPortalProxy.shared.fetchAppGroups(for: team)
                 self.context.sharedContext?.appGroups = groups
                 fetchedGroups = groups
             }
@@ -367,9 +364,9 @@ private extension FetchProvisioningProfilesOperation{
                     groups.append(group)
                 } else {
                     // Not all characters are allowed in group names, so we replace periods with spaces (like Apple does).
-                    let name = "AltStore " + groupIdentifier.replacingOccurrences(of: ".", with: " ")
+                    let name = "SideStore " + groupIdentifier.replacingOccurrences(of: ".", with: " ")
                     do {
-                        let group = try await ALTAppleAPI.shared.addAppGroup(withName: name, groupIdentifier: adjustedGroupIdentifier, team: team, session: session)
+                        let group = try await DeveloperPortalProxy.shared.addAppGroup(name: name, groupIdentifier: adjustedGroupIdentifier, team: team)
                         self.context.sharedContext?.appendAppGroup(group)
                         self.verboseLog("[FetchProvisioningProfiles] Created new App Group \(group.groupIdentifier).")
                         groups.append(group)
@@ -380,7 +377,7 @@ private extension FetchProvisioningProfilesOperation{
                 }
             }
             
-            try await ALTAppleAPI.shared.assign(appID, to: Array(groups), team: team, session: session)
+            try await DeveloperPortalProxy.shared.assignAppID(appID, to: Array(groups), team: team)
             let groupIDs = groups.map { $0.groupIdentifier }
             self.debugLog("[FetchProvisioningProfiles] Assigned App ID \(appID.bundleIdentifier) to App Groups \(groupIDs.description).")
             

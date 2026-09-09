@@ -179,7 +179,7 @@ struct DevicesListView: View {
             }
         }
         .refreshable {
-            await viewModel.fetchDevices(presentingViewController: presentingViewController)
+            await viewModel.fetchDevices(presentingViewController: presentingViewController, isPullToRefresh: true)
         }
         .sheet(isPresented: $showRegisterSheet) {
             NavigationView {

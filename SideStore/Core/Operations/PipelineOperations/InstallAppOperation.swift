@@ -15,7 +15,6 @@ import SideSign
 
 final class InstallAppOperation: BasePipelineOperation<InstallAppOperationContext, InstalledApp>, @unchecked Sendable {
     let storeApp: StoreApp?
-    var backgroundContext: NSManagedObjectContext?
     
     private var didCleanUp = false
     
@@ -40,12 +39,12 @@ final class InstallAppOperation: BasePipelineOperation<InstallAppOperationContex
         }
         
         guard
-            let certificate = context.overrideCertificate ?? context.authenticatedContext.signingCertificate,
+            let certificate = context.targetSigningCertificate,
             let resignedAppBundle = context.resignedAppBundle,
             let provisioningProfiles = context.provisioningProfiles
         else {
             throw OperationError.invalidParameters(
-                "InstallAppOperation.execute: self.context.authenticatedContext.signingCertificate or self.context.resignedAppBundle or self.context.provisioningProfiles is nil"
+                "InstallAppOperation.execute: self.context.targetSigningCertificate or self.context.resignedAppBundle or self.context.provisioningProfiles is nil"
             )
         }
 
@@ -58,10 +57,7 @@ final class InstallAppOperation: BasePipelineOperation<InstallAppOperationContex
         @Managed var appVersion = context.appVersion
         let storeBuildVersion = $appVersion.buildVersion
         
-        guard let backgroundContext = self.context.dbBackgroundContext else {
-            throw OperationError.invalidParameters("InstallAppOperation: context.dbBackgroundContext is nil")
-        }
-        self.backgroundContext = backgroundContext
+        let backgroundContext = self.context.dbBackgroundContext
         
         self.setProgress(10)
         do {
@@ -176,8 +172,12 @@ final class InstallAppOperation: BasePipelineOperation<InstallAppOperationContex
             self.handleSelfReinstallation(for: installedApp)
         }
         
-        // Phase 2: App bundle installation
-        try await installAppBundle(bundleID, appName: resignedAppBundle.fileURL.lastPathComponent)
+        // Phase 2: App installation
+        if UserDefaults.standard.preferResignedIPA {
+            try await installIPA(bundleID)
+        } else {
+            try await installAppBundle(bundleID, appName: resignedAppBundle.fileURL.lastPathComponent)
+        }
         
         self.setProgress(90)
         

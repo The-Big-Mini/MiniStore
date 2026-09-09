@@ -415,7 +415,7 @@ struct FullAppBundleView: View {
     }
 
     private var provisioningProfile: ALTProvisioningProfile? {
-        ALTProvisioningProfile(url: bundleURL.appendingPathComponent("embedded.mobileprovision"))
+        try? ALTProvisioningProfile(url: bundleURL.appendingPathComponent("embedded.mobileprovision"))
     }
 
     private var appExtensions: [URL] {
@@ -732,7 +732,7 @@ struct ProvisioningProfileResourceViewer: View {
 
     var body: some View {
         Group {
-            if let profile = ALTProvisioningProfile(url: url) {
+            if let profile = try? ALTProvisioningProfile(url: url) {
                 ProvisioningProfileDetailView(profile: profile, certificatesViewModel: certificatesViewModel)
             } else {
                 VStack(spacing: 12) {

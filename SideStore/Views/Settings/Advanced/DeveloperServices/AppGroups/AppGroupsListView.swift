@@ -140,7 +140,7 @@ struct AppGroupsListView: View {
             }
         }
         .refreshable {
-            await viewModel.fetchAppGroups(presentingViewController: presentingViewController)
+            await viewModel.fetchAppGroups(presentingViewController: presentingViewController, isPullToRefresh: true)
         }
         .sheet(isPresented: $showCreateSheet) {
             NavigationView {
