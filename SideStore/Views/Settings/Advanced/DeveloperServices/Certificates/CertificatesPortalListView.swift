@@ -49,7 +49,17 @@ struct CertificatesPortalListView: View {
                         NavigationLink(destination: CertificatePortalDetailView(certificate: cert, viewModel: viewModel, presentingViewController: presentingViewController)) {
                             CertificatePortalRow(certificate: cert, formatDate: formatDate)
                         }
+                        #if !os(tvOS)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            SwiftUI.Button(role: .destructive) {
+                                certificateToRevoke = cert
+                                showRevokeConfirmation = true
+                            } label: {
+                                Label("Revoke", systemImage: "trash")
+                            }
+                        }
+                        #endif
+                        .contextMenu {
                             SwiftUI.Button(role: .destructive) {
                                 certificateToRevoke = cert
                                 showRevokeConfirmation = true

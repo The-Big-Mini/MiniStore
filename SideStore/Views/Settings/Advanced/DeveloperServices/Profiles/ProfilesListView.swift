@@ -55,7 +55,17 @@ struct ProfilesListView: View {
                         NavigationLink(destination: ProfilePortalDetailView(profile: profile, viewModel: viewModel, presentingViewController: presentingViewController)) {
                             ProfileRow(profile: profile, formatDate: formatDate)
                         }
+                        #if !os(tvOS)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            SwiftUI.Button(role: .destructive) {
+                                profileToDelete = profile
+                                showDeleteConfirmation = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                        #endif
+                        .contextMenu {
                             SwiftUI.Button(role: .destructive) {
                                 profileToDelete = profile
                                 showDeleteConfirmation = true

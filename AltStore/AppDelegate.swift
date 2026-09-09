@@ -136,12 +136,12 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 //        UserDefaults.standard.setValue(true, forKey: "com.apple.CoreData.MigrationDebug")
 //        UserDefaults.standard.setValue(true, forKey: "com.apple.CoreData.SQLDebug")
         
-        // Perform one-time maintenance tasks (e.g. Keychain clearance for 0.6.4*) before initializing services
-        MaintenanceManager.shared.performMaintenanceIfNeeded()
 
         // Trigger daily boot sync for Anisette servers if needed
-        Task.detached {
-            await AnisetteServersManager.shared.performDailySyncIfNeeded()
+        if !UserDefaults.standard.useOnDeviceAnisette{
+            Task.detached {
+                await AnisetteServersManager.shared.performDailySyncIfNeeded()
+            }
         }
 
         // Recreate Database if requested
@@ -171,10 +171,12 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         Task.detached(priority: .userInitiated) {
             do
             {
+                debugLog("Starting DatabaseManager...")
                 try await DatabaseManager.shared.start()
                 debugLog("Started DatabaseManager.")
+                
                 debugLog("Reconciling any staged drafts started...")
-                Self.reconcileSelfReinstallationIfNeeded()
+                await Self.reconcileSelfReinstallationIfNeeded()
                 debugLog("Reconcile any staged drafts completed.")
                 
                 await WidgetDataManager.publishCurrentInstalledAppsIfNeeded(in: DatabaseManager.shared.viewContext)
@@ -183,6 +185,9 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
                 {
                     AuthManager.shared.signOut()
                 }
+
+                // Perform one-time maintenance tasks after database is started
+                MaintenanceManager.shared.performMaintenanceIfNeeded()
             }
             catch
             {

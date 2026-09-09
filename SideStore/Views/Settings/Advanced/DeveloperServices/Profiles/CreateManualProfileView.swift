@@ -60,29 +60,30 @@ struct CreateManualProfileView: View {
                     } else {
                         ForEach(viewModel.certificates, id: \.serialNumber) { cert in
                             let certID = cert.identifier ?? cert.serialNumber
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(cert.commonName ?? cert.name)
-                                        .font(.subheadline)
-                                        .foregroundColor(.primary)
-                                    Text("Serial: \(cert.serialNumber)")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                if selectedCertificateIDs.contains(certID) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.accentColor)
-                                }
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
+                            SwiftUI.Button {
                                 if selectedCertificateIDs.contains(certID) {
                                     selectedCertificateIDs.remove(certID)
                                 } else {
                                     selectedCertificateIDs.insert(certID)
                                 }
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(cert.commonName ?? cert.name)
+                                            .font(.subheadline)
+                                            .foregroundColor(.primary)
+                                        Text("Serial: \(cert.serialNumber)")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    if selectedCertificateIDs.contains(certID) {
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(.accentColor)
+                                    }
+                                }
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -108,29 +109,30 @@ struct CreateManualProfileView: View {
                     } else {
                         ForEach(viewModel.devices, id: \.identifier) { device in
                             let devID = device.deviceID ?? device.identifier
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(device.name)
-                                        .font(.subheadline)
-                                        .foregroundColor(.primary)
-                                    Text(device.identifier)
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                if selectedDeviceIDs.contains(devID) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.accentColor)
-                                }
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
+                            SwiftUI.Button {
                                 if selectedDeviceIDs.contains(devID) {
                                     selectedDeviceIDs.remove(devID)
                                 } else {
                                     selectedDeviceIDs.insert(devID)
                                 }
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(device.name)
+                                            .font(.subheadline)
+                                            .foregroundColor(.primary)
+                                        Text(device.identifier)
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    if selectedDeviceIDs.contains(devID) {
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(.accentColor)
+                                    }
+                                }
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }

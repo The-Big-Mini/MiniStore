@@ -94,29 +94,30 @@ struct ProfilePortalDetailView: View {
                 } else {
                     ForEach(viewModel.certificates, id: \.serialNumber) { cert in
                         let certID = cert.identifier ?? cert.serialNumber
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(cert.commonName ?? cert.name)
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                Text("Serial: \(cert.serialNumber)")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            if selectedCertificateIDs.contains(certID) {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.accentColor)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
+                        SwiftUI.Button {
                             if selectedCertificateIDs.contains(certID) {
                                 selectedCertificateIDs.remove(certID)
                             } else {
                                 selectedCertificateIDs.insert(certID)
                             }
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(cert.commonName ?? cert.name)
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                    Text("Serial: \(cert.serialNumber)")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                if selectedCertificateIDs.contains(certID) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.accentColor)
+                                }
+                            }
                         }
+                        .buttonStyle(.plain)
                     }
                 }
 
@@ -156,30 +157,31 @@ struct ProfilePortalDetailView: View {
                     ForEach(viewModel.devices, id: \.identifier) { device in
                         let devID = device.deviceID ?? device.identifier
                         let isSelected = selectedDeviceIDs.contains(devID) || selectedDeviceIDs.contains(device.identifier)
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(device.name)
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                Text(device.identifier)
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            if isSelected {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.accentColor)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
+                        SwiftUI.Button {
                             if isSelected {
                                 selectedDeviceIDs.remove(devID)
                                 selectedDeviceIDs.remove(device.identifier)
                             } else {
                                 selectedDeviceIDs.insert(devID)
                             }
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(device.name)
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                    Text(device.identifier)
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                if isSelected {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.accentColor)
+                                }
+                            }
                         }
+                        .buttonStyle(.plain)
                     }
                 }
 
@@ -238,11 +240,13 @@ struct ProfilePortalDetailView: View {
                         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(safeName).mobileprovision")
                         do {
                             try downloaded.data.write(to: tempURL)
+                            #if !os(tvOS)
                             let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
                             if let popover = activityVC.popoverPresentationController {
                                 popover.sourceView = presentingViewController?.view
                             }
                             presentingViewController?.present(activityVC, animated: true)
+                            #endif
                         } catch {
                             debugLog("[ProfilePortalDetailView] Failed to write profile to temp: \(error)")
                         }
