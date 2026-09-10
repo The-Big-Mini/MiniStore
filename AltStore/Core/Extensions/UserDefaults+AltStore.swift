@@ -287,6 +287,10 @@ public extension UserDefaults
         get { self.bool(forKey: #function) }
         set { self.set(newValue, forKey: #function) }
     }
+    @objc var acceptIPv6ConnectionConfig: Bool {
+        get { self.bool(forKey: #function) }
+        set { self.set(newValue, forKey: #function) }
+    }
 
     @nonobjc var preferredAppSorting: AppSorting {
         get {
@@ -385,6 +389,7 @@ public extension UserDefaults
             #keyPath(UserDefaults.disableAnisetteRotation): false,
             #keyPath(UserDefaults.useOnDeviceAnisette): true,
             #keyPath(UserDefaults.useLocalVPN): true,
+            #keyPath(UserDefaults.acceptIPv6ConnectionConfig): false,
             #keyPath(UserDefaults.enableEMPforWireguard): false,
             #keyPath(UserDefaults.skipNonCopyableBackupFiles): true,
             

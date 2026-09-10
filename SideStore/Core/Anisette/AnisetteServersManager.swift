@@ -29,19 +29,19 @@ public actor AnisetteServersManager {
     private var isSyncing: Bool = false
 
     private let userFacingFileURL: URL = {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let docs = FileManager.default.documentsDirectory
         return docs.appendingPathComponent("anisette-servers.json")
     }()
 
     private let privateBackupFileURL: URL = {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let appSupport = FileManager.default.applicationSupportDirectory
         let dir = appSupport.appendingPathComponent("SideStore", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent("anisette-servers-backup.json")
     }()
 
     private let rawImportedBackupFileURL: URL = {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let appSupport = FileManager.default.applicationSupportDirectory
         let dir = appSupport.appendingPathComponent("SideStore", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent("raw-imported-backup.json")

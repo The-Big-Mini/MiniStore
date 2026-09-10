@@ -584,7 +584,7 @@ final class WirelessPairViewModel: ObservableObject {
     }
     
     private func pairingFilePath(for deviceName: String? = nil) -> String {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let docs = FileManager.default.documentsDirectory
         if let deviceName = deviceName, !deviceName.isEmpty {
             let spaceReplaced = deviceName
                 .replacingOccurrences(of: " ", with: "_")
