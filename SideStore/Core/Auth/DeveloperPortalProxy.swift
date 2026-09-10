@@ -12,6 +12,18 @@ import SideSign
 public class DeveloperPortalProxy {
     public static let shared: DeveloperPortalProxy = DeveloperPortalProxyWithAuth()
     
+    public static var currentDeviceType: ALTDeviceType {
+        #if os(tvOS)
+        return .tv
+        #elseif os(visionOS)
+        return .vision
+        #elseif os(watchOS)
+        return .watch
+        #else
+        return UIDevice.current.userInterfaceIdiom == .pad ? .ipad : .iphone
+        #endif
+    }
+    
     fileprivate init() {}
     
     private func getSession() async throws -> ALTAppleAPISession {
@@ -55,7 +67,7 @@ public class DeveloperPortalProxy {
     }
     
     @discardableResult
-    public func registerDevice(name: String, identifier: String, type: ALTDeviceType = .iphone, team: ALTTeam? = nil) async throws -> ALTDevice {
+    public func registerDevice(name: String, identifier: String, type: ALTDeviceType = DeveloperPortalProxy.currentDeviceType, team: ALTTeam? = nil) async throws -> ALTDevice {
         let session = try await self.getSession()
         let team = try await self.getTeam(team)
         return try await ALTAppleAPI.shared.registerDevice(name: name, identifier: identifier, type: type, team: team, session: session)
@@ -171,7 +183,7 @@ public class DeveloperPortalProxy {
         try await self.fetchProvisioningProfiles(team: team)
     }
 
-    public func downloadProvisioningProfile(for appID: ALTAppID, deviceType: ALTDeviceType = .iphone, team: ALTTeam? = nil) async throws -> ALTProvisioningProfile {
+    public func downloadProvisioningProfile(for appID: ALTAppID, deviceType: ALTDeviceType = DeveloperPortalProxy.currentDeviceType, team: ALTTeam? = nil) async throws -> ALTProvisioningProfile {
         let session = try await self.getSession()
         let team = try await self.getTeam(team)
         return try await ALTAppleAPI.shared.downloadProvisioningProfile(for: appID, deviceType: deviceType, team: team, session: session)
@@ -186,16 +198,26 @@ public class DeveloperPortalProxy {
     public func createProvisioningProfile(name: String, appID: ALTAppID, certificateIDs: [String], deviceIDs: [String], team: ALTTeam? = nil) async throws -> ALTProvisioningProfile {
         let session = try await self.getSession()
         let team = try await self.getTeam(team)
-        return try await ALTAppleAPI.shared.createProvisioningProfile(name: name, appID: appID, certificateIDs: certificateIDs, deviceIDs: deviceIDs, team: team, session: session)
+        #if os(tvOS)
+        let subPlatform: String? = "tvOS"
+        #else
+        let subPlatform: String? = nil
+        #endif
+        return try await ALTAppleAPI.shared.createProvisioningProfile(name: name, appID: appID, certificateIDs: certificateIDs, deviceIDs: deviceIDs, subPlatform: subPlatform, team: team, session: session)
     }
 
     public func updateProvisioningProfile(profileID: String, name: String, appIDId: String, certificateIDs: [String], deviceIDs: [String], team: ALTTeam? = nil) async throws -> ALTProvisioningProfile {
         let session = try await self.getSession()
         let team = try await self.getTeam(team)
-        return try await ALTAppleAPI.shared.updateProvisioningProfile(profileID: profileID, name: name, appIDId: appIDId, certificateIDs: certificateIDs, deviceIDs: deviceIDs, team: team, session: session)
+        #if os(tvOS)
+        let subPlatform: String? = "tvOS"
+        #else
+        let subPlatform: String? = nil
+        #endif
+        return try await ALTAppleAPI.shared.updateProvisioningProfile(profileID: profileID, name: name, appIDId: appIDId, certificateIDs: certificateIDs, deviceIDs: deviceIDs, subPlatform: subPlatform, team: team, session: session)
     }
 
-    public func fetchProvisioningProfile(for appID: ALTAppID, deviceType: ALTDeviceType = .iphone, team: ALTTeam? = nil) async throws -> ALTProvisioningProfile {
+    public func fetchProvisioningProfile(for appID: ALTAppID, deviceType: ALTDeviceType = DeveloperPortalProxy.currentDeviceType, team: ALTTeam? = nil) async throws -> ALTProvisioningProfile {
         try await self.downloadProvisioningProfile(for: appID, deviceType: deviceType, team: team)
     }
 

@@ -184,7 +184,7 @@ class DeveloperServicesViewModel: ObservableObject {
         self.isActionLoading = true
         defer { self.isActionLoading = false }
         do {
-            _ = try await DeveloperPortalProxy.shared.downloadProvisioningProfile(for: appID, deviceType: .iphone)
+            _ = try await DeveloperPortalProxy.shared.downloadProvisioningProfile(for: appID, deviceType: DeveloperPortalProxy.currentDeviceType)
             await self.fetchProfiles(presentingViewController: presentingViewController)
             self.showToastMessage("Profile synced for '\(appID.name)'")
             return true

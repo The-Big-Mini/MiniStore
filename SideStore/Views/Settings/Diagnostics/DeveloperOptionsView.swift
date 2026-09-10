@@ -32,6 +32,7 @@ struct DeveloperOptionsView: View {
     @State private var isRotateLogsOnStartupEnabled: Bool = UserDefaults.standard.isRotateLogsOnStartupEnabled
     @State private var recreateDatabaseOnNextStart: Bool = UserDefaults.standard.recreateDatabaseOnNextStart
     @State private var alwaysShowWireGuardConfig: Bool = UserDefaults.standard.alwaysShowWireGuardConfig
+    @State private var acceptIPv6ConnectionConfig: Bool = UserDefaults.standard.acceptIPv6ConnectionConfig
     @State private var tcpProbeTimeoutText: String = ""
     
     @State private var isExportingDB: Bool = false
@@ -405,6 +406,26 @@ struct DeveloperOptionsView: View {
                             .padding(.horizontal, 16)
                             .frame(height: 50)
                         }
+                    }
+                    .background(Color.settingsRowBackground)
+                    .cornerRadius(14)
+                }
+                
+                // Section: Connection Config
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("CONNECTION CONFIG")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Color.white.opacity(0.6))
+                        .padding(.horizontal, 16)
+                    
+                    VStack(spacing: 0) {
+                        toggleRow(title: "Accept IPv6 Config", isOn: Binding(
+                            get: { acceptIPv6ConnectionConfig },
+                            set: { newValue in
+                                acceptIPv6ConnectionConfig = newValue
+                                UserDefaults.standard.acceptIPv6ConnectionConfig = newValue
+                            }
+                        ))
                     }
                     .background(Color.settingsRowBackground)
                     .cornerRadius(14)

@@ -19,12 +19,10 @@ public actor OnDeviceAnisetteManager {
         let baseDir: URL?
         if let sharedDir = FileManager.default.altstoreSharedDirectory {
             baseDir = sharedDir.appendingPathComponent(AppConstants.Anisette.hiddenBaseDirectoryName, isDirectory: true)
-        } else if let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            baseDir = appSupport
+        } else {
+            baseDir = FileManager.default.applicationSupportDirectory
                 .appendingPathComponent(AppConstants.Anisette.appSupportSubdirectory, isDirectory: true)
                 .appendingPathComponent(AppConstants.Anisette.hiddenBaseDirectoryName, isDirectory: true)
-        } else {
-            baseDir = nil
         }
         self.provider = AnisetteDataManager(baseDirectory: baseDir)
     }
