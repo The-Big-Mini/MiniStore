@@ -390,7 +390,7 @@ struct DeveloperOptionsView: View {
                         divider
                         
                         SwiftUI.Button(action: {
-                            let defaultTimeout = MinimuxerConstants.defaultTCPProbeTimeoutMs
+                            let defaultTimeout = AppConstants.Minimuxer.defaultTCPProbeTimeoutMs
                             tcpProbeTimeoutText = String(defaultTimeout)
                             minimuxerSetDeviceProbeTimeout(defaultTimeout)
                         }) {
@@ -398,7 +398,7 @@ struct DeveloperOptionsView: View {
                                 Image(systemName: "arrow.counterclockwise")
                                     .font(.system(size: 18, weight: .semibold))
                                     .foregroundColor(.white)
-                                Text("Use Default (\(MinimuxerConstants.defaultTCPProbeTimeoutMs) ms)")
+                                Text("Use Default (\(AppConstants.Minimuxer.defaultTCPProbeTimeoutMs) ms)")
                                     .font(.system(size: 17, weight: .bold))
                                     .foregroundColor(.white)
                                 Spacer()

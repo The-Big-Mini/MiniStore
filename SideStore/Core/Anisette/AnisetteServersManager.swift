@@ -23,7 +23,7 @@ public struct AnisetteServerItem: Codable, Identifiable, Hashable {
 
 public actor AnisetteServersManager {
     public static let shared = AnisetteServersManager()
-    public static let defaultSource = "https://servers.sidestore.io/servers.json"
+    public static let defaultSource = AppConstants.Anisette.Servers.defaultSource
 
     private var inMemoryServersCache: [AnisetteServerItem]?
     private var isSyncing: Bool = false
@@ -314,7 +314,7 @@ public actor AnisetteServersManager {
     }
 
     public func isPublicInternetAvailable() async -> Bool {
-        guard let url = URL(string: "https://www.apple.com/library/test/success.html") else { return true }
+        let url = AppConstants.Anisette.Servers.connectivityCheckURL
         var request = URLRequest(url: url)
         request.timeoutInterval = 3.0
         request.httpMethod = "HEAD"

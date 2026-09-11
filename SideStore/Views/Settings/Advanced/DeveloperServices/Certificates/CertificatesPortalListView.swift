@@ -24,13 +24,14 @@ struct CertificatesPortalListView: View {
         return viewModel.certificates.filter {
             $0.name.localizedCaseInsensitiveContains(searchText) ||
             ($0.machineName?.localizedCaseInsensitiveContains(searchText) == true) ||
+            ($0.certificateType?.localizedCaseInsensitiveContains(searchText) == true) ||
             $0.serialNumber.localizedCaseInsensitiveContains(searchText)
         }
     }
 
     var body: some View {
         List {
-            Section(header: Text("Certificates (\(viewModel.certificates.count))"), footer: Text("Development certificates registered on your Apple Developer team. Revoking invalidates the certificate on Apple's portal.")) {
+            Section(header: Text("Certificates (\(viewModel.certificates.count))"), footer: Text("Certificates registered on your Apple Developer team. Revoking invalidates the certificate on Apple's portal.")) {
                 if filteredCertificates.isEmpty {
                     if viewModel.isLoading {
                         HStack {
@@ -141,6 +142,17 @@ private struct CertificatePortalRow: View {
                 Text("Expires: \(formatDate(certificate.expiryDate))")
                     .font(.caption)
                     .foregroundColor(isExpired ? .red : .secondary)
+            }
+
+            if let type = certificate.certificateType {
+                Text(type)
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.blue.opacity(0.12))
+                    .foregroundColor(.blue)
+                    .cornerRadius(6)
             }
 
             if let machine = certificate.machineName {

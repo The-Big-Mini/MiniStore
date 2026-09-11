@@ -11,6 +11,7 @@ import Foundation
 private extension URL
 {
    /// MiniStore's own recommended-source list, replacing `https://sidestore.io/default-sources`.
+   /// Not `AppConstants.Sources.defaultSourcesURL` for that reason.
    ///
    /// Served straight out of this repo rather than from the fork's GitHub Pages site: the site
    /// is only rewritten by a release workflow, so a list published there could not be corrected
