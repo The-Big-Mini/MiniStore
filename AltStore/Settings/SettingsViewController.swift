@@ -730,7 +730,14 @@ private extension SettingsViewController
         let signOutAction = UIAlertAction(title: NSLocalizedString("Sign Out", comment: ""), style: .destructive) { _ in
             let keepCert = contentVC.isChecked
             let keepAnisette = contentVC.isKeepAnisetteChecked
-            AuthManager.shared.signOut(keepCertificate: keepCert, keepAnisetteData: keepAnisette)
+            let keepAnisetteHeaders = contentVC.isKeepAnisetteHeadersChecked
+            let keepSideSignHeaders = contentVC.isKeepSideSignHeadersChecked
+            AuthManager.shared.signOut(
+                keepCertificate: keepCert,
+                keepAnisetteData: keepAnisette,
+                keepAnisetteHeaders: keepAnisetteHeaders,
+                keepSideSignHeaders: keepSideSignHeaders
+            )
             self.update()
         }
         
@@ -965,8 +972,7 @@ private extension SettingsViewController
     
     @IBAction func followAltStoreGitHub()
     {
-        let safariURL = URL(string: "https://github.com/SideStore")!
-        UIApplication.shared.open(safariURL, options: [:])
+        UIApplication.shared.open(AppConstants.URLs.sideStoreGitHub, options: [:])
     }
 }
 
@@ -1135,6 +1141,18 @@ extension SettingsViewController
             cell.setValue(indexPath.row == Category.visibleCases.count - 1 ? 3 : (indexPath.row == 0 ? 1 : 2), forKey: "style")
         }
 
+        // Advanced Settings needs it for two reasons at once. Its storyboard cells are styled
+        // top/middle/middle/… with no `.bottom` at all — PR #23 deleted the User Customizations
+        // cell, which was the one carrying it — so the card rendered with square bottom corners
+        // and a separator under its last row. On top of that the row list is now dynamic
+        // (`anisetteServers` drops out under on-device anisette), so which row is last is not
+        // something the storyboard could encode anyway.
+        if let cell = cell as? InsetGroupTableViewCell,
+           indexPath.section == Section.advancedSettings.rawValue
+        {
+            cell.setValue(indexPath.row == AdvancedSettingsRow.allCases.count - 1 ? 3 : (indexPath.row == 0 ? 1 : 2), forKey: "style")
+        }
+
         self.applyMiniStoreIcon(to: cell, at: indexPath)
 
         return cell
@@ -1300,16 +1318,12 @@ extension SettingsViewController
                 
                 // Option 1: GitHub
                 alertController.addAction(UIAlertAction(title: "GitHub", style: .default) { _ in
-                    if let githubURL = URL(string: "https://github.com/SideStore/SideStore/issues") {
-                        self.openWebURL(githubURL, preferredTintColor: .altPrimary)
-                    }
+                    self.openWebURL(AppConstants.URLs.sideStoreIssues, preferredTintColor: .altPrimary)
                 })
                 
                 // Option 2: Discord
                 alertController.addAction(UIAlertAction(title: "Discord", style: .default) { _ in
-                    if let discordURL = URL(string: "https://discord.gg/sidestore-949183273383395328") {
-                        self.openWebURL(discordURL, preferredTintColor: .altPrimary)
-                    }
+                    self.openWebURL(AppConstants.URLs.sideStoreDiscord, preferredTintColor: .altPrimary)
                 })
                 
                 #if !os(tvOS)

@@ -23,8 +23,15 @@ private struct SettingsRowIcon
 /// Sections 0 (sign in) and 1 (account) are deliberately absent: those rows are values, not
 /// destinations, and MiniStore leaves them plain. Section 2 is the Patreon row.
 ///
-/// Section 3 is the root's category list; sections 4 and up are only ever shown inside the
-/// category screen that owns them.
+/// **Section 3 — the root's category list — is the only one that gets tiles.** Sections 4 and up
+/// are only ever shown inside the category screen that owns them, and icons there made every
+/// screen read as another index rather than as the settings themselves. The root list is a menu,
+/// so tiles help; a category screen is a leaf, so they are noise.
+///
+/// Keeping this to one section also sidesteps a positional hazard: `applyMiniStoreIcon(to:at:)`
+/// is handed the *displayed* `indexPath`, while Advanced Settings now maps display rows back to
+/// storyboard rows through `AdvancedSettingsRow.rawValue`. Any icon table for section 9 would
+/// silently shift by one whenever a row is hidden.
 private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
     // Categories — the root list
     3: [
@@ -36,57 +43,6 @@ private let miniStoreRowIcons: [Int: [Int: SettingsRowIcon]] = [
         5: SettingsRowIcon(symbol: "sparkles", color: .systemYellow),
         6: SettingsRowIcon(symbol: "wand.and.stars", color: .systemTeal),
         7: SettingsRowIcon(symbol: "chevron.left.forwardslash.chevron.right", color: .systemPurple),
-    ],
-
-    // Refreshing Apps
-    4: [
-        0: SettingsRowIcon(symbol: "arrow.clockwise", color: .systemGreen),
-        1: SettingsRowIcon(symbol: "moon.zzz.fill", color: .systemIndigo),
-        2: SettingsRowIcon(symbol: "mic.fill", color: .systemPurple),
-        3: SettingsRowIcon(symbol: "infinity", color: .systemOrange),
-    ],
-
-    // How it works
-    5: [0: SettingsRowIcon(symbol: "questionmark.circle.fill", color: .systemTeal)],
-
-    // Techy Things
-    6: [
-        0: SettingsRowIcon(symbol: "heart.text.square.fill", color: .systemPink),
-        1: SettingsRowIcon(symbol: "doc.text.fill", color: .systemOrange),
-        2: SettingsRowIcon(symbol: "folder.fill", color: .systemBlue),
-        3: SettingsRowIcon(symbol: "trash.fill", color: .systemRed),
-    ],
-
-    // Credits
-    7: [
-        0: SettingsRowIcon(symbol: "hammer.fill", color: .systemGray),
-        1: SettingsRowIcon(symbol: "paintbrush.pointed.fill", color: .systemPink),
-        2: SettingsRowIcon(symbol: "paintpalette.fill", color: .systemOrange),
-        3: SettingsRowIcon(symbol: "doc.plaintext.fill", color: .systemGray),
-    ],
-
-    // Beta Testing
-    8: [
-        0: SettingsRowIcon(symbol: "ant.fill", color: .systemGreen),
-        1: SettingsRowIcon(symbol: "arrow.triangle.branch", color: .systemTeal),
-    ],
-
-    // Advanced Settings
-    9: [
-        0: SettingsRowIcon(symbol: "envelope.fill", color: .systemBlue),
-        1: SettingsRowIcon(symbol: "list.bullet.rectangle", color: .systemGreen),
-        2: SettingsRowIcon(symbol: "bolt.fill", color: .systemYellow),
-        3: SettingsRowIcon(symbol: "arrow.triangle.2.circlepath", color: .systemOrange),
-        4: SettingsRowIcon(symbol: "server.rack", color: .systemIndigo),
-        5: SettingsRowIcon(symbol: "network", color: .systemTeal),
-        6: SettingsRowIcon(symbol: "checkmark.seal.fill", color: .systemGreen),
-        7: SettingsRowIcon(symbol: "externaldrive.fill", color: .systemBrown),
-    ],
-
-    // Diagnostics
-    10: [
-        0: SettingsRowIcon(symbol: "chevron.left.forwardslash.chevron.right", color: .systemPurple),
-        1: SettingsRowIcon(symbol: "wand.and.stars", color: .systemTeal),
     ],
 ]
 

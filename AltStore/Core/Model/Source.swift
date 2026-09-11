@@ -13,6 +13,9 @@ public extension Source
 {
 
     // @livecontainer
+    /// Not `AppConstants.Sources.sideStoreCommunitySourceURL`: this is MiniStore's own self-update
+    /// feed, and `altStoreIdentifier` below is derived from it, so pointing it at upstream's
+    /// constant would re-key the source record. See `fork-charter.md` §4.
     @objc dynamic static let altStoreSourceURL = URL(string: "https://the-big-mini.github.io/MiniStore/source.json")!
     static let altStoreGroupIdentifier = Bundle.Info.appbundleIdentifier
     

@@ -58,6 +58,15 @@ struct CertificateRowView: View {
                     .foregroundColor(.secondary)
                 }
                 
+                if let createdBy = viewModel.displayCreatedBy(for: cert) {
+                    let isHidden = createdBy.contains("•")
+                    (
+                        Text("Created By: ").font(.system(size: 10))
+                        + Text(createdBy).font(isHidden ? .system(size: 10, design: .monospaced) : .system(size: 10))
+                    )
+                    .foregroundColor(.secondary)
+                }
+                
                 (
                     Text("Keys: ").font(.system(size: 10))
                     + Text(hasPrivateKey ? "public + private" : "public").font(.system(size: 10))
@@ -129,6 +138,14 @@ private struct CertBriefInfoView: View {
                 + Text(displayType).font(isTypeHidden ? .system(size: 10, design: .monospaced) : .system(size: 10))
             )
             .foregroundColor(.secondary)
+            if let typeName = viewModel.displayCertificateTypeName(for: cert) {
+                let isTypeNameHidden = typeName.contains("•")
+                (
+                    Text("Type Name: ").font(.system(size: 10))
+                    + Text(typeName).font(isTypeNameHidden ? .system(size: 10, design: .monospaced) : .system(size: 10))
+                )
+                .foregroundColor(.secondary)
+            }
             (
                 Text("Validity: ").font(.system(size: 10))
                 + Text(displayValidity).font(isValidityHidden ? .system(size: 10, design: .monospaced) : .system(size: 10))
