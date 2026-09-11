@@ -1141,6 +1141,18 @@ extension SettingsViewController
             cell.setValue(indexPath.row == Category.visibleCases.count - 1 ? 3 : (indexPath.row == 0 ? 1 : 2), forKey: "style")
         }
 
+        // Advanced Settings needs it for two reasons at once. Its storyboard cells are styled
+        // top/middle/middle/… with no `.bottom` at all — PR #23 deleted the User Customizations
+        // cell, which was the one carrying it — so the card rendered with square bottom corners
+        // and a separator under its last row. On top of that the row list is now dynamic
+        // (`anisetteServers` drops out under on-device anisette), so which row is last is not
+        // something the storyboard could encode anyway.
+        if let cell = cell as? InsetGroupTableViewCell,
+           indexPath.section == Section.advancedSettings.rawValue
+        {
+            cell.setValue(indexPath.row == AdvancedSettingsRow.allCases.count - 1 ? 3 : (indexPath.row == 0 ? 1 : 2), forKey: "style")
+        }
+
         self.applyMiniStoreIcon(to: cell, at: indexPath)
 
         return cell
