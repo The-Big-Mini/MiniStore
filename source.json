@@ -10,12 +10,12 @@
           "track": "stable",
           "releases": [
             {
-              "version": "0.7.1",
-              "date": "2026-09-11T12:28:30Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.7.1\"\n  - revision: \"b735ef1e\"\n  - timestamp: \"Fri Sep 11 12:28:30 2026\"\n\n#### What's Changed:\n- Merge pull request #32 from The-Big-Mini/MiniStoreFork\n- chore(release): bump version to 0.7.1\n- fix(settings): round the bottom of the Advanced Settings card\n- refactor(settings): keep row icons on the root category list only\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- updated sidesign to latest\n- added more fields available from api response for display\n- show count in the certificates section header\n- fixes for fetching all certs merged from both sources (developer, developerservices2) in case of paid accts while only developerservices2 in case of free accts\n- do not limit cert create to specific types and let the apis throw\n- implemented rest of the cert types that are legacy\n- added CSR request type of cert before hand when doing a create\n- fixes for profile generate view to properly show all the params during creation\n- updated submodule to latest\n- rewokr profile management in dev portal screen to match it with sidesign's profile management capabilities\n- updated dev portal apis to use updated profile management apis\n- added sidesign request headers customizations\n- make all request headers fully customizable\n- include option to erase ani header customizations\n- diag: added dumping request headers in verbose mode\n- updated to latest\n- fix: make anisette client config fully customizable and move them together under anisette section of user customizations\n- feature: make anisette client config user customizable (all anisette modes)\n- fix: move out all constants throuought the app into AppConstants a central index + fix the anisette default client from Xcode to akd thereby fixing 5XX errors\n- updated sidesign to latest\n\n#### Full Changelog: [0.7.0...0.7.1](https://github.com/The-Big-Mini/MiniStore/compare/2938d711a6941f671e06aa1829d0c4792c546dbf...b735ef1e46f70e4f96d40e3b72ec9c6cba5ae047)\n",
-              "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/0.7.1/MiniStore.ipa",
-              "size": 25915493,
-              "sha256": "923f70cb45e66c6afa22c3f9d6256c40e2e55f398fea3e5ed1eabaeedc6c6d9e"
+              "version": "0.7.2",
+              "date": "2026-09-12T07:45:36Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.7.2\"\n  - revision: \"cb0b8b43\"\n  - timestamp: \"Sat Sep 12 07:45:36 2026\"\n\n#### What's Changed:\n- Merge pull request #33 from The-Big-Mini/MiniStoreFork\n- chore(release): bump version to 0.7.2\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- updated submodule to latest\n- updated submodule to latest\n\n#### Full Changelog: [0.7.1...0.7.2](https://github.com/The-Big-Mini/MiniStore/compare/b735ef1e46f70e4f96d40e3b72ec9c6cba5ae047...cb0b8b4308db9e4cd29c6b27822ce068e07c0f15)\n",
+              "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/0.7.2/MiniStore.ipa",
+              "size": 25915498,
+              "sha256": "74326e39547c9c0c08493c27ca0d026da661a3c9df3ad05b8197d05a1c49b070"
             }
           ]
         },
@@ -45,16 +45,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.7.2-20260912.69+cb0b8b43",
-      "versionDate": "2026-09-12T07:36:59Z",
-      "size": 25916147,
-      "sha256": "bd3d772b8213f4208b0bb0865bb6f18661838dcbb46eba81382fa5c31b23ca1d",
-      "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #33 from The-Big-Mini/MiniStoreFork\n- chore(release): bump version to 0.7.2\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- updated submodule to latest\n- updated submodule to latest\n\n#### Full Changelog: [0.7.1...cb0b8b43](https://github.com/The-Big-Mini/MiniStore/compare/b735ef1e46f70e4f96d40e3b72ec9c6cba5ae047...cb0b8b4308db9e4cd29c6b27822ce068e07c0f15)"
+      "version": "0.7.2",
+      "versionDate": "2026-09-12T07:45:36Z",
+      "size": 25915498,
+      "sha256": "74326e39547c9c0c08493c27ca0d026da661a3c9df3ad05b8197d05a1c49b070",
+      "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/0.7.2/MiniStore.ipa",
+      "versionDescription": "#### What's Changed:\n- Merge pull request #33 from The-Big-Mini/MiniStoreFork\n- chore(release): bump version to 0.7.2\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- updated submodule to latest\n- updated submodule to latest\n\n#### Full Changelog: [0.7.1...0.7.2](https://github.com/The-Big-Mini/MiniStore/compare/b735ef1e46f70e4f96d40e3b72ec9c6cba5ae047...cb0b8b4308db9e4cd29c6b27822ce068e07c0f15)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-stable-0.7.2",
+      "title": "MiniStore 0.7.2",
+      "caption": "Merge pull request #33 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-09-12T07:45:36Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.2"
+    },
     {
       "identifier": "ministore-nightly-0.7.2-20260912.69+cb0b8b43",
       "title": "MiniStore Nightly — 0.7.2-20260912.69+cb0b8b43",
@@ -124,14 +132,6 @@
       "title": "MiniStore Nightly — 0.6.4-20260904.55+3fc1e3d2",
       "caption": "Merge pull request #27 from The-Big-Mini/MiniStoreFork",
       "date": "2026-09-04T05:36:32Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.6.4-20260831.50+39891d18",
-      "title": "MiniStore Nightly — 0.6.4-20260831.50+39891d18",
-      "caption": "Merge pull request #26 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-08-31T22:58:31Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
