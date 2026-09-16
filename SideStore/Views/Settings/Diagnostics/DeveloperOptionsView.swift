@@ -41,6 +41,7 @@ struct DeveloperOptionsView: View {
     @State private var showClearKeychainConfirmation: Bool = false
     @State private var showExportPasswordPrompt: Bool = false
     @State private var exportCertPassword: String = ""
+    @State private var showOnboardingSheet: Bool = false
     
     var body: some View {
         ScrollView {
@@ -353,6 +354,47 @@ struct DeveloperOptionsView: View {
                     .cornerRadius(14)
                 }
                 
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("BACKGROUND SERVICE")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Color.white.opacity(0.6))
+                        .padding(.horizontal, 16)
+                    
+                    VStack(spacing: 0) {
+                        SwiftUI.Button(action: { triggerStartBackgroundService() }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "play.circle")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.white)
+                                Text("Start Background Service")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .frame(height: 50)
+                        }
+                        
+                        divider
+                        
+                        SwiftUI.Button(action: { triggerStopBackgroundService() }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "stop.circle")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.white)
+                                Text("Stop Background Service")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .frame(height: 50)
+                        }
+                    }
+                    .background(Color.settingsRowBackground)
+                    .cornerRadius(14)
+                }
+                
                 // Section: Device (TCP) Probe Timeout
                 VStack(alignment: .leading, spacing: 8) {
                     Text("DEVICE (TCP) PROBE TIMEOUT")
@@ -486,6 +528,62 @@ struct DeveloperOptionsView: View {
                     .cornerRadius(14)
                 }
                 #endif
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("ONBOARDING")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Color.white.opacity(0.6))
+                        .padding(.horizontal, 16)
+
+                    VStack(spacing: 0) {
+                        SwiftUI.Button(action: { showOnboardingSheet = true }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.white)
+                                Text("Replay Onboarding")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(Color.white.opacity(0.4))
+                            }
+                            .padding(.horizontal, 16)
+                            .frame(height: 50)
+                        }
+                        .sheet(isPresented: $showOnboardingSheet) {
+                            OnboardingView(onFinish: {
+                                showOnboardingSheet = false
+                            })
+                        }
+
+                        divider
+
+                        SwiftUI.Button(action: {
+                            UserDefaults.standard.hasCompletedOnboarding = false
+                            UserDefaults.standard.synchronize()
+                            if let top = UIApplication.shared.topViewController() {
+                                let toastView = ToastView(text: NSLocalizedString("Onboarding reset for next launch", comment: ""), detailText: nil)
+                                toastView.show(in: top)
+                            }
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.white)
+                                Text("Reset Onboarding State")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .frame(height: 50)
+                        }
+                    }
+                    .background(Color.settingsRowBackground)
+                    .cornerRadius(14)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
@@ -544,14 +642,16 @@ struct DeveloperOptionsView: View {
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType(filenameExtension: "sideconf")!, .json], asCopy: false)
         ImportExport.documentPickerHandler = DocumentPickerHandler { selectedURL in
             guard let url = selectedURL else { return }
-            do {
-                try ImportExport.importAccountJSON(from: url)
-                let email = AuthManager.shared.currentAppleID ?? ""
-                let toastView = ToastView(text: NSLocalizedString("Successfully imported '\(email)'!", comment: ""), detailText: "SideStore should be fully operational!")
-                toastView.show(in: top)
-            } catch {
-                let toastView = ToastView(text: NSLocalizedString("Failed to import account JSON!", comment: ""), detailText: error.localizedDescription)
-                toastView.show(in: top)
+            Task { @MainActor in
+                do {
+                    try await ImportExport.importAccountJSON(from: url)
+                    let email = AuthManager.shared.currentAppleID ?? ""
+                    let toastView = ToastView(text: NSLocalizedString("Successfully imported '\(email)'!", comment: ""), detailText: "SideStore should be fully operational!")
+                    toastView.show(in: top)
+                } catch {
+                    let toastView = ToastView(text: NSLocalizedString("Failed to import account JSON!", comment: ""), detailText: error.localizedDescription)
+                    toastView.show(in: top)
+                }
             }
         }
         picker.delegate = ImportExport.documentPickerHandler
@@ -563,14 +663,16 @@ struct DeveloperOptionsView: View {
             presentingVC: top
         ) { selectedURL in
             guard let url = selectedURL else { return }
-            do {
-                try ImportExport.importAccountJSON(from: url)
-                let email = AuthManager.shared.currentAppleID ?? ""
-                let toastView = ToastView(text: NSLocalizedString("Successfully imported '\(email)'!", comment: ""), detailText: "SideStore should be fully operational!")
-                toastView.show(in: top)
-            } catch {
-                let toastView = ToastView(text: NSLocalizedString("Failed to import account JSON!", comment: ""), detailText: error.localizedDescription)
-                toastView.show(in: top)
+            Task { @MainActor in
+                do {
+                    try await ImportExport.importAccountJSON(from: url)
+                    let email = AuthManager.shared.currentAppleID ?? ""
+                    let toastView = ToastView(text: NSLocalizedString("Successfully imported '\(email)'!", comment: ""), detailText: "SideStore should be fully operational!")
+                    toastView.show(in: top)
+                } catch {
+                    let toastView = ToastView(text: NSLocalizedString("Failed to import account JSON!", comment: ""), detailText: error.localizedDescription)
+                    toastView.show(in: top)
+                }
             }
         }
         #endif
@@ -694,6 +796,26 @@ struct DeveloperOptionsView: View {
                 }
             }
         }
+    }
+
+    private func triggerStartBackgroundService() {
+        guard let top = UIApplication.shared.topViewController() else { return }
+        let started = BackgroundServiceManager.ensureBackgroundServicesStarted()
+        let modeName = UserDefaults.standard.backgroundServiceMode.displayName
+        if started {
+            let toastView = ToastView(text: NSLocalizedString("Started Background Service", comment: ""), detailText: "\(modeName) keepalive is running.")
+            toastView.show(in: top)
+        } else {
+            let toastView = ToastView(text: NSLocalizedString("Background Service Disabled", comment: ""), detailText: "Enable background service in User Customizations.")
+            toastView.show(in: top)
+        }
+    }
+
+    private func triggerStopBackgroundService() {
+        guard let top = UIApplication.shared.topViewController() else { return }
+        BackgroundServiceManager.stop()
+        let toastView = ToastView(text: NSLocalizedString("Stopped Background Service", comment: ""), detailText: "Background keepalive service stopped.")
+        toastView.show(in: top)
     }
     
     private func triggerReloadAllWidgets() {
