@@ -147,8 +147,9 @@ def echo_build_errors():
     which is uploaded by a later step that never runs when the build fails — so a failed CI
     build reported nothing but a Python traceback saying `make` exited 2.
 
-    That cost two rounds of diagnosis. Reproducing locally is not a substitute either: CI runs
-    Xcode 26.2, so a build that passes on a newer local Xcode says nothing about this failure.
+    That cost two rounds of diagnosis. Reproducing locally is not a substitute either: CI pins
+    its own Xcode (setup-xcode in each workflow), so a build that passes on a different local
+    Xcode says nothing about this failure.
     """
     log = ROOT / "build/logs/build.log"
     if not log.exists():

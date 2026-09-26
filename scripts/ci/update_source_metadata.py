@@ -90,7 +90,18 @@ def ensure_app(data, bundle_id):
 # ----------------------------------------------------------
 
 def update_storefront(app, meta):
-    """The legacy top-level release block. Written on every channel, not just stable.
+    """The legacy top-level release block: the stable track's head release, or this run's.
+
+    Run after update_release_channel, and taken from the stable track whenever the feed has
+    one, so it no longer belongs to whichever channel deployed last. Written from this run's
+    metadata every time, a nightly landing after a stable tag re-pointed it at the nightly
+    IPA: on 2026-09-26 the published feed's top-level `version` was
+    `0.7.3-20260926.88+fae30b3b` while its stable track said `0.7.3`. MiniStore reads the
+    tracks first and never noticed; anything reading these AltStore-format fields — older
+    clients, Feather, source viewers — was offered the nightly as the release. Tag-after-
+    nightly sequencing hid it for 0.7.2 and 0.7.3, and the next nightly undid it anyway.
+
+    Only a feed with no stable track falls back to this run, and it has to — see below.
 
     StoreApp.decodeVersions resolves versions as
     `getReleases(default: stableTrack) ?? versions ?? createNewAppVersion(decoder:)`.
@@ -111,13 +122,30 @@ def update_storefront(app, meta):
     the store page showed the release notes where its description belongs. `localizedDescription`
     is therefore left to apply_template, which runs first.
     """
-    app.update({
+    stable = next(
+        (t["releases"][0] for t in app.get("releaseChannels", [])
+         if isinstance(t, dict) and t.get("track") == "stable" and t.get("releases")),
+        None,
+    )
+
+    # Keyed like a track release (update_release_channel's shape) either way, so both
+    # sources map onto the top-level names through one table.
+    release = stable or {
         "version": meta["version_ipa"],
-        "versionDate": meta["version_date"],
+        "date": meta["version_date"],
         "size": meta["size"],
         "sha256": meta["sha256"],
-        "versionDescription": changelog_body(meta["localized_description"]),
+        "localizedDescription": meta["localized_description"],
         "downloadURL": meta["download_url"],
+    }
+
+    app.update({
+        "version": release["version"],
+        "versionDate": release["date"],
+        "size": release["size"],
+        "sha256": release["sha256"],
+        "versionDescription": changelog_body(release["localizedDescription"]),
+        "downloadURL": release["downloadURL"],
     })
 
 
@@ -322,8 +350,8 @@ def main():
     app = ensure_app(data, meta["bundle_identifier"])
 
     apply_template(data, app, template)
-    update_storefront(app, meta)
     update_release_channel(app, meta)
+    update_storefront(app, meta)  # after the tracks: it mirrors the stable one
     update_news(data, meta, template)
 
     save_source(source_file, data)

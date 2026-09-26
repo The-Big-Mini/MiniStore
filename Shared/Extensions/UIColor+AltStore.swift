@@ -50,14 +50,17 @@ public extension UIColor
     /// Light mode keeps the translucent white the cells shipped with, because there the page
     /// behind them is still SideStore's purple — an accent-tinted card on an accent-tinted
     /// page has no contrast.
-    static let altPurple = accentCard(brightnessScale: 0.65, fallbackWhite: 0.15)
+    static let altPurple = accentCard(brightnessScale: 0.65, fallbackWhite: 0.15, lightAlpha: 0.25)
 
     /// The pressed state of `altPurple`. Same hue, lifted enough to read as a highlight.
-    static let altPurpleHighlighted = accentCard(brightnessScale: 0.95, fallbackWhite: 0.28)
+    ///
+    /// Light mode is upstream's 0.55 pressed white. Both cards used to share one light-mode
+    /// value, so a pressed row there looked exactly like an unpressed one.
+    static let altPurpleHighlighted = accentCard(brightnessScale: 0.95, fallbackWhite: 0.28, lightAlpha: 0.55)
 
-    private static func accentCard(brightnessScale: CGFloat, fallbackWhite: CGFloat) -> UIColor {
+    private static func accentCard(brightnessScale: CGFloat, fallbackWhite: CGFloat, lightAlpha: CGFloat) -> UIColor {
         UIColor { traits in
-            guard traits.userInterfaceStyle == .dark else { return UIColor.white.withAlphaComponent(0.25) }
+            guard traits.userInterfaceStyle == .dark else { return UIColor.white.withAlphaComponent(lightAlpha) }
 
             var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0
             guard UIColor.altPrimary.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil) else {

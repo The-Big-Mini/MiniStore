@@ -56,7 +56,7 @@ struct TabVisibilityView: View
                     .background(Color.miniStoreCard)
                     .cornerRadius(16)
 
-                    Text("Touch and hold a tab, then drag it to change the order tabs appear in. The last visible tab cannot be switched off. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
+                    Text("Touch and hold a tab, then drag it to change the order tabs appear in. Settings always stays on, since this screen lives there. Hidden tabs stay reachable from links and notifications — opening one switches it back on.")
                         .font(.system(size: 12))
                         .foregroundColor(Color.white.opacity(0.6))
                         .padding(.horizontal, 16)
@@ -108,6 +108,9 @@ struct TabVisibilityView: View
             ))
             .labelsHidden()
             .tint(.green)
+            // Greyed rather than refused in the setter: a switch that snaps back reads as broken.
+            // Only the Toggle is disabled; the reorder gesture is attached to the row.
+            .disabled(tab.id == TabBarController.alwaysVisibleTab)
         }
         .padding(.horizontal, 16)
         .frame(height: Self.rowHeight)
@@ -179,10 +182,9 @@ struct TabVisibilityView: View
     private func setVisible(_ isVisible: Bool, for tab: Tab) {
         debugLog("[MiniStore] Tab \(tab.id) (\(tab.title)) set to visible=\(isVisible).")
 
-        // Switching off the last visible tab would leave an empty tab bar and no way back
-        // here. Refused in the setter rather than with `.disabled`, which stops the whole
-        // Toggle from responding to touches.
-        guard isVisible || visibleTabs.count > 1 else { return }
+        // Settings is what gets the user back here, so it stays. That also keeps the bar from
+        // ever emptying, which is what the old last-visible-tab rule was for.
+        guard isVisible || tab.id != TabBarController.alwaysVisibleTab else { return }
 
         if isVisible { hiddenTabs.remove(tab.id) } else { hiddenTabs.insert(tab.id) }
         MiniStore.hiddenTabs = hiddenTabs

@@ -130,17 +130,6 @@ jobs:
             "$IPA_NAME" \
             "$LAST_SUCCESSFUL_COMMIT"
 
-      - name: Deploy
-        run: |
-          SOURCE_JSON="source.json"
-
-          python3 scripts/ci/workflow.py deploy \
-            gh-pages \
-            "$SOURCE_JSON" \
-            "${{ github.ref_name }}" \
-            "$MARKETING_VERSION" \
-            gh-pages
-
       - name: Upload to releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -152,3 +141,18 @@ jobs:
             "$GITHUB_REPOSITORY" \
             "$UPSTREAM_CHANNEL" \
             "true"
+
+      # After the upload, not before: the feed's downloadURL names this tag's MiniStore.ipa, which
+      # does not exist until the step above puts it there. Published first, a failed upload left
+      # every install being offered an update that 404s. 0.7.3 only got away with it because Pages
+      # took 16s longer to build than the upload took to finish.
+      - name: Deploy
+        run: |
+          SOURCE_JSON="source.json"
+
+          python3 scripts/ci/workflow.py deploy \
+            gh-pages \
+            "$SOURCE_JSON" \
+            "${{ github.ref_name }}" \
+            "$MARKETING_VERSION" \
+            gh-pages

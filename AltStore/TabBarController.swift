@@ -32,6 +32,12 @@ final class TabBarController: UITabBarController
     /// `viewControllers` holds only the visible subset, so `Tab.rawValue` indexes this.
     private(set) var allViewControllers: [UIViewController] = []
 
+    /// Settings, which can never be hidden: it holds the only control that brings hidden tabs
+    /// back, so switching it off left no way into it short of an error toast.
+    ///
+    /// `nonisolated` because `MiniStore.hiddenTabs` reads it from outside the main actor.
+    nonisolated static let alwaysVisibleTab = Tab.settings.rawValue
+
     required init?(coder aDecoder: NSCoder)
     {
         super.init(coder: aDecoder)
@@ -102,6 +108,10 @@ final class TabBarController: UITabBarController
         {
             debugLog("[TabBarController] Unhiding tab \(tab.rawValue) so it can be selected.")
             MiniStore.hiddenTabs.remove(tab.rawValue)
+
+            // Now, not when the setter's notification arrives: that is deferred a turn of the run
+            // loop, so the lookup below missed the tab and the link unhid it without opening it.
+            self.applyTabLayout()
         }
 
         guard let index = self.viewControllers?.firstIndex(of: viewController) else { return }
