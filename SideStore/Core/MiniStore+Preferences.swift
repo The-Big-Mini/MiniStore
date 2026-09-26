@@ -22,8 +22,8 @@ public extension MiniStore
 
     /// The tab the app opens on, as an index into the storyboard's tab order.
     ///
-    /// Unset means "whatever the storyboard selects", which is why this is not simply
-    /// defaulted to 0 — a stored 0 and an absent value would otherwise be the same thing.
+    /// Unset reads as 0, which is also the storyboard's own initial tab (News), so an install
+    /// that never picks one opens where it always did.
     static var defaultTab: Int {
         get { UserDefaults.standard.object(forKey: defaultTabKey) as? Int ?? 0 }
         set { UserDefaults.standard.set(newValue, forKey: defaultTabKey) }
@@ -72,8 +72,11 @@ public extension MiniStore
     /// Indices rather than the `Tab` enum because they are persisted: a name is free to
     /// change, and upstream inserting a tab would silently reinterpret saved values either
     /// way — so this keeps the cheaper representation.
+    ///
+    /// Never contains Settings, whatever is stored. Filtered on read rather than refused on
+    /// write so an install that hid it before that was prevented gets it back on launch.
     static var hiddenTabs: Set<Int> {
-        get { Set(UserDefaults.standard.array(forKey: hiddenTabsKey) as? [Int] ?? []) }
+        get { Set(UserDefaults.standard.array(forKey: hiddenTabsKey) as? [Int] ?? []).subtracting([TabBarController.alwaysVisibleTab]) }
         set {
             UserDefaults.standard.set(Array(newValue).sorted(), forKey: hiddenTabsKey)
             self.postTabLayoutDidChange()
