@@ -1,7 +1,7 @@
 {
   "version": 2,
   "name": "MiniStore",
-  "subtitle": "SideStore with UI upgrades and preloaded sources",
+  "subtitle": "SideStore with the interface sanded down",
   "apps": [
     {
       "bundleIdentifier": "com.SideStore.SideStore",
@@ -23,20 +23,20 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.7.3-20260926.87+16394915",
-              "date": "2026-09-26T07:22:14Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.7.3-20260926.87+16394915\"\n  - revision: \"16394915\"\n  - timestamp: \"Sat Sep 26 07:22:14 2026\"\n\n#### What's Changed:\n- Merge pull request #37 from The-Big-Mini/MiniStoreFork\n- feat(sources): ship no default sources, and delete the retired Mini's Repo\n\n#### Full Changelog: [73ad1a62...16394915](https://github.com/The-Big-Mini/MiniStore/compare/73ad1a62a4abba34789eddf47bdd4d036506c15e...163949153202bbbdec05159d0381b32746479e4a)\n",
+              "version": "0.7.3-20260926.88+fae30b3b",
+              "date": "2026-09-26T19:25:36Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.7.3-20260926.88+fae30b3b\"\n  - revision: \"fae30b3b\"\n  - timestamp: \"Sat Sep 26 19:25:36 2026\"\n\n#### What's Changed:\n- Merge pull request #38 from The-Big-Mini/MiniStoreFork\n- docs(readme): correct every claim that no longer matches the code\n\n#### Full Changelog: [16394915...fae30b3b](https://github.com/The-Big-Mini/MiniStore/compare/163949153202bbbdec05159d0381b32746479e4a...fae30b3bf74b7727bf3c944de10afe52a730fb32)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 29286024,
-              "sha256": "deefdb1075902f22c98c92c6a9d8eba2e5bf79c649c8194605a4298f13edba05"
+              "size": 29286030,
+              "sha256": "0a6f08e36f0d8dc06cf170aee82641d0dcf43b7ad83a46ffdcb7d5c78c5b782d"
             }
           ]
         }
       ],
       "name": "MiniStore",
       "developerName": "The-Big-Mini",
-      "subtitle": "SideStore with UI upgrades and preloaded sources",
-      "localizedDescription": "MiniStore is SideStore with the interface sanded down.\n\nEverything SideStore does, MiniStore does — it sideloads apps onto your device with just an Apple ID, resigns them with your personal development certificate, and refreshes them in the background so the 7-day development period never expires.\n\nWhat it adds:\n\n• OLED dark mode — true black throughout, applied live without a relaunch.\n• Accent colour theming — presets or a custom colour, across every tab and the home screen widget.\n• Reorganised settings — a list of categories instead of one long scroll.\n• Tab customization — hide the tabs you don't use and choose which one opens on launch.\n• What's New — release notes read straight from GitHub.\n• A preloaded catalogue so there is something to browse immediately.\n\nMiniStore is a thin layer on top of SideStore, kept deliberately small so upstream releases can be merged in as they land.",
+      "subtitle": "SideStore with the interface sanded down",
+      "localizedDescription": "MiniStore is SideStore with the interface sanded down.\n\nEverything SideStore does, MiniStore does — it sideloads apps onto your device with just an Apple ID, resigns them with your personal development certificate, and refreshes them in the background so the 7-day development period never expires.\n\nWhat it adds:\n\n• OLED dark mode — true black throughout, applied live without a relaunch.\n• Accent colour theming — presets or a custom colour, across every tab and the home screen widget.\n• Reorganised settings — a list of categories instead of one long scroll.\n• Tab customization — hide the tabs you don't use and choose which one opens on launch.\n• What's New — release notes read straight from GitHub.\n• Its own curated recommended-sources list in Add Source, and no default sources forced on you.\n\nMiniStore is a thin layer on top of SideStore, kept deliberately small so upstream releases can be merged in as they land.",
       "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
       "tintColor": "A405FA",
       "category": "utilities",
@@ -45,16 +45,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.7.3-20260926.87+16394915",
-      "versionDate": "2026-09-26T07:22:14Z",
-      "size": 29286024,
-      "sha256": "deefdb1075902f22c98c92c6a9d8eba2e5bf79c649c8194605a4298f13edba05",
+      "version": "0.7.3-20260926.88+fae30b3b",
+      "versionDate": "2026-09-26T19:25:36Z",
+      "size": 29286030,
+      "sha256": "0a6f08e36f0d8dc06cf170aee82641d0dcf43b7ad83a46ffdcb7d5c78c5b782d",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #37 from The-Big-Mini/MiniStoreFork\n- feat(sources): ship no default sources, and delete the retired Mini's Repo\n\n#### Full Changelog: [73ad1a62...16394915](https://github.com/The-Big-Mini/MiniStore/compare/73ad1a62a4abba34789eddf47bdd4d036506c15e...163949153202bbbdec05159d0381b32746479e4a)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #38 from The-Big-Mini/MiniStoreFork\n- docs(readme): correct every claim that no longer matches the code\n\n#### Full Changelog: [16394915...fae30b3b](https://github.com/The-Big-Mini/MiniStore/compare/163949153202bbbdec05159d0381b32746479e4a...fae30b3bf74b7727bf3c944de10afe52a730fb32)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.7.3-20260926.88+fae30b3b",
+      "title": "MiniStore Nightly — 0.7.3-20260926.88+fae30b3b",
+      "caption": "Merge pull request #38 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-09-26T19:25:36Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.7.3-20260926.87+16394915",
       "title": "MiniStore Nightly — 0.7.3-20260926.87+16394915",
@@ -126,14 +134,6 @@
       "date": "2026-09-11T12:28:30Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.1"
-    },
-    {
-      "identifier": "ministore-nightly-0.7.0-20260910.65+2938d711",
-      "title": "MiniStore Nightly — 0.7.0-20260910.65+2938d711",
-      "caption": "Merge pull request #31 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-10T23:29:54Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
   ]
 }
