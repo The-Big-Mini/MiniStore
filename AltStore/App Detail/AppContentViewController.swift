@@ -59,7 +59,7 @@ final class AppContentViewController: UITableViewController
         
         self.tableView.contentInset.bottom = 20
         MiniStore.adoptDynamicBackground(in: self.tableView)
-
+        
         self.subtitleLabel.text = self.app.subtitle
         let desc = self.app.localizedDescription
         self.descriptionTextView.text = desc

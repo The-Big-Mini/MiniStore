@@ -27,7 +27,7 @@ final class TabBarController: UITabBarController
     private var _viewDidAppear = false
     
     private var sourcesViewController: SourcesViewController!
-
+    
     /// Every tab the storyboard defines, including the ones the user has switched off.
     /// `viewControllers` holds only the visible subset, so `Tab.rawValue` indexes this.
     private(set) var allViewControllers: [UIViewController] = []
@@ -56,7 +56,7 @@ final class TabBarController: UITabBarController
 
         let browseNavigationController = self.allViewControllers[Tab.browse.rawValue] as! UINavigationController
         browseNavigationController.tabBarItem.image = UIImage(systemName: "bag")
-
+        
         let sourcesNavigationController = self.allViewControllers[Tab.sources.rawValue] as! UINavigationController
         self.sourcesViewController = sourcesNavigationController.viewControllers.first as? SourcesViewController
 

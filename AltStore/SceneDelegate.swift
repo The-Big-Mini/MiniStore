@@ -27,7 +27,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate
         DispatchQueue.main.async {
             ThemeManager.shared.applyToVisibleUI()
         }
-
+        
         if let context = connectionOptions.urlContexts.first
         {
             URLHandler.shared.handle(context.url)

@@ -79,17 +79,30 @@ struct TabVisibilityView: View
         .miniStoreBackground()
         .navigationTitle("Tab Bar")
         .navigationBarTitleDisplayMode(.large)
-        .onAppear {
-            // Titles come off the live tab bar, which is in storyboard order; the rows are then
-            // put into the user's order. Reading the bar rather than a hard-coded list means a
-            // tab added upstream shows up here without this screen needing to know about it.
-            let storyboardTabs = MiniStore.tabBarController()?.allViewControllers.enumerated().map { index, viewController in
-                Tab(id: index, title: viewController.tabBarItem?.title ?? "Tab \(index + 1)")
-            } ?? []
-
-            let order = MiniStore.resolvedTabOrder(count: storyboardTabs.count)
-            tabs = order.compactMap { id in storyboardTabs.first { $0.id == id } }
+        .onAppear(perform: reload)
+        .onReceive(NotificationCenter.default.publisher(for: MiniStore.tabLayoutDidChangeNotification)) { _ in
+            reload()
         }
+    }
+
+    /// Re-reads everything this screen shows from the stored preferences.
+    ///
+    /// The `@State` copies are snapshots, and not only this screen writes the preferences: a link
+    /// or notification that opens a hidden tab switches it back on (`TabBarController.select`).
+    /// Without this the switch kept showing that tab as off, and the next toggle wrote the stale
+    /// set back — hiding the tab again.
+    private func reload() {
+        // Titles come off the live tab bar, which is in storyboard order; the rows are then
+        // put into the user's order. Reading the bar rather than a hard-coded list means a
+        // tab added upstream shows up here without this screen needing to know about it.
+        let storyboardTabs = MiniStore.tabBarController()?.allViewControllers.enumerated().map { index, viewController in
+            Tab(id: index, title: viewController.tabBarItem?.title ?? "Tab \(index + 1)")
+        } ?? []
+
+        let order = MiniStore.resolvedTabOrder(count: storyboardTabs.count)
+        tabs = order.compactMap { id in storyboardTabs.first { $0.id == id } }
+        hiddenTabs = MiniStore.hiddenTabs
+        defaultTab = MiniStore.defaultTab
     }
 
     private func visibilityRow(for tab: Tab) -> some View {
