@@ -22,8 +22,9 @@ public enum MiniStoreSharedAccent
         return UserDefaults(suiteName: appGroup)
     }
 
-    /// `nil` when the user has never picked a colour, or when this bundle has no app group —
-    /// callers fall back to `UIColor.defaultAltPrimary`.
+    /// `nil` until the app has launched once — `ThemeManager.init` mirrors the current colour,
+    /// picked or default, on every launch — or when this bundle has no app group. Callers fall
+    /// back to `UIColor.defaultAltPrimary`.
     public static var color: UIColor? {
         get
         {
