@@ -10,6 +10,10 @@ import SwiftUI
 import Minimuxer
 
 private extension Color {
+    // Upstream's names with MiniStore's colours, so a section merged in from upstream compiles
+    // and takes the fork's card as it is. With the name removed, each one merged cleanly and
+    // then failed to build — twice, once on develop.
+    static let settingsRowBackground = Color.miniStoreCard
     static let settingsDivider = Color.miniStoreSeparator
 }
 
@@ -153,13 +157,12 @@ struct UserCustomizationsView: View {
                             }
                         ))
                     }
-                    .background(Color.miniStoreCard)
+                    .background(Color.settingsRowBackground)
                     .cornerRadius(16)
                 }
 
                 // Section 1: ANISETTE
                 VStack(alignment: .leading, spacing: 8) {
-                    // Upstream's section, this fork's header style — as with GENERAL below.
                     Text("ANISETTE")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(Color.white.opacity(0.6))
@@ -218,10 +221,7 @@ struct UserCustomizationsView: View {
                             .frame(minHeight: 50)
                         }
                     }
-                    // Repainted on merge: upstream declares `settingsRowBackground` as a
-                    // `fileprivate extension Color` per view, and this file has none, so the
-                    // merged section did not compile. Matches the other sections here.
-                    .background(Color.miniStoreCard)
+                    .background(Color.settingsRowBackground)
                     .cornerRadius(16)
                 }
 
@@ -247,10 +247,7 @@ struct UserCustomizationsView: View {
                             .frame(height: 50)
                         }
                     }
-                    // `Color.settingsRowBackground` as merged: it is declared `fileprivate` in
-                    // each view that wants it, and this file has none, so the merge did not
-                    // compile. `miniStoreCard` is what the rest of this screen uses anyway.
-                    .background(Color.miniStoreCard)
+                    .background(Color.settingsRowBackground)
                     .cornerRadius(16)
                 }
 
@@ -337,7 +334,7 @@ struct UserCustomizationsView: View {
                         .disabled(appVerificationDisabled)
                         .opacity(appVerificationDisabled ? 0.5 : 1.0)
                     }
-                    .background(Color.miniStoreCard)
+                    .background(Color.settingsRowBackground)
                     .cornerRadius(16)
                 }
 
@@ -388,7 +385,7 @@ struct UserCustomizationsView: View {
                             )
                         )
                     }
-                    .background(Color.miniStoreCard)
+                    .background(Color.settingsRowBackground)
                     .cornerRadius(16)
                 }
 
@@ -433,7 +430,7 @@ struct UserCustomizationsView: View {
                             }
                         }
                     }
-                    .background(Color.miniStoreCard)
+                    .background(Color.settingsRowBackground)
                     .cornerRadius(16)
                 }
 
@@ -486,7 +483,7 @@ struct UserCustomizationsView: View {
                             }
                         }
                     }
-                    .background(Color.miniStoreCard)
+                    .background(Color.settingsRowBackground)
                     .cornerRadius(16)
                 }
             }
@@ -725,7 +722,7 @@ struct UserCustomizationsView: View {
                     .padding(.vertical, 12)
                 }
             }
-            .background(Color.miniStoreCard)
+            .background(Color.settingsRowBackground)
             .cornerRadius(16)
         }
     }
@@ -1061,7 +1058,7 @@ struct UserCustomizationsView: View {
                 .disabled(!customizeEntitlements)
                 .opacity(!customizeEntitlements ? 0.4 : 1.0)
             }
-            .background(Color.miniStoreCard)
+            .background(Color.settingsRowBackground)
             .cornerRadius(16)
         }
     }
