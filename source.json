@@ -23,12 +23,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.7.3-20260921.81+73ad1a62",
-              "date": "2026-09-21T16:50:26Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.7.3-20260921.81+73ad1a62\"\n  - revision: \"73ad1a62\"\n  - timestamp: \"Mon Sep 21 16:50:26 2026\"\n\n#### What's Changed:\n- Merge pull request #36 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix: should use session level delegate instead of task level delegate\n- fixes for markdown rendering in protcol mismatch vs preferred\n- cleanup + remprompt when loaded pairing isnt the one that is preferred + fixes for clearing\n- cleanup + remprompt when loaded pairing isnt the one that is preferred\n- fix: remove inadvertently overwriting preferred protocol\n- move hotswap into experimental for now\n- pairing flow refinements\n- boot manager cleanup to reflect new pairing flow\n- minimuxer wrapper layer cleanup\n- cleanup\n- split into view + vm\n- cleanup\n- cleanup: move name to separate row\n- reaname pairing file names to be of same length\n- fix: centralize pairing managment stuff into pairing file manager\n- cleanup move the supported pairing types into manager\n- cleanup: move deeplink handling into own files\n- implement dual pairing file support\n- move things around - restructure\n- updated minimuxer error handling\n- fix: updated pairing error message to reflect proper solution\n- fix: updated pairing error message to reflect proper solution\n- cleanup old stuff\n- added toggle to enable minimuxer backed hotswap in developer options\n- developer-option: dump profiles as zip\n- fetchUDID is now throwing if cannot fetch\n- cleanup of wrapper to reflect latest Minimuxer API changes\n- sidebackup: updated message to reflect current action items possible\n- cleanup - remove old stuff\n- restore resign option and keep reinstall as explicit submenu item\n- moved pairing managment into own row \"Pairing File Management\"\n- refine wireless pairing pin view with .sheet\n- fixes for wireless pairing (bumped idevice to v0.1.68)\n- fix: sidejit server wasn't detecting server disabled and was showing \"resolving...\"\n- promote \"network discovery\" from experimental features into advanced settings\n- implement zip backup export/import in addition to raw\n- fix cache management to reflect new cache structure\n- removed fallback db creation when appgroup is inaccessible and show error\n- updated package.resolved to latest\n- handle db downgrades gracefully with a clear message to user\n- added auto-launch after finish of install\n- added capability to clear customizations when app is detected as uninstalled or is being uninstalled\n- added install confirmation prompt to all possible screens from which install can be triggered including sources\n- added install confirmation settings in user customization\n- switch to reinstall instead of resign coz we now support reinstall from cache (ie resign) + reinstall from source\n- added option to use a default mode ie file picker vs url vs prompt user\n- added custom filtering for resolveFirstService in bonjour manager\n- maintenance: added another force clearing of headers to prevent 503\n- gate auto retried port caching for rppairing in userdefault\n- stop bg services before we do self-reinstall to prevent hang coz our process is still alive\n- cache the last discovered rppairing port to use as initial seed in next boot\n- handle only few errors related to nodevice, notReachable for retrying + add it to fetchUDID\n- updated submodules to latest\n\n#### Full Changelog: [0.7.3...73ad1a62](https://github.com/The-Big-Mini/MiniStore/compare/82cb203899fa6c4a205192e86e6ce156d7d74f58...73ad1a62a4abba34789eddf47bdd4d036506c15e)\n",
+              "version": "0.7.3-20260926.87+16394915",
+              "date": "2026-09-26T07:22:14Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.7.3-20260926.87+16394915\"\n  - revision: \"16394915\"\n  - timestamp: \"Sat Sep 26 07:22:14 2026\"\n\n#### What's Changed:\n- Merge pull request #37 from The-Big-Mini/MiniStoreFork\n- feat(sources): ship no default sources, and delete the retired Mini's Repo\n\n#### Full Changelog: [73ad1a62...16394915](https://github.com/The-Big-Mini/MiniStore/compare/73ad1a62a4abba34789eddf47bdd4d036506c15e...163949153202bbbdec05159d0381b32746479e4a)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 29284895,
-              "sha256": "9b95c7187f0ddbdaf20d2ea6378fba5f3bde68debab427c9ae41d81a0ebb2d4a"
+              "size": 29286024,
+              "sha256": "deefdb1075902f22c98c92c6a9d8eba2e5bf79c649c8194605a4298f13edba05"
             }
           ]
         }
@@ -45,16 +45,24 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-2.png",
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
-      "version": "0.7.3-20260921.81+73ad1a62",
-      "versionDate": "2026-09-21T16:50:26Z",
-      "size": 29284895,
-      "sha256": "9b95c7187f0ddbdaf20d2ea6378fba5f3bde68debab427c9ae41d81a0ebb2d4a",
+      "version": "0.7.3-20260926.87+16394915",
+      "versionDate": "2026-09-26T07:22:14Z",
+      "size": 29286024,
+      "sha256": "deefdb1075902f22c98c92c6a9d8eba2e5bf79c649c8194605a4298f13edba05",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-      "versionDescription": "#### What's Changed:\n- Merge pull request #36 from The-Big-Mini/MiniStoreFork\n- Merge remote-tracking branch 'upstream/develop' into MiniStoreFork\n- fix: should use session level delegate instead of task level delegate\n- fixes for markdown rendering in protcol mismatch vs preferred\n- cleanup + remprompt when loaded pairing isnt the one that is preferred + fixes for clearing\n- cleanup + remprompt when loaded pairing isnt the one that is preferred\n- fix: remove inadvertently overwriting preferred protocol\n- move hotswap into experimental for now\n- pairing flow refinements\n- boot manager cleanup to reflect new pairing flow\n- minimuxer wrapper layer cleanup\n- cleanup\n- split into view + vm\n- cleanup\n- cleanup: move name to separate row\n- reaname pairing file names to be of same length\n- fix: centralize pairing managment stuff into pairing file manager\n- cleanup move the supported pairing types into manager\n- cleanup: move deeplink handling into own files\n- implement dual pairing file support\n- move things around - restructure\n- updated minimuxer error handling\n- fix: updated pairing error message to reflect proper solution\n- fix: updated pairing error message to reflect proper solution\n- cleanup old stuff\n- added toggle to enable minimuxer backed hotswap in developer options\n- developer-option: dump profiles as zip\n- fetchUDID is now throwing if cannot fetch\n- cleanup of wrapper to reflect latest Minimuxer API changes\n- sidebackup: updated message to reflect current action items possible\n- cleanup - remove old stuff\n- restore resign option and keep reinstall as explicit submenu item\n- moved pairing managment into own row \"Pairing File Management\"\n- refine wireless pairing pin view with .sheet\n- fixes for wireless pairing (bumped idevice to v0.1.68)\n- fix: sidejit server wasn't detecting server disabled and was showing \"resolving...\"\n- promote \"network discovery\" from experimental features into advanced settings\n- implement zip backup export/import in addition to raw\n- fix cache management to reflect new cache structure\n- removed fallback db creation when appgroup is inaccessible and show error\n- updated package.resolved to latest\n- handle db downgrades gracefully with a clear message to user\n- added auto-launch after finish of install\n- added capability to clear customizations when app is detected as uninstalled or is being uninstalled\n- added install confirmation prompt to all possible screens from which install can be triggered including sources\n- added install confirmation settings in user customization\n- switch to reinstall instead of resign coz we now support reinstall from cache (ie resign) + reinstall from source\n- added option to use a default mode ie file picker vs url vs prompt user\n- added custom filtering for resolveFirstService in bonjour manager\n- maintenance: added another force clearing of headers to prevent 503\n- gate auto retried port caching for rppairing in userdefault\n- stop bg services before we do self-reinstall to prevent hang coz our process is still alive\n- cache the last discovered rppairing port to use as initial seed in next boot\n- handle only few errors related to nodevice, notReachable for retrying + add it to fetchUDID\n- updated submodules to latest\n\n#### Full Changelog: [0.7.3...73ad1a62](https://github.com/The-Big-Mini/MiniStore/compare/82cb203899fa6c4a205192e86e6ce156d7d74f58...73ad1a62a4abba34789eddf47bdd4d036506c15e)"
+      "versionDescription": "#### What's Changed:\n- Merge pull request #37 from The-Big-Mini/MiniStoreFork\n- feat(sources): ship no default sources, and delete the retired Mini's Repo\n\n#### Full Changelog: [73ad1a62...16394915](https://github.com/The-Big-Mini/MiniStore/compare/73ad1a62a4abba34789eddf47bdd4d036506c15e...163949153202bbbdec05159d0381b32746479e4a)"
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
+    {
+      "identifier": "ministore-nightly-0.7.3-20260926.87+16394915",
+      "title": "MiniStore Nightly — 0.7.3-20260926.87+16394915",
+      "caption": "Merge pull request #37 from The-Big-Mini/MiniStoreFork",
+      "date": "2026-09-26T07:22:14Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
     {
       "identifier": "ministore-nightly-0.7.3-20260921.81+73ad1a62",
       "title": "MiniStore Nightly — 0.7.3-20260921.81+73ad1a62",
@@ -126,14 +134,6 @@
       "date": "2026-09-10T23:29:54Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-stable-0.7.0",
-      "title": "MiniStore 0.7.0",
-      "caption": "Merge pull request #31 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-10T23:29:11Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.0"
     }
   ]
 }
