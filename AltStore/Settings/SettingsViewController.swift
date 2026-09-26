@@ -89,7 +89,7 @@ extension SettingsViewController
             UserDefaults.standard.isDebugModeEnabled ? self.allCases : self.allCases.filter { $0 != .experimental && $0 != .developer }
         }
     }
-
+    
     private enum AppRefreshRow: Int, CaseIterable
     {
         case backgroundRefresh
@@ -180,7 +180,7 @@ final class SettingsViewController: UITableViewController
     private var activeTeam: ALTTeam?
     private var accountStatus: AccountVerificationRow.Status = .completed
     private var accountVerificationTask: Task<Void, Never>?
-
+    
     private var prototypeHeaderFooterView: SettingsHeaderFooterView!
     
     // Add outlet
@@ -354,14 +354,14 @@ final class SettingsViewController: UITableViewController
             self.tableView.tableFooterView = nil
         }
     }
-
+    
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
-
+        
         // show nav bar if not shown already
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-
+        
         // Undoes the collapse `pushMiniStoreSettingsScreen` applied on the way out, so the
         // large title animates back in as part of the pop rather than appearing after it.
         //
@@ -427,10 +427,10 @@ final class SettingsViewController: UITableViewController
                 controller.navigationItem.scrollEdgeAppearance = appearance
             }
         #endif
-
+            
             // disable bottom tab bar since 'back' button is already available
 //            controller.hidesBottomBarWhenPushed = true
-
+            
             // Was `show(_:sender:)` with the destination forced to `.always`. A large title on
             // the destination is the half of the header artifact that shows up on entry, so
             // these screens now take small titles like every other push out of Settings.
@@ -633,7 +633,7 @@ private extension SettingsViewController
 
         case .account:
             settingsHeaderFooterView.primaryLabel.text = NSLocalizedString("ACCOUNT", comment: "")
-
+            
             settingsHeaderFooterView.button.setTitle(NSLocalizedString("SIGN OUT", comment: ""), for: .normal)
             settingsHeaderFooterView.button.addTarget(self, action: #selector(SettingsViewController.signOut(_:)), for: .primaryActionTriggered)
             settingsHeaderFooterView.button.isHidden = false
@@ -738,7 +738,7 @@ private extension SettingsViewController
         // case .macDirtyCow:
         //     let isHidden = !(UserDefaults.standard.isCowExploitSupported && UserDefaults.standard.isDebugModeEnabled)
         //     return isHidden
-
+            
         default: return true
         }
     }
@@ -1239,7 +1239,7 @@ extension SettingsViewController
         {
             cell.setValue(3, forKey: "style")
         }
-
+        
         // Same rounding fix as above: the debug-only categories drop off the end, so whichever
         // row is last has to become the bottom of the card.
         if let cell = cell as? InsetGroupTableViewCell,
@@ -1261,7 +1261,7 @@ extension SettingsViewController
         }
 
         self.applyMiniStoreIcon(to: cell, at: indexPath)
-
+        
         return cell
     }
     
@@ -1557,15 +1557,15 @@ extension SettingsViewController
         
         case .categories:
             self.showCategory(Category.visibleCases[indexPath.row])
-
+        
         case .diagnostics:
             let row = DiagnosticsRow.allCases[indexPath.row]
             switch row {
             case .developerOptions: self.showDeveloperOptions()
             case .experimentalFeatures: self.showExperimentalFeatures()
             }
-
-
+            
+            
         // case .account, .patreon, .display, .instructions, .macDirtyCow: break
         // No `.display` case in this fork's `Section`; `.account` is handled above.
         case .patreon, .instructions, .betaTesting: break

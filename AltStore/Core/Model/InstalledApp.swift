@@ -295,7 +295,7 @@ public extension InstalledApp
         // `ALTApplication.name` reads the raw Info.plist, which has to stay "SideStore" for
         // iLoader — so My Apps would show the wrong name for this app without the override.
         self.name = (self.bundleIdentifier == StoreApp.altstoreAppID) ? MiniStore.displayName : resignedAppBundle.name
-
+        
         self.resignedBundleIdentifier = resignedAppBundle.bundleIdentifier
         self.version = resignedAppBundle.version
         

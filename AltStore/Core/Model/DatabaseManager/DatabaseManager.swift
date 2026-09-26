@@ -367,12 +367,12 @@ public class DatabaseManager: @unchecked Sendable
                 installedApp.refreshedDate = cachedRefreshedDate
                 installedApp.expirationDate = cachedExpirationDate
             }
-
+            
             MiniStore.prepareDatabase(in: context)
 
             try context.save()
         }
-
+        
         await self.updateFeaturedSortIDs()
     }
     
