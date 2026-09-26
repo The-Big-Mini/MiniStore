@@ -142,7 +142,7 @@ extension SettingsViewController
         // second entry point in Advanced and shift every row index past it.
 
         // Upstream's dynamic list — `cellForRowAt` and `heightForRowAt` remap through
-        // `rawValue`, so the case order must still match the storyboard's nine cells.
+        // `rawValue`, so each case's raw value must still equal its storyboard cell's index.
         static var allCases: [AdvancedSettingsRow] {
             var rows: [AdvancedSettingsRow] = [.sendFeedback, .refreshAttempts, .refreshSideJITServer, .pairingFileManagement]
             if !UserDefaults.standard.useOnDeviceAnisette {

@@ -54,19 +54,19 @@ Builds are attached to this repo's [releases](https://github.com/The-Big-Mini/Mi
 
 ## A note on the name
 
-The app shows as **MiniStore** on your Home Screen and in the My Apps tab, but identifies
-itself as **SideStore** over the wire.
+On your Home Screen the app is labelled **SideStore**. Inside the app — My Apps, its own store
+page, the splash screen — it is **MiniStore**.
 
-This is deliberate and load-bearing. Pairing tools like
-[iLoader](https://github.com/nab138/iloader) and
-[idevice_pair](https://github.com/jkcoxson/idevice_pair) detect sideloaders by matching the
-raw `CFBundleDisplayName` that `installation_proxy` reports against a hardcoded list, with no
-bundle-identifier fallback. Renaming that key would make MiniStore invisible to them. The
-Home Screen name comes from a localized `InfoPlist.strings` override instead, which those
-tools never see.
+The split is deliberate. Pairing tools like [iLoader](https://github.com/nab138/iloader) and
+[idevice_pair](https://github.com/jkcoxson/idevice_pair) find sideloaders by matching the
+display name `installation_proxy` reports against a hardcoded list, with no
+bundle-identifier fallback — and that is the same localized name the Home Screen shows. A
+MiniStore Home Screen label was tried and made the app invisible to them. So the label stays
+SideStore, and the app renames itself everywhere it draws its own name.
 
-For the same reason, the certificate is still registered under a `SideStore - …` machine
-name. Renaming it would orphan every certificate already issued to your Apple ID.
+The signing certificate is likewise still registered under a `SideStore - …` machine name.
+That prefix is how the app finds the certificate it already has; renaming it would orphan
+every certificate already issued to your Apple ID.
 
 ## Requirements
 

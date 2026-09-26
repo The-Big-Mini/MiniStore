@@ -15,12 +15,12 @@ public extension ThemeManager
     /// theme by itself — but only the *next* time it runs. Setting the window's tint is not
     /// enough to cover the rest, for two separate reasons:
     ///
-    /// - Several view controllers own an explicitly assigned `tintColor`: `Main.storyboard`
-    ///   sets a scene-level tint on the tab bar controller's view, and `SourcesViewController`
-    ///   and `FeaturedViewController` assign one to their navigation controller's view. An
-    ///   explicit tint beats an inherited one, so any of these blocks the window's colour from
-    ///   reaching everything beneath it — which is why controls that take their colour from
-    ///   the inherited tint, like the "Refresh All" button, kept the old accent.
+    /// - Some view controllers assign a `tintColor` of their own — `SourcesViewController` to
+    ///   its navigation controller's view, `FeaturedViewController` to its navigation bar. An
+    ///   explicit tint beats an inherited one, so each blocks the window's colour from reaching
+    ///   everything beneath it. (The storyboard-wide `Primary` tint that did the same for the
+    ///   whole tab bar was deleted from `Main.storyboard` and `Authentication.storyboard`; it
+    ///   is why "Refresh All" kept the old accent.)
     /// - Collection and table views colour their cells at dequeue and cache the result, so
     ///   they have to re-run that pass.
     ///
