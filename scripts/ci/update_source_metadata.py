@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -244,15 +245,33 @@ def changelog_body(localized_description):
 
 
 def changelog_caption(localized_description):
-    """First changelog bullet — the closest thing to a one-line summary of a release.
+    """The first changelog bullet that says what changed, as a one-line summary of a release.
+
+    Not simply the first bullet: every change reaches develop as a merged PR, so that one is
+    always `Merge pull request #N from The-Big-Mini/MiniStoreFork`. On 2026-09-26 all ten news
+    items on the feed carried that caption, differing only in N. Merges and chores (the version
+    bump among them) are passed over, and a conventional-commit type is dropped — the item's
+    title already says which release it is.
 
     generate_source_metadata.py indents the "this is release for" bullets by two spaces and
     starts the changelog ones at column zero, so the prefix alone tells them apart.
     """
+    commit_type = r"(?:feat|fix|docs|refactor|perf|test|build|ci|chore|style|revert)(?:\([^)]*\))?!?:\s*"
+
     for line in localized_description.splitlines():
-        if line.startswith("- "):
-            caption = line[2:].strip()
-            return caption if len(caption) <= 120 else caption[:117].rstrip() + "..."
+        if not line.startswith("- "):
+            continue
+
+        caption = line[2:].strip()
+        if not caption or caption.startswith("Merge ") or re.match(r"chore(?:\([^)]*\))?!?:", caption):
+            continue
+
+        description = re.sub("^" + commit_type, "", caption)
+        if description != caption:
+            # Conventional descriptions are lower-case; anything else keeps its own casing.
+            caption = description[:1].upper() + description[1:]
+
+        return caption if len(caption) <= 120 else caption[:117].rstrip() + "..."
 
     return "Tap to see what changed in this release."
 
