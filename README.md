@@ -1,6 +1,6 @@
 # MiniStore
 
-> SideStore with UI upgrades and preloaded sources
+> SideStore with the interface sanded down
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Nightly build](https://github.com/The-Big-Mini/MiniStore/actions/workflows/nightly.yml/badge.svg)](https://github.com/The-Big-Mini/MiniStore/actions/workflows/nightly.yml)
@@ -10,31 +10,33 @@ app store that sideloads apps onto non-jailbroken iOS devices using only an Appl
 resigns apps with your personal development certificate and refreshes them in the background
 so the 7-day development period doesn't expire.
 
-Everything SideStore does, MiniStore does. This fork is a thin layer of interface work and
-preloaded sources on top of upstream, deliberately small so that merging new SideStore
-releases stays routine rather than becoming a rewrite. If you want the reference
-implementation, use SideStore. If you want the same thing with the interface sanded down,
-use this.
+Everything SideStore does, MiniStore does. This fork is a thin layer of interface work on top
+of upstream, deliberately small so that merging new SideStore releases stays routine rather
+than becoming a rewrite. If you want the reference implementation, use SideStore. If you want
+the same thing with the interface sanded down, use this.
 
 ## What MiniStore adds
 
 - **OLED dark mode** — true-black backgrounds throughout, applied live without a relaunch.
-- **Accent colour in the widget** — the colour picker itself is SideStore's. MiniStore carries
-  the chosen colour into the home-screen widget, which runs in its own process and cannot see
-  the app's settings, and re-tints views that had already cached the old colour.
-- **Reorganised settings** — the settings root is a list of categories (Display, Refreshing
-  Apps, Tech Things, Beta Testing, Advanced) rather than one long scroll, with a leading icon
-  on every row.
-- **Tab customization** — hide the tabs you don't use, and choose which one opens on launch.
-- **What's New** — release notes pulled live from this repo's GitHub releases, rendered in
-  the app.
-- **Preloaded source** — [Mini's Repo](https://OofMini.github.io/Minis-Repo/mini.json) is
-  seeded on first launch, so there's a catalogue to browse immediately.
+- **Accent colour in the widget** — the colour picker itself is SideStore's. MiniStore mirrors
+  the chosen colour into the app group so the home-screen widget can tint itself with it — the
+  widget runs in its own process and cannot read the app's settings — and re-tints views that
+  had already cached the old colour.
+- **Reorganised settings** — the settings root is a list of eight categories (User
+  Customizations, Refreshing Apps, Tech Things, Beta Testing, Advanced Settings, What's New,
+  Experimental, Developer) rather than one long scroll, each with a leading icon. The category
+  screens themselves are left plain; tiles on a leaf screen read as another index.
+- **Tab customization** — hide the tabs you don't use, reorder them, and choose which one opens
+  on launch.
+- **App icon picker in settings** — the alternate-icon grid moved into User Customizations.
+- **What's New** — release notes read live from this repo's GitHub releases, rendered in the app.
 - **Its own recommended sources** — the list behind *Add Source* is MiniStore's, not
-  SideStore's. Several repos have been added to it, and some of the ones SideStore ships have
-  been dropped: a few had gone dead, and one was large enough on its own to hold up the whole
-  screen while it loaded. The list lives in [`default-sources.json`](default-sources.json) and
-  is fetched at runtime, so it can be changed without shipping a build.
+  SideStore's: 13 repos, several added and several of SideStore's dropped. The list lives in
+  [`default-sources.json`](default-sources.json) and is fetched at runtime, so it can be changed
+  without shipping a build.
+
+MiniStore ships **no default sources**. Nothing appears in the Sources tab unasked except the
+app's own update feed — the recommended list is a suggestion screen, and you pick from it.
 
 ## Installing
 
@@ -68,30 +70,38 @@ name. Renaming it would orphan every certificate already issued to your Apple ID
 
 ## Requirements
 
-- Xcode 15+
-- iOS 15+
-- Rustup (`brew install rustup`) — for building minimuxer
+- macOS with Xcode. CI builds with Xcode 26.4 on macOS 26; that is the only configuration
+  this fork is verified against.
+- iOS 15+ on the device (`IPHONEOS_DEPLOYMENT_TARGET = 15.0`).
+- Clone with `--recurse-submodules`. Dependencies resolve as local Swift packages — no Rust
+  toolchain and no CocoaPods are needed.
 
 ## Project overview
 
 **MiniStore / AltStore target** — a regular sandboxed iOS app. The `AltStore` target holds
-most of the functionality: downloading, signing, installing and refreshing apps. The
-`SideStore` target holds the minimuxer bridge and the newer SwiftUI layer, including all of
-settings.
+most of the functionality: downloading, signing, installing and refreshing apps, the four tab
+screens, and the settings *root*, which is a static storyboard table. The `SideStore` target
+holds the minimuxer bridge and the newer SwiftUI layer, including the individual settings
+screens.
+
+**`AltWidget`** — the Home Screen and Lock Screen widget extension. **`SideBackup`** — the
+companion backup app, embedded as an IPA inside the main bundle. **`Shared`** — code compiled
+into both the app and the widget.
 
 **[minimuxer](https://github.com/SideStore/minimuxer)** — a lockdown muxer that runs inside
 iOS's sandbox, replicating Apple's `usbmuxd` protocol so the app can talk to the device it is
-running on. Consumed as a git submodule and built via Rust.
+running on. A git submodule, consumed as a local Swift package.
 
-**[AltSign](https://github.com/SideStore/AltSign)** — Apple Developer API client and code
-signing. Also a submodule.
+**[SideSign](https://github.com/SideStore/SideSign)** — Apple Developer API client and code
+signing, also a submodule. It replaced AltSign upstream, and still vends `AltSign` as a module
+name, so that name turns up in source even though the old submodule is gone.
 
 ## Building
 
 ```bash
 make build      # xcodebuild ARCHIVE → SideStore.xcarchive
 make fakesign   # ldid fake-sign with release entitlements
-make ipa        # package the archive → SideStore.ipa
+make ipa        # package the archive → MiniStore.ipa
 ```
 
 `make build` performs an archive, not a plain build. Only the archive path runs the
@@ -104,8 +114,10 @@ overrides belong in `CodeSigning.xcconfig`, which is gitignored.
 
 Bug reports and fixes that aren't MiniStore-specific belong
 [upstream at SideStore](https://github.com/SideStore/SideStore): a fix merged there reaches
-every user of both projects and costs this fork nothing to inherit. See
-[CONTRIBUTING.md](./CONTRIBUTING.md) for build and PR conventions.
+every user of both projects and costs this fork nothing to inherit.
+
+[CONTRIBUTING.md](./CONTRIBUTING.md) is SideStore's, carried unchanged; parts of its setup
+section predate the move to Swift packages and no longer apply here.
 
 ## Licensing
 
@@ -124,6 +136,6 @@ MiniStore is developed with [Claude Code](https://claude.com/claude-code), runni
 as the primary model. It writes the code, it writes the commit messages, and it wrote this
 section. Which is a strange thing to be told by a README.
 
-Nothing ships without being built and run on a real device first, and the diff against
-upstream is kept short enough that a person can read all of it. So if something in here is
-broken, a human merged it.
+Every change is compiled by CI before it merges, and the diff against upstream is kept short
+enough that a person can read all of it. That is the honest extent of the guarantee: CI proves
+it builds, not that it behaves. Device testing is manual and not every change gets it.
