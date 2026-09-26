@@ -51,10 +51,10 @@ private final class WhatsNewViewModel: ObservableObject
         {
             let (data, response) = try await URLSession.shared.data(for: request)
 
-            if let statusCode = (response as? HTTPURLResponse)?.statusCode, !(200..<300).contains(statusCode)
+            if let response = response as? HTTPURLResponse, !(200..<300).contains(response.statusCode)
             {
-                debugLog("[WhatsNew] GitHub returned HTTP \(statusCode) for \(Self.releasesURL)")
-                self.errorMessage = String(format: NSLocalizedString("GitHub returned HTTP %d.", comment: ""), statusCode)
+                debugLog("[WhatsNew] GitHub returned HTTP \(response.statusCode) for \(Self.releasesURL)")
+                self.errorMessage = Self.message(for: response)
                 return
             }
 
@@ -66,6 +66,23 @@ private final class WhatsNewViewModel: ObservableObject
             debugLog("[WhatsNew] Failed to load releases: [\(nsError.domain) \(nsError.code)] \(error.localizedDescription)")
             self.errorMessage = error.localizedDescription
         }
+    }
+
+    /// Unauthenticated, this API allows 60 requests an hour per IP address, and a shared network
+    /// — a school, carrier NAT — runs through that on its own. GitHub signals it with a 403 or 429
+    /// whose `x-ratelimit-remaining` is 0, which is not something the user can fix, so it gets a
+    /// time to come back rather than a bare status code.
+    private static func message(for response: HTTPURLResponse) -> String
+    {
+        if [403, 429].contains(response.statusCode),
+           response.value(forHTTPHeaderField: "x-ratelimit-remaining") == "0",
+           let reset = response.value(forHTTPHeaderField: "x-ratelimit-reset").flatMap(TimeInterval.init)
+        {
+            let minutes = max(1, Int((Date(timeIntervalSince1970: reset).timeIntervalSinceNow / 60).rounded(.up)))
+            return String(format: NSLocalizedString("GitHub's hourly request limit for this network has been reached. Try again in %d min.", comment: ""), minutes)
+        }
+
+        return String(format: NSLocalizedString("GitHub returned HTTP %d.", comment: ""), response.statusCode)
     }
 
     /// Hand-decoded rather than `Codable`: only five of the release payload's ~40 fields are used,
@@ -184,9 +201,13 @@ struct WhatsNewView: View
     /// Release bodies are GitHub Markdown. `Text` renders bold, italics and links on its own once
     /// the string is a `LocalizedStringKey`; headings and bullets it does not, so those are turned
     /// into plain typography here rather than left showing their `#` and `-` markers.
+    ///
+    /// Split on `Character.isNewline`, not `components(separatedBy: .newlines)`: notes edited in
+    /// GitHub's web editor are saved with CRLF, which that splits twice, putting a blank spacer
+    /// under every line. A CRLF is one `Character`, so this splits it once.
     private func releaseBody(_ body: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            ForEach(Array(body.components(separatedBy: .newlines).enumerated()), id: \.offset) { _, rawLine in
+            ForEach(Array(body.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).enumerated()), id: \.offset) { _, rawLine in
                 let line = rawLine.trimmingCharacters(in: .whitespaces)
 
                 if line.isEmpty
