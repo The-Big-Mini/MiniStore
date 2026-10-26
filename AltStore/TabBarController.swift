@@ -32,6 +32,12 @@ final class TabBarController: UITabBarController
     /// `viewControllers` holds only the visible subset, so `Tab.rawValue` indexes this.
     private(set) var allViewControllers: [UIViewController] = []
 
+    /// The tabs the user has switched off. Being outside `viewControllers`, they are also
+    /// outside the view controller tree, so anything walking that tree from the window misses them.
+    var hiddenViewControllers: [UIViewController] {
+        self.allViewControllers.filter { !(self.viewControllers ?? []).contains($0) }
+    }
+
     /// Settings, which can never be hidden: it holds the only control that brings hidden tabs
     /// back, so switching it off left no way into it short of an error toast.
     ///
