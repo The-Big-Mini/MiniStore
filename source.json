@@ -23,12 +23,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.7.5-20261026.122+d6bebc74",
-              "date": "2026-10-26T05:50:56Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.7.5-20261026.122+d6bebc74\"\n  - revision: \"d6bebc74\"\n  - timestamp: \"Mon Oct 26 05:50:56 2026\"\n\n#### What's Changed:\n- Merge pull request #42 from The-Big-Mini/MiniStoreFork\n- chore(version): bump to 0.7.5\n- fix(settings): keep the table reload on category screens\n- perf(app-detail): adopt the dynamic background once per cell\n- fix(theme): keep the card colour's accent read on a thread-safe path\n- fix(tabs): put a lifted row down when the reorder drag is cancelled\n- perf(settings): verify the account on the root Settings screen only\n- fix(theme): coalesce accent changes, and repaint screens outside the window\n- fix(ci): let the artifact-links workflow post its PR comment\n- docs(sources): say SideStore's apps-v2 feed is live, not dead\n- fix(sources): drop the SpotiFLAC entry and the URL-less example\n- fix(feed): keep SideStore's commits and stale nightlies out of News\n\n#### Full Changelog: [610234a3...d6bebc74](https://github.com/The-Big-Mini/MiniStore/compare/610234a3a01339f7dd8fd66af02c88c99544900f...d6bebc74711a1cc7aa89f874eef314a8d1bd29ec)\n",
+              "version": "0.7.5-20261026.123+39acfb1a",
+              "date": "2026-10-26T06:41:05Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.7.5-20261026.123+39acfb1a\"\n  - revision: \"39acfb1a\"\n  - timestamp: \"Mon Oct 26 06:41:05 2026\"\n\n#### What's Changed:\n- Merge pull request #43 from The-Big-Mini/MiniStoreFork\n- feat(feed): let the template pick a release's news caption\n\n#### Full Changelog: [0.7.5...39acfb1a](https://github.com/The-Big-Mini/MiniStore/compare/d6bebc74711a1cc7aa89f874eef314a8d1bd29ec...39acfb1a4408ff272b6fb9f87970f79d25fb01f5)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 29345127,
-              "sha256": "368ac0d44315506952b108bcabc756fb0089338d24546a2a8566bfbec21aebd9"
+              "size": 29345132,
+              "sha256": "df5a8da1739c5e13dc81d3a8f035d312b88d921a508809da29b64cee5eef77c1"
             }
           ]
         }
@@ -56,9 +56,17 @@
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
     {
+      "identifier": "ministore-nightly-0.7.5-20261026.123+39acfb1a",
+      "title": "MiniStore Nightly — 0.7.5-20261026.123+39acfb1a",
+      "caption": "Let the template pick a release's news caption",
+      "date": "2026-10-26T06:41:05Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
+    {
       "identifier": "ministore-stable-0.7.5",
       "title": "MiniStore 0.7.5",
-      "caption": "Keep the table reload on category screens",
+      "caption": "Fixes the -22411 error some Apple IDs got signing in.",
       "date": "2026-10-26T05:51:50Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.5"
@@ -86,14 +94,6 @@
       "date": "2026-09-26T21:52:29Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.4"
-    },
-    {
-      "identifier": "ministore-nightly-0.7.4-20260926.90+309fce4f",
-      "title": "MiniStore Nightly — 0.7.4-20260926.90+309fce4f",
-      "caption": "Prefer a feature, then a fix, for the news caption",
-      "date": "2026-09-26T21:51:26Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     },
     {
       "identifier": "ministore-stable-0.7.3",
