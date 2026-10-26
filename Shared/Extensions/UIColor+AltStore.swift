@@ -62,8 +62,12 @@ public extension UIColor
         UIColor { traits in
             guard traits.userInterfaceStyle == .dark else { return UIColor.white.withAlphaComponent(lightAlpha) }
 
+            // `ThemeManager.primaryColor` is not safe to read off the main thread, and nothing
+            // promises a resolver runs on it; the app-group mirror (UserDefaults) is.
+            let accent = Thread.isMainThread ? UIColor.altPrimary : (MiniStoreSharedAccent.color ?? .defaultAltPrimary)
+
             var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0
-            guard UIColor.altPrimary.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil) else {
+            guard accent.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil) else {
                 return UIColor(white: fallbackWhite, alpha: 1)
             }
 

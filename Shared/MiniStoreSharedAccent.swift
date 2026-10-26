@@ -17,10 +17,12 @@ public enum MiniStoreSharedAccent
 {
     private static let key = "MiniStoreAccentRGBA"
 
-    private static var sharedDefaults: UserDefaults? {
+    /// Made once: the widget reads `color` every time it resolves `altPrimary`. UserDefaults is
+    /// thread-safe, which is what makes `nonisolated(unsafe)` sound here.
+    private nonisolated(unsafe) static let sharedDefaults: UserDefaults? = {
         guard let appGroup = Bundle.main.altstoreAppGroup else { return nil }
         return UserDefaults(suiteName: appGroup)
-    }
+    }()
 
     /// `nil` until the app has launched once — `ThemeManager.init` mirrors the current colour,
     /// picked or default, on every launch — or when this bundle has no app group. Callers fall

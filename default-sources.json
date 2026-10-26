@@ -3,9 +3,6 @@
   "version": 1,
   "default": [
     {
-      "identifier": "io.sidestore.example"
-    },
-    {
       "identifier": "com.stik.stikdebug",
       "sourceURL": "https://stikdebug.xyz/index.json"
     },
@@ -48,10 +45,6 @@
     {
       "identifier": "com.xitrix.itorrent",
       "sourceURL": "https://xitrix.github.io/iTorrent/AltStore.json"
-    },
-    {
-      "identifier": "com.zarzet.spotiflac.source",
-      "sourceURL": "https://raw.githubusercontent.com/spotiflacapp/SpotiFLAC-Mobile/main/apps.json"
     },
     {
       "identifier": "github.com/dvntm0/altstore/raw/refs/heads/main/repo.json",

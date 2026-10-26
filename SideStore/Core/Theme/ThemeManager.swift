@@ -8,7 +8,6 @@
 
 import UIKit
 import Combine
-import WidgetKit
 
 public struct ThemePreset: Identifiable, Equatable {
     public let id: String
@@ -38,17 +37,11 @@ public final class ThemeManager: ObservableObject {
 
     @Published public var primaryColor: UIColor {
         didSet {
+            // A preset tap sets this twice (ThemePickerView assigns it, then its onChange does).
+            guard primaryColor.hexString != oldValue.hexString else { return }
+
             UserDefaults.standard.set(primaryColor.hexString, forKey: Self.userDefaultsKey)
-
-            // The widget runs in its own process and cannot see UserDefaults.standard, so the
-            // colour is mirrored into the app group and the timeline reloaded to pick it up.
-            MiniStoreSharedAccent.color = primaryColor
-            WidgetCenter.shared.reloadAllTimelines()
-
-            NotificationCenter.default.post(name: Self.themeDidChangeNotification, object: primaryColor)
-            DispatchQueue.main.async {
-                self.applyToVisibleUI()
-            }
+            self.scheduleThemeChange()
         }
     }
 

@@ -6,9 +6,34 @@
 //
 
 @preconcurrency import UIKit
+import WidgetKit
 
 public extension ThemeManager
 {
+    /// Everything a colour change reaches beyond `primaryColor` itself, run once the colour
+    /// stops changing. A ColorPicker drag sets it on every tick, and each pass reloads the
+    /// widget's timelines — which WidgetKit budgets — and `reloadData()`s every loaded table
+    /// and collection view. Needs proper testing on a device: the drag itself is unmeasured.
+    func scheduleThemeChange()
+    {
+        Self.pendingThemeChange?.cancel()
+        Self.pendingThemeChange = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+
+            let themeManager = ThemeManager.shared
+            let color = themeManager.primaryColor
+
+            // The widget runs in its own process and cannot see UserDefaults.standard, so the
+            // colour is mirrored into the app group and the timeline reloaded to pick it up.
+            MiniStoreSharedAccent.color = color
+            WidgetCenter.shared.reloadAllTimelines()
+
+            NotificationCenter.default.post(name: ThemeManager.themeDidChangeNotification, object: color)
+            themeManager.applyToVisibleUI()
+        }
+    }
+
     /// Re-applies `primaryColor` to the UIKit screens that are already on-screen.
     ///
     /// `UIColor.altPrimary` resolves to `primaryColor`, so every call site picks up a new
@@ -44,11 +69,22 @@ public extension ThemeManager
                 ThemeManager.retint(rootViewController, with: color)
             }
         }
+
+        // Switched-off tabs are out of the tree walked above, and would come back with the tint
+        // `retint` gave them last time. `assumeIsolated` because `TabBarController` is main-actor
+        // isolated and this is not; both callers are on the main thread.
+        let hidden = MainActor.assumeIsolated { MiniStore.tabBarController()?.hiddenViewControllers ?? [] }
+        for viewController in hidden
+        {
+            ThemeManager.retint(viewController, with: color)
+        }
     }
 }
 
 private extension ThemeManager
 {
+    nonisolated(unsafe) static var pendingThemeChange: Task<Void, Never>?
+
     static func retint(_ viewController: UIViewController, with color: UIColor)
     {
         // `viewIfLoaded` so this never forces a tab the user has not opened to load early —

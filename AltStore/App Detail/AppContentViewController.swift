@@ -25,6 +25,9 @@ extension AppContentViewController
 final class AppContentViewController: UITableViewController
 {
     var app: StoreApp!
+
+    /// Static cells, so each needs `adoptDynamicBackground` once, not on every scroll back in.
+    private var cellsWithDynamicBackground = Set<ObjectIdentifier>()
     
 //     private lazy var screenshotsDataSource = self.makeScreenshotsDataSource()
     private lazy var dateFormatter: DateFormatter = {
@@ -182,7 +185,10 @@ extension AppContentViewController
         cell.tintColor = self.app.tintColor
 
         // Cells and their stack views carry the static asset too, and only exist once dequeued.
-        MiniStore.adoptDynamicBackground(in: cell)
+        if self.cellsWithDynamicBackground.insert(ObjectIdentifier(cell)).inserted
+        {
+            MiniStore.adoptDynamicBackground(in: cell)
+        }
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat

@@ -141,6 +141,37 @@ private extension MiniStore
         {
             self.repaint(window)
         }
+
+        // Views outside a window cached the old colour too, and the walk above never reaches
+        // them: tabs other than the selected one, screens under the top of a navigation stack,
+        // and switched-off tabs.
+        // `assumeIsolated` because `TabBarController` is main-actor isolated and this is not;
+        // its only caller is a settings toggle.
+        let hidden = MainActor.assumeIsolated { self.tabBarController()?.hiddenViewControllers ?? [] }
+        let roots = windows.compactMap { $0.rootViewController } + hidden
+        for root in roots
+        {
+            self.repaintDetached(root)
+        }
+    }
+
+    static func repaintDetached(_ viewController: UIViewController)
+    {
+        // Only the top of a detached hierarchy; `repaint` recurses into the rest.
+        if let view = viewController.viewIfLoaded, view.window == nil, view.superview == nil
+        {
+            self.repaint(view)
+        }
+
+        for child in viewController.children
+        {
+            self.repaintDetached(child)
+        }
+
+        if let presented = viewController.presentedViewController
+        {
+            self.repaintDetached(presented)
+        }
     }
 
     static func repaint(_ view: UIView)
