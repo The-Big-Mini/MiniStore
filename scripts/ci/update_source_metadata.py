@@ -355,6 +355,14 @@ def update_news(data, meta, template, upstream_subjects=frozenset()):
 
     news.insert(0, entry)
 
+    # Hand-picked captions, keyed by item identifier. The commit log says what changed last, not
+    # what mattered most: 0.7.5 was captioned with a one-line review follow-up. Applied to
+    # carried-forward items too, so a caption set after a release lands on the next deploy.
+    for item in news:
+        caption = settings.get("captions", {}).get(item.get("identifier"))
+        if caption:
+            item["caption"] = caption
+
     prerelease_maximum = settings.get("maximumPrereleaseItems")
     if isinstance(prerelease_maximum, int) and prerelease_maximum > 0:
         kept = {}
