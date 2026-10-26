@@ -4,6 +4,13 @@ on:
     workflows: [Pull Request SideStore build]
     types: [completed]
 
+# This repo's default GITHUB_TOKEN is read-only, so posting the comment failed with
+# "Resource not accessible by integration" (403) on every PR.
+permissions:
+  actions: read
+  issues: write
+  pull-requests: write
+
 jobs:
   artifacts-url-comments:
     name: add artifact links to pull request and related issues job
