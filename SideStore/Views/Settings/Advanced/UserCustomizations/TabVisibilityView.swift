@@ -30,6 +30,11 @@ struct TabVisibilityView: View
     @State private var dragTranslation: CGFloat = 0
     @State private var dragStartIndex: Int?
 
+    /// True while a row is lifted. A `@GestureState` because SwiftUI resets it when the gesture is
+    /// cancelled as well as when it ends — `onEnded` runs only for the latter, so a drag cut off by
+    /// a scroll, a call or backgrounding left the row lifted and the new order unsaved.
+    @GestureState private var isReordering = false
+
     /// Pinned rather than intrinsic: translation is converted to a row count, which needs a
     /// height that cannot drift with the label.
     private static let rowHeight: CGFloat = 56
@@ -82,6 +87,9 @@ struct TabVisibilityView: View
         .onAppear(perform: reload)
         .onReceive(NotificationCenter.default.publisher(for: MiniStore.tabLayoutDidChangeNotification)) { _ in
             reload()
+        }
+        .onChange(of: isReordering) { isReordering in
+            if !isReordering { finishReordering() }
         }
     }
 
@@ -145,6 +153,9 @@ struct TabVisibilityView: View
     private func reorderGesture(for tab: Tab) -> some Gesture {
         LongPressGesture(minimumDuration: 0.25)
             .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .local))
+            .updating($isReordering) { value, isReordering, _ in
+                if case .second(true, _?) = value { isReordering = true }
+            }
             .onChanged { value in
                 guard case .second(true, let drag?) = value else { return }
 
@@ -158,19 +169,21 @@ struct TabVisibilityView: View
                 dragTranslation = drag.translation.height
                 moveIfNeeded(tab)
             }
-            .onEnded { _ in
-                if draggingID != nil
-                {
-                    MiniStore.tabOrder = tabs.map(\.id)
-                    debugLog("[MiniStore] Tab order set to \(tabs.map(\.id)).")
-                }
+    }
 
-                withAnimation(.easeOut(duration: 0.15)) {
-                    draggingID = nil
-                    dragTranslation = 0
-                    dragStartIndex = nil
-                }
-            }
+    /// Ended or cancelled alike, via `isReordering`. A cancelled drag keeps the order it got to,
+    /// since that is what the rows are already showing.
+    private func finishReordering() {
+        guard draggingID != nil else { return }
+
+        MiniStore.tabOrder = tabs.map(\.id)
+        debugLog("[MiniStore] Tab order set to \(tabs.map(\.id)).")
+
+        withAnimation(.easeOut(duration: 0.15)) {
+            draggingID = nil
+            dragTranslation = 0
+            dragStartIndex = nil
+        }
     }
 
     /// How far the lifted row is drawn from its *current* slot: the raw translation less the
