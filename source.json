@@ -11,11 +11,11 @@
           "releases": [
             {
               "version": "0.7.5",
-              "date": "2026-10-26T05:51:50Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.7.5\"\n  - revision: \"d6bebc74\"\n  - timestamp: \"Mon Oct 26 05:51:50 2026\"\n\n#### What's Changed:\n- Merge pull request #42 from The-Big-Mini/MiniStoreFork\n- chore(version): bump to 0.7.5\n- fix(settings): keep the table reload on category screens\n- perf(app-detail): adopt the dynamic background once per cell\n- fix(theme): keep the card colour's accent read on a thread-safe path\n- fix(tabs): put a lifted row down when the reorder drag is cancelled\n- perf(settings): verify the account on the root Settings screen only\n- fix(theme): coalesce accent changes, and repaint screens outside the window\n- fix(ci): let the artifact-links workflow post its PR comment\n- docs(sources): say SideStore's apps-v2 feed is live, not dead\n- fix(sources): drop the SpotiFLAC entry and the URL-less example\n- fix(feed): keep SideStore's commits and stale nightlies out of News\n- Merge pull request #41 from The-Big-Mini/MiniStoreFork\n- Merge upstream/develop (3dc127ee..d97ec133) into MiniStoreFork\n- fix: revert the revert for now until actual investigation\n- fix: attempt to fix pairing file issues\n- fix: update SideSign\n\n#### Full Changelog: [0.7.4...0.7.5](https://github.com/The-Big-Mini/MiniStore/compare/309fce4f3c703dc90393e85d04ebd58be4a1c300...d6bebc74711a1cc7aa89f874eef314a8d1bd29ec)\n",
+              "date": "2026-10-26T06:41:44Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.7.5\"\n  - revision: \"d6bebc74\"\n  - timestamp: \"Mon Oct 26 06:41:44 2026\"\n\n#### What's Changed:\n- Merge pull request #42 from The-Big-Mini/MiniStoreFork\n- chore(version): bump to 0.7.5\n- fix(settings): keep the table reload on category screens\n- perf(app-detail): adopt the dynamic background once per cell\n- fix(theme): keep the card colour's accent read on a thread-safe path\n- fix(tabs): put a lifted row down when the reorder drag is cancelled\n- perf(settings): verify the account on the root Settings screen only\n- fix(theme): coalesce accent changes, and repaint screens outside the window\n- fix(ci): let the artifact-links workflow post its PR comment\n- docs(sources): say SideStore's apps-v2 feed is live, not dead\n- fix(sources): drop the SpotiFLAC entry and the URL-less example\n- fix(feed): keep SideStore's commits and stale nightlies out of News\n- Merge pull request #41 from The-Big-Mini/MiniStoreFork\n- Merge upstream/develop (3dc127ee..d97ec133) into MiniStoreFork\n- fix: revert the revert for now until actual investigation\n- fix: attempt to fix pairing file issues\n- fix: update SideSign\n\n#### Full Changelog: [0.7.4...0.7.5](https://github.com/The-Big-Mini/MiniStore/compare/309fce4f3c703dc90393e85d04ebd58be4a1c300...d6bebc74711a1cc7aa89f874eef314a8d1bd29ec)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/0.7.5/MiniStore.ipa",
-              "size": 29343814,
-              "sha256": "21ef1a18bbd15db42d6467d5f79f3903d455e6d54e29290e5d1d3d1349ed337e"
+              "size": 29344722,
+              "sha256": "72a1e731193eac1fb9e114807a5fbee38ed4af58819814a8d5141676832ba7f4"
             }
           ]
         },
@@ -46,9 +46,9 @@
         "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/screenshots/MiniStore-3.png"
       ],
       "version": "0.7.5",
-      "versionDate": "2026-10-26T05:51:50Z",
-      "size": 29343814,
-      "sha256": "21ef1a18bbd15db42d6467d5f79f3903d455e6d54e29290e5d1d3d1349ed337e",
+      "versionDate": "2026-10-26T06:41:44Z",
+      "size": 29344722,
+      "sha256": "72a1e731193eac1fb9e114807a5fbee38ed4af58819814a8d5141676832ba7f4",
       "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/0.7.5/MiniStore.ipa",
       "versionDescription": "#### What's Changed:\n- Merge pull request #42 from The-Big-Mini/MiniStoreFork\n- chore(version): bump to 0.7.5\n- fix(settings): keep the table reload on category screens\n- perf(app-detail): adopt the dynamic background once per cell\n- fix(theme): keep the card colour's accent read on a thread-safe path\n- fix(tabs): put a lifted row down when the reorder drag is cancelled\n- perf(settings): verify the account on the root Settings screen only\n- fix(theme): coalesce accent changes, and repaint screens outside the window\n- fix(ci): let the artifact-links workflow post its PR comment\n- docs(sources): say SideStore's apps-v2 feed is live, not dead\n- fix(sources): drop the SpotiFLAC entry and the URL-less example\n- fix(feed): keep SideStore's commits and stale nightlies out of News\n- Merge pull request #41 from The-Big-Mini/MiniStoreFork\n- Merge upstream/develop (3dc127ee..d97ec133) into MiniStoreFork\n- fix: revert the revert for now until actual investigation\n- fix: attempt to fix pairing file issues\n- fix: update SideSign\n\n#### Full Changelog: [0.7.4...0.7.5](https://github.com/The-Big-Mini/MiniStore/compare/309fce4f3c703dc90393e85d04ebd58be4a1c300...d6bebc74711a1cc7aa89f874eef314a8d1bd29ec)"
     }
@@ -56,20 +56,20 @@
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
     {
+      "identifier": "ministore-stable-0.7.5",
+      "title": "MiniStore 0.7.5",
+      "caption": "Keep the table reload on category screens",
+      "date": "2026-10-26T06:41:44Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.5"
+    },
+    {
       "identifier": "ministore-nightly-0.7.5-20261026.123+39acfb1a",
       "title": "MiniStore Nightly — 0.7.5-20261026.123+39acfb1a",
       "caption": "Let the template pick a release's news caption",
       "date": "2026-10-26T06:41:05Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-stable-0.7.5",
-      "title": "MiniStore 0.7.5",
-      "caption": "Fixes the -22411 error some Apple IDs got signing in.",
-      "date": "2026-10-26T05:51:50Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.5"
     },
     {
       "identifier": "ministore-nightly-0.7.5-20261026.122+d6bebc74",
