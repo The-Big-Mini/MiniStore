@@ -47,6 +47,10 @@
       "sourceURL": "https://xitrix.github.io/iTorrent/AltStore.json"
     },
     {
+      "identifier": "com.zarz.mornye.source",
+      "sourceURL": "https://raw.githubusercontent.com/mornyeapp/Mornye/main/apps.json"
+    },
+    {
       "identifier": "github.com/dvntm0/altstore/raw/refs/heads/main/repo.json",
       "sourceURL": "https://github.com/dvntm0/AltStore/raw/refs/heads/main/repo.json"
     }
