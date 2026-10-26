@@ -23,6 +23,9 @@
   "news": {
     "tintColor": "A405FA",
     "maximumItems": 10,
-    "maximumPrereleaseItems": 3
+    "maximumPrereleaseItems": 3,
+    "captions": {
+      "ministore-stable-0.7.5": "Fixes the -22411 error some Apple IDs got signing in."
+    }
   }
 }
