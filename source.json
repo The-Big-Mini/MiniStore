@@ -23,12 +23,12 @@
           "track": "nightly",
           "releases": [
             {
-              "version": "0.7.4-20261017.111+610234a3",
-              "date": "2026-10-17T02:14:59Z",
-              "localizedDescription": "#### This is release for:\n  - version: \"0.7.4-20261017.111+610234a3\"\n  - revision: \"610234a3\"\n  - timestamp: \"Sat Oct 17 02:14:59 2026\"\n\n#### What's Changed:\n- Merge pull request #41 from The-Big-Mini/MiniStoreFork\n- Merge upstream/develop (3dc127ee..d97ec133) into MiniStoreFork\n- fix: revert the revert for now until actual investigation\n- fix: attempt to fix pairing file issues\n- fix: update SideSign\n\n#### Full Changelog: [0.7.4...610234a3](https://github.com/The-Big-Mini/MiniStore/compare/309fce4f3c703dc90393e85d04ebd58be4a1c300...610234a3a01339f7dd8fd66af02c88c99544900f)\n",
+              "version": "0.7.5-20261026.122+d6bebc74",
+              "date": "2026-10-26T05:50:56Z",
+              "localizedDescription": "#### This is release for:\n  - version: \"0.7.5-20261026.122+d6bebc74\"\n  - revision: \"d6bebc74\"\n  - timestamp: \"Mon Oct 26 05:50:56 2026\"\n\n#### What's Changed:\n- Merge pull request #42 from The-Big-Mini/MiniStoreFork\n- chore(version): bump to 0.7.5\n- fix(settings): keep the table reload on category screens\n- perf(app-detail): adopt the dynamic background once per cell\n- fix(theme): keep the card colour's accent read on a thread-safe path\n- fix(tabs): put a lifted row down when the reorder drag is cancelled\n- perf(settings): verify the account on the root Settings screen only\n- fix(theme): coalesce accent changes, and repaint screens outside the window\n- fix(ci): let the artifact-links workflow post its PR comment\n- docs(sources): say SideStore's apps-v2 feed is live, not dead\n- fix(sources): drop the SpotiFLAC entry and the URL-less example\n- fix(feed): keep SideStore's commits and stale nightlies out of News\n\n#### Full Changelog: [610234a3...d6bebc74](https://github.com/The-Big-Mini/MiniStore/compare/610234a3a01339f7dd8fd66af02c88c99544900f...d6bebc74711a1cc7aa89f874eef314a8d1bd29ec)\n",
               "downloadURL": "https://github.com/The-Big-Mini/MiniStore/releases/download/nightly/MiniStore.ipa",
-              "size": 29342813,
-              "sha256": "dfb2ef8033a36a5b7fea64366aac536a361b02fcc40c05a41b0f372b13c21d89"
+              "size": 29345127,
+              "sha256": "368ac0d44315506952b108bcabc756fb0089338d24546a2a8566bfbec21aebd9"
             }
           ]
         }
@@ -56,9 +56,17 @@
   "iconURL": "https://raw.githubusercontent.com/The-Big-Mini/MiniStore/develop/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/MiniStore.png",
   "news": [
     {
+      "identifier": "ministore-nightly-0.7.5-20261026.122+d6bebc74",
+      "title": "MiniStore Nightly — 0.7.5-20261026.122+d6bebc74",
+      "caption": "Keep the table reload on category screens",
+      "date": "2026-10-26T05:50:56Z",
+      "tintColor": "A405FA",
+      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
+    },
+    {
       "identifier": "ministore-nightly-0.7.4-20261017.111+610234a3",
       "title": "MiniStore Nightly — 0.7.4-20261017.111+610234a3",
-      "caption": "Revert the revert for now until actual investigation",
+      "caption": "Brings in the latest changes from SideStore.",
       "date": "2026-10-17T02:14:59Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
@@ -80,60 +88,12 @@
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     },
     {
-      "identifier": "ministore-nightly-0.7.3-20260926.89+a3b1dfbc",
-      "title": "MiniStore Nightly — 0.7.3-20260926.89+a3b1dfbc",
-      "caption": "Merge pull request #39 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-26T21:21:15Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.7.3-20260926.88+fae30b3b",
-      "title": "MiniStore Nightly — 0.7.3-20260926.88+fae30b3b",
-      "caption": "Merge pull request #38 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-26T19:25:36Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.7.3-20260926.87+16394915",
-      "title": "MiniStore Nightly — 0.7.3-20260926.87+16394915",
-      "caption": "Merge pull request #37 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-26T07:22:14Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.7.3-20260921.81+73ad1a62",
-      "title": "MiniStore Nightly — 0.7.3-20260921.81+73ad1a62",
-      "caption": "Merge pull request #36 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-21T16:50:26Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
       "identifier": "ministore-stable-0.7.3",
       "title": "MiniStore 0.7.3",
-      "caption": "Merge pull request #35 from The-Big-Mini/MiniStoreFork",
+      "caption": "Tap to see what changed in this release.",
       "date": "2026-09-16T18:31:36Z",
       "tintColor": "A405FA",
       "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/0.7.3"
-    },
-    {
-      "identifier": "ministore-nightly-0.7.3-20260916.75+82cb2038",
-      "title": "MiniStore Nightly — 0.7.3-20260916.75+82cb2038",
-      "caption": "Merge pull request #35 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-16T18:19:20Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
-    },
-    {
-      "identifier": "ministore-nightly-0.7.2-20260916.74+2bbc6901",
-      "title": "MiniStore Nightly — 0.7.2-20260916.74+2bbc6901",
-      "caption": "Merge pull request #34 from The-Big-Mini/MiniStoreFork",
-      "date": "2026-09-16T18:07:35Z",
-      "tintColor": "A405FA",
-      "url": "https://github.com/The-Big-Mini/MiniStore/releases/tag/nightly"
     }
   ]
 }
