@@ -13,9 +13,13 @@ public extension MiniStore
     /// Feeds an upgrading install may still have in its database, matched against the
     /// normalized `Source.identifier` (lowercased, scheme stripped).
     ///
-    /// Three kinds, none of which serve anything now:
+    /// Three kinds:
     ///
     /// - SideStore's catalogue, seeded before this fork repointed `Source.altStoreSourceURL`.
+    ///   Unlike the others it is **live** (checked 2026-10-26): it is SideStore's own update
+    ///   feed and lists `com.SideStore.SideStore`, the bundle ID this fork ships under, so left
+    ///   in place it would offer SideStore builds as MiniStore updates. That is also why it is
+    ///   removed even when a user adds it on purpose — on the next launch, without a prompt.
     /// - Earlier MiniStore self-update feeds, which lived at several paths over time.
     /// - **Mini's Repo**, this fork's own catalogue. It was seeded on first launch until
     ///   2026-09-26, when the user retired the repo; the feed is dead, so every install that
@@ -115,7 +119,7 @@ extension Source
             // Guard against the fork ever pointing its own feed at one of these.
             guard source.identifier != Source.altStoreIdentifier else { continue }
 
-            debugLog("[MiniStore] Removing dead source \(source.identifier).")
+            debugLog("[MiniStore] Removing legacy source \(source.identifier).")
             context.delete(source)
         }
     }
