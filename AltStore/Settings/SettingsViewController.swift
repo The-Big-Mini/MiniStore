@@ -511,7 +511,9 @@ private extension SettingsViewController
     func update()
     {
         Task { @MainActor [weak self] in
-            guard let self = self else { return }
+            // Root only: no category shows the account card, and a verification can be a request
+            // to Apple's developer portal — two per category opened (viewDidLoad, viewWillAppear).
+            guard let self = self, self.visibleCategory == nil else { return }
             let currentActiveTeam = try? await AuthManager.shared.getAuthenticatedTeam()
             let appleID = AuthManager.shared.currentAppleID
             verboseLog("[SettingsVC] update() called. activeTeam: \(currentActiveTeam?.identifier ?? "nil"), account: \(appleID ?? "nil")")
