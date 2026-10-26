@@ -22,6 +22,7 @@
 
   "news": {
     "tintColor": "A405FA",
-    "maximumItems": 10
+    "maximumItems": 10,
+    "maximumPrereleaseItems": 3
   }
 }

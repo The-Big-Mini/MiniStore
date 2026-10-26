@@ -244,7 +244,10 @@ def changelog_body(localized_description):
     return localized_description[index:].strip()
 
 
-def changelog_caption(localized_description):
+UPSTREAM_ONLY_CAPTION = "Brings in the latest changes from SideStore."
+
+
+def changelog_caption(localized_description, upstream_subjects=frozenset()):
     """The newest feature in the changelog, else the newest fix, else the newest other change,
     as a one-line summary of a release.
 
@@ -257,6 +260,10 @@ def changelog_caption(localized_description):
 
     generate_source_metadata.py indents the "this is release for" bullets by two spaces and
     starts the changelog ones at column zero, so the prefix alone tells them apart.
+
+    Commits that came in from SideStore (`upstream_subjects`) are passed over too: the 0.7.4
+    nightly was captioned with upstream's "Revert the revert for now until actual
+    investigation". A release made only of upstream changes says so instead.
     """
     def commit_type(types):
         return rf"^(?:{types})(?:\([^)]*\))?!?:\s*"
@@ -266,6 +273,10 @@ def changelog_caption(localized_description):
         if line.startswith("- ") and line[2:].strip()
         and not line[2:].startswith("Merge ") and not re.match(commit_type("chore"), line[2:])
     ]
+    fork_changes = [change for change in changes if change not in upstream_subjects]
+    if changes and not fork_changes:
+        return UPSTREAM_ONLY_CAPTION
+    changes = fork_changes
 
     for preferred in ("feat", "fix", None):
         for caption in changes:
@@ -292,7 +303,7 @@ def release_page_url(download_url):
     return f"{base}/releases/tag/{remainder.split('/', 1)[0]}"
 
 
-def update_news(data, meta, template):
+def update_news(data, meta, template, upstream_subjects=frozenset()):
     """One news item per published release.
 
     NewsItem.init(from:) requires identifier, date, title and caption; everything else is
@@ -305,6 +316,12 @@ def update_news(data, meta, template):
     Items already on the feed are stripped too. The published source.json is carried forward
     between runs rather than regenerated, so dropping the key here only ever cleaned the item
     being written — every older release note kept its banner until this ran over them.
+
+    Each prerelease channel keeps only its newest `maximumPrereleaseItems`: a nightly is
+    published per merged PR, and by 2026-10 eight of the ten items were nightlies and the 0.7.3
+    release was next to fall off. Carried-forward captions from before 9d2c2c49 still read
+    `Merge pull request #N ...`; those get the generic caption, and ones captioned with an
+    upstream commit before that was filtered get the upstream one.
     """
     settings = template.get("news", {})
     channel = meta["release_channel"]
@@ -315,7 +332,7 @@ def update_news(data, meta, template):
         # instead of stacking a duplicate.
         "identifier": f"ministore-{channel}-{version}",
         "title": f"MiniStore {version}" if channel == "stable" else f"MiniStore {channel.title()} — {version}",
-        "caption": changelog_caption(meta["localized_description"]),
+        "caption": changelog_caption(meta["localized_description"], upstream_subjects),
         "date": meta["version_date"],
     }
 
@@ -328,10 +345,28 @@ def update_news(data, meta, template):
         entry["url"] = url
 
     news = [item for item in data.get("news", []) if item.get("identifier") != entry["identifier"]]
+    upstream_captions = {changelog_caption(f"- {subject}") for subject in upstream_subjects}
     for item in news:
         item.pop("appID", None)
+        if item.get("caption", "").startswith("Merge pull request #"):
+            item["caption"] = changelog_caption("")
+        elif item.get("caption") in upstream_captions:
+            item["caption"] = UPSTREAM_ONLY_CAPTION
 
     news.insert(0, entry)
+
+    prerelease_maximum = settings.get("maximumPrereleaseItems")
+    if isinstance(prerelease_maximum, int) and prerelease_maximum > 0:
+        kept = {}
+
+        def keep(item):
+            channel = item.get("identifier", "").split("-")[1:2]
+            if channel in (["stable"], []):
+                return True
+            kept[channel[0]] = kept.get(channel[0], 0) + 1
+            return kept[channel[0]] <= prerelease_maximum
+
+        news = [item for item in news if keep(item)]
 
     maximum = settings.get("maximumItems")
     if isinstance(maximum, int) and maximum > 0:
@@ -362,11 +397,16 @@ def save_source(source_file: Path, data):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python3 update_apps.py <metadata.json> <source.json>")
+        print("Usage: python3 update_apps.py <metadata.json> <source.json> [upstream-subjects.txt]")
         sys.exit(1)
 
     metadata_file = Path(sys.argv[1])
     source_file = Path(sys.argv[2])
+    upstream_file = Path(sys.argv[3]) if len(sys.argv) > 3 else None
+    upstream_subjects = frozenset(
+        upstream_file.read_text(encoding="utf-8").splitlines()
+        if upstream_file and upstream_file.exists() else ()
+    )
 
     meta = load_metadata(metadata_file)
     data = load_source(source_file)
@@ -377,7 +417,7 @@ def main():
     apply_template(data, app, template)
     update_release_channel(app, meta)
     update_storefront(app, meta)  # after the tracks: it mirrors the stable one
-    update_news(data, meta, template)
+    update_news(data, meta, template, upstream_subjects)
 
     save_source(source_file, data)
 

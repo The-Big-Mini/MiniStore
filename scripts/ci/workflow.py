@@ -343,10 +343,27 @@ def generate_metadata(release_tag, short_commit, marketing_version, channel, bun
 
     run(cmd)
 
+def write_upstream_subjects(path, merges=50):
+    """Subjects of the commits recent `upstream/develop` merges brought in, one per line, so
+    update_source_metadata.py can keep SideStore's commit messages out of MiniStore's news.
+    Needs the full history (fetch-depth: 0), which every deploying workflow checks out."""
+    def git(cmd):
+        return subprocess.check_output(f"git {cmd}", shell=True, cwd=ROOT, text=True)
+
+    subjects = set()
+    for line in git(f"log --merges --format='%H %s' -n {merges} HEAD").splitlines():
+        merge, _, subject = line.partition(" ")
+        if "upstream/develop" in subject:
+            out = git(f"log --no-merges --format=%s {merge}^1..{merge}^2")
+            subjects.update(s.strip() for s in out.splitlines() if s.strip())
+    path.write_text("\n".join(sorted(subjects)), encoding="utf-8")
+    print(f"{len(subjects)} upstream commit subjects kept out of news captions", file=sys.stderr)
+
 def deploy(repo, source_json, release_tag, marketing_version, branch='main'):
     repo = (ROOT / repo).resolve()
     source_json_path = repo / source_json
     metadata = 'source-metadata.json'
+    upstream_subjects = ROOT / 'upstream-subjects.txt'
 
     if not repo.exists():
         raise SystemExit(f"{repo} repo missing")
@@ -357,6 +374,8 @@ def deploy(repo, source_json, release_tag, marketing_version, branch='main'):
 
     if not source_json_path.exists():
         raise SystemExit(f"{source_json} missing inside repo")
+
+    write_upstream_subjects(upstream_subjects)
 
     run("git config user.name 'github-actions[bot]'", check=False, cwd=repo)
     run("git config user.email '41898282+github-actions[bot]@users.noreply.github.com'", check=False, cwd=repo)
@@ -378,7 +397,7 @@ def deploy(repo, source_json, release_tag, marketing_version, branch='main'):
             run("git reset --hard FETCH_HEAD", check=False, cwd=repo)
 
         # regenerate after reset so we don't lose changes
-        run(f"python3 {SCRIPTS}/update_source_metadata.py '{ROOT}/{metadata}' '{source_json_path}'", cwd=repo)
+        run(f"python3 {SCRIPTS}/update_source_metadata.py '{ROOT}/{metadata}' '{source_json_path}' '{upstream_subjects}'", cwd=repo)
         run(f"git add --verbose {source_json}", cwd=repo)
         run(f"git commit -m '{release_tag} - deployed {marketing_version}' || true", cwd=repo)
 
